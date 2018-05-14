@@ -2,6 +2,16 @@
 
 ReconPi - Lightweight Recon tool that performs extensive scanning with the latest tools using a Raspberry Pi and Docker.
 
+
+You can also write output in JSON format as used by Aquatone.
+
+`./subfinder -d freelancer.com -o result_aquatone.json -oA -nW -v `
+
+You can specify custom resolvers too.
+
+`./subfinder -d freelancer.com -o result_aquatone.json -oA -nW -v -r 8.8.8.8,1.1.1.1`
+`./subfinder -d freelancer.com -o result_aquatone.json -oA -nW -v -rL resolvers.txt`
+
 ``` bash
 
 [x1m@0x01 ReconPi]$ cat recon.sh 
