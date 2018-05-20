@@ -23,7 +23,7 @@ export URL=$(echo $1)
     exit 1
 fi
 
-## NIEUWE SUBFINDER COMMAND:
+## NEW SUBFINDER COMMAND:
 
 x1m@RPi3:~/subfinder$ docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d yahoo.net > yahoo.net.txt
 
@@ -40,3 +40,7 @@ if [ -e domainsfile.txt ];then
 	echo 'Resolved domains written to resolveddomains.txt'
 	sleep 1
 fi
+
+# subfinder json output naar aquatone-scan / aquatone-gather
+
+# aquatone -> discover -> scan -> gather -> takeover
