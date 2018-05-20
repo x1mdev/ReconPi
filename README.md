@@ -1,5 +1,17 @@
 # Recon Pi
 
+``` bash
+
+__________                          __________.__ 
+\______   \ ____   ____  ____   ____\______   \__|
+ |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
+ |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
+ |____|_  /\___  >\___  >____/|___|  /____|   |__|
+        \/     \/     \/           \/             
+                        v0.1.0 - by @x1m_martijn
+
+```
+
 ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and Docker.
 
 Start using that Raspberry Pi, I know you all have one laying around somewhere ;)
