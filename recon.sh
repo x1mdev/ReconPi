@@ -1,46 +1,68 @@
 #!/bin/bash
+# ReconPi recon.sh by @x1m_martijn
+# https://github.com/x1mdev/ReconPi
 
-#Check if a URL has been set after recon command.
-if [ -d $1 ]; then
-    echo 'Please provide a domain: recon example.com'
-    exit 1
-fi
+echo '
+__________                          __________.__ 
+\______   \ ____   ____  ____   ____\______   \__|
+ |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
+ |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
+ |____|_  /\___  >\___  >____/|___|  /____|   |__|
+        \/     \/     \/           \/             
+                        v0.1.0 - by @x1m_martijn
+                        
+        '
 
-## VANAF HIERONDER SUBLIST3R VERVANGEN DOOR SUBFINDER DOCKER PI
+URL=$1;
+rootdir="$HOME/bugbounty";
+
+function empty {
+    if [[ $(echo $1 | wc -m) == 1 ]]; then
+            echo "Usage: bash recon.sh [domain.tld]";
+            exit;
+    fi
+}
+
+function dirCheck {
+        if [ -d $URL ]; then
+                mkdir -p $rootdir;
+        fi
+}
+
+empty "$URL";
+dirCheck "$rootdir";
+
+# "Borrowed" these 2 functions from yung hax (https://github.com/lilgio)
 
 export URL=$(echo $1)
 
-    #Opens $URL in Sublist3r
-    echo 'Starting Sublist3r on' $URL
-    if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then 
-		python ~/Sublist3r/sublist3r.py -d "$URL" -o domainsfile.txt
-	elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then # Probably needs tweaking
-		python ~/Sublist3r/sublist3r.py -d "$URL" -o domainsfile.txt
-	elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW64_NT" ]; then # Probably needs tweaking
-		python ~/Sublist3r/sublist3r.py -d "$URL" -o domainsfile.txt
-	elif [ "$(uname)" == "Darwin" ]; then # Probably needs tweaking
-		python ~/Sublist3r/sublist3r.py -d "$URL" -o domainsfile.txt
-    exit 1
-fi
+echo "[+] Building new directory";
+mkdir -p $rootdir;
+cd $rootdir;
+mkdir -p $URL;
+echo "[+] Navigating to $URL";
+cd $URL;
+echo "[+] Running Subfinder on $URL..";
+docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d $URL --silent > $URL.txt;
+cat $URL.txt | grep $URL >> domains.txt;
+rm $URL.txt;
+echo "[+] Done, checking which domains resolve..";
 
-## NEW SUBFINDER COMMAND:
-
-x1m@RPi3:~/subfinder$ docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d yahoo.net > yahoo.net.txt
-
-
-## Grep domains uit die txt want extra meuk
-
-if [ -e domainsfile.txt ];then
-	echo 'Sublist3r Scan complete, checking which domains resolve..'
+if [ -e domains.txt ];then
+	echo "[+] Subfinder scan complete, checking which domains resolve..";
 	while read domain; 
 	do if host "$domain" > /dev/null; 
 	then echo $domain; 
 	fi; 
-	done < domainsfile.txt >> resolveddomains.txt
-	echo 'Resolved domains written to resolveddomains.txt'
-	sleep 1
+	done < domains.txt >> resolveddomains.txt
+	echo "[+] Resolved domains written to resolveddomains.txt";
+	sleep 1;
+        # not working yet, something is up
 fi
 
-# subfinder json output naar aquatone-scan / aquatone-gather
-
-# aquatone -> discover -> scan -> gather -> takeover
+echo "[+] Done, using cat resolveddomains.txt now:";
+cat resolveddomains.txt;
+echo "[+] Done, starting masscan."
+docker run -it massdns -r lists/resolvers.txt -t A -o S -w resolveddomains.txt > massdns.txt;
+# This doesn't work yet because I need to find a way to get the resolveddomains.txt from the host to docker.
+echo "[+] Done!"

@@ -1,8 +1,20 @@
 #!/bin/bash
+# ReconPi install.sh by @x1m_martijn
+# https://github.com/x1mdev/ReconPi
 
-sleep 1;
+echo '
+__________                          __________.__ 
+\______   \ ____   ____  ____   ____\______   \__|
+ |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
+ |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
+ |____|_  /\___  >\___  >____/|___|  /____|   |__|
+        \/     \/     \/           \/             
+                        v0.1.0 - by @x1m_martijn
+                        
+        '
 
 echo "[+] This script will install the required tools to run recon.sh, please stand by..";
+echo "[+] It will take a while, go grab a cup of coffee :)";
 sleep 1;
 echo "[+] Getting the basics..";
 sudo apt-get update -y;

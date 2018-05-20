@@ -1,37 +1,82 @@
 # Recon Pi
 
-ReconPi - Lightweight Recon tool that performs extensive scanning with the latest tools using a Raspberry Pi and Docker.
+ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and Docker.
 
+Start using that Raspberry Pi, I know you all have one laying around somewhere ;)
 
-You can also write output in JSON format as used by Aquatone.
+This project is in development, PR's are welcome!
 
-`./subfinder -d freelancer.com -o result_aquatone.json -oA -nW -v `
+## Installation
 
-You can specify custom resolvers too.
+Check the blogpost here for a complete guide: link
 
-`./subfinder -d freelancer.com -o result_aquatone.json -oA -nW -v -r 8.8.8.8,1.1.1.1`
-`./subfinder -d freelancer.com -o result_aquatone.json -oA -nW -v -rL resolvers.txt`
-
-## NIEUWE SUBFINDER COMMAND:
-
-x1m@RPi3:~/subfinder$ docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d yahoo.net > yahoo.net.txt
-
-
-## Grep domains uit die txt want extra meuk
+Connect to your ReconPi with SSH (default creds):
 
 ``` bash
 
-if [ -e domainsfile.txt ];then
-	echo 'Sublist3r Scan complete, checking which domains resolve..'
-	while read domain; 
-	do if host "$domain" > /dev/null; 
-	then echo $domain; 
-	fi; 
-	done < domainsfile.txt >> resolveddomains.txt
-	echo 'Resolved domains written to resolveddomains.txt'
-	sleep 1
+ssh ubuntu@192.168.2.56
 
 ```
-Hoeft niet via grep want --no-pager
 
-Script is working in progress
+Password: `ubuntu`
+
+
+There are 2 options:
+
+**Option 1:**
+
+ - `git clone https://github.com/x1mdev/ReconPi.git`
+ - `cd ReconPi`
+ - `chmod +x install.sh`
+ - `sudo bash install.sh`
+
+**Option 2:**
+
+Download the `install.sh` script:
+
+``` bash
+
+wget public link
+
+```
+
+Give it the right permission:
+
+``` bash
+
+chmod +x install.sh
+
+```
+
+Run the install script:
+
+``` bash
+
+# Don't forget sudo!
+sudo bash install.sh
+
+```
+
+Grab a cup of coffee, this will take a few minutes.
+
+## Usage
+
+Usage:
+
+``` bash
+
+bash recon.sh domain.tld`
+
+```
+
+`recon.sh` creates a directory named equal to the domain.tld provided within it's initial directory "bugbounty". It then starts the recon process.
+
+Tools that are being used at this moment:
+
+ - [Subfinder](https://github.com/Ice3man543/subfinder)
+ - [amass](https://github.com/caffix/amass)
+ - [massdns](https://github.com/blechschmidt/massdns)
+
+More tools will be added in the future, feel free to make a PR!
+
+Current output is in simple `.txt` files. The plan is to develop a little dashboard that will launch as soon as `recon.sh` is done. Docker can probably make this happen :)
