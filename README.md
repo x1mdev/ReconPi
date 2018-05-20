@@ -20,7 +20,7 @@ This project is in development, PR's are welcome!
 
 ## Installation
 
-Check the blogpost here for a complete guide: link
+Check the blogpost here for a complete guide: https://x1m.nl/posts/recon-pi/
 
 Connect to your ReconPi with SSH (default creds):
 
