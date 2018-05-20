@@ -35,7 +35,7 @@ Download the `install.sh` script:
 
 ``` bash
 
-wget public link
+wget https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh
 
 ```
 
