@@ -20,7 +20,6 @@ ssh ubuntu@192.168.2.56
 
 Password: `ubuntu`
 
-
 There are 2 options:
 
 **Option 1:**

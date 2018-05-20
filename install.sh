@@ -81,6 +81,14 @@ sudo apt-get install -y nmap;
 cd ~/tools/;
 echo "[+] Done.";
 
+echo "[+] Installing ReconPi..";
+cd ~;
+git clone https://github.com/x1mdev/ReconPi.git;
+cd ReconPi;
+chmod +x recon.sh;
+cd ~/tools/;
+echo "[+] Done.";
+
 #echo "[+] Installing bash_profile aliases from recon_profile..";
 #git clone https://github.com/nahamsec/recon_profile.git;
 #cd recon_profile;
