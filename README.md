@@ -1,6 +1,6 @@
 # Recon Pi
 
-``` bash
+```
 
 __________                          __________.__ 
 \______   \ ____   ____  ____   ____\______   \__|
@@ -8,25 +8,25 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
-                        v0.1.0 - by @x1m_martijn
+                          v0.1.1 - by @x1m_martijn
 
 ```
 
 ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and Docker.
 
-Start using that Raspberry Pi, I know you all have one laying around somewhere ;)
+Start using that Raspberry Pi -- I know you all have one laying around somewhere ;^)
 
-This project is in development, PR's are welcome!
+This project is in development. Pull Requests are welcome!
 
 ## Installation
 
-Check the blogpost here for a complete guide: https://x1m.nl/posts/recon-pi/
+Check the blogpost here for a complete guide: [ReconPi Guide](https://x1m.nl/posts/recon-pi/)
 
-Connect to your ReconPi with SSH (default creds):
+Connect to your ReconPi with SSH (default credentials):
 
-``` bash
+```
 
-ssh ubuntu@192.168.2.56
+$ ssh ubuntu@192.168.2.56
 
 ```
 
@@ -45,42 +45,42 @@ There are 2 options:
 
 Download the `install.sh` script:
 
-``` bash
+```
 
-wget https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh
+$ wget https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh
 
 ```
 
 Give it the right permission:
 
-``` bash
+```
 
-chmod +x install.sh
+$ chmod +x install.sh
 
 ```
 
 Run the install script:
 
-``` bash
+```
 
 # Don't forget sudo!
-sudo bash install.sh
+$ sudo bash install.sh
 
 ```
 
-Grab a cup of coffee, this will take a few minutes.
+Grab a cup of coffee since this will take a few minutes.
 
 ## Usage
 
 Usage:
 
-``` bash
+```
 
-bash recon.sh domain.tld`
+$ bash recon.sh domain.tld
 
 ```
 
-`recon.sh` creates a directory named equal to the domain.tld provided within it's initial directory "bugbounty". It then starts the recon process.
+`recon.sh` creates a directory named equal to the `domain.tld` provided within it's initial directory `$HOME/bugbounty`. It then starts the recon process.
 
 Tools that are being used at this moment:
 
@@ -88,6 +88,6 @@ Tools that are being used at this moment:
  - [amass](https://github.com/caffix/amass)
  - [massdns](https://github.com/blechschmidt/massdns)
 
-More tools will be added in the future, feel free to make a PR!
+More tools will be added in the future, feel free to make a Pull Request!
 
 Current output is in simple `.txt` files. The plan is to develop a little dashboard that will launch as soon as `recon.sh` is done. Docker can probably make this happen :)
