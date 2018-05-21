@@ -57,6 +57,10 @@ Run the install script:
 $ sudo bash install.sh
 ```
 
+**THE INSTALL SCRIPT WILL ASK TO INSTALL AQUATONE, PLEASE USE DEFAULT OPTION "N" FOR NOW!**
+
+It's under development.
+
 Grab a cup of coffee since this will take a few minutes.
 
 ## Usage
