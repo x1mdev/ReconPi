@@ -29,81 +29,81 @@ __________                          __________.__
 
 displayLogo
 
-echo "[+] This script will install the required tools to run recon.sh, please stand by..";
-echo "[+] It will take a while, go grab a cup of coffee :)";
+echo "$GREEN[+]$RESET This script will install the required tools to run recon.sh, please stand by..";
+echo "$GREEN[+]$RESET It will take a while, go grab a cup of coffee :)";
 sleep 1;
-echo "[+] Getting the basics..";
+echo "$GREEN[+]$RESET Getting the basics..";
 sudo apt-get update -y;
 sudo apt-get upgrade -y;
 
-echo "[+] Installing ReconPi..";
+echo "$GREEN[+]$RESET Installing ReconPi..";
 cd ~;
 git clone https://github.com/x1mdev/ReconPi.git;
 cd ~/tools/;
-echo "[+] Done.";
+echo "$GREEN[+]$RESET Done.";
 
-echo "[+] Installing Git..";
+echo "$GREEN[+]$RESET Installing Git..";
 sudo apt-get install -y git;
-echo "[+] Git installation complete.";
+echo "$GREEN[+]$RESET Git installation complete.";
 
-echo "[+] Installing rename..";
+echo "$GREEN[+]$RESET Installing rename..";
 sudo apt-get install -y rename;
-echo "[+] rename installation complete.";
+echo "$GREEN[+]$RESET rename installation complete.";
 
-echo "[+] Installing snap..";
+echo "$GREEN[+]$RESET Installing snap..";
 sudo apt-get install -y snap;
-echo "[+] snap installation complete.";
+echo "$GREEN[+]$RESET snap installation complete.";
 
-echo "[+] Installing pip..";
+echo "$GREEN[+]$RESET Installing pip..";
 sudo apt-get install -y python3-pip;
 apt-get install -y python-pip;
-echo "[+] pip installation complete.";
+echo "$GREEN[+]$RESET pip installation complete.";
 
-echo "[+] Installing Docker..";
+echo "$GREEN[+]$RESET Installing Docker..";
 sudo apt-get install -y docker;
-echo "[+] Docker installation complete.";
+echo "$GREEN[+]$RESET Docker installation complete.";
 
 
-echo "[+] Creating the tools directory.."
+echo "$GREEN[+]$RESET Creating the tools directory.."
 mkdir -p tools;
 cd ~/tools/;
-echo "[+] Done.";
+echo "$GREEN[+]$RESET Done.";
 
-echo "[+] Installing Subfinder..";
+echo "$GREEN[+]$RESET Installing Subfinder..";
 git clone https://github.com/x1mdev/subfinder.git;
 cd subfinder;
 docker build -t subfinder .;
 cd ~/tools/;
-echo "[+] Done.";
+echo "$GREEN[+]$RESET Done.";
 
-echo "[+] Installing amass..";
+echo "$GREEN[+]$RESET Installing amass..";
 sudo snap install amass;
 cd ~/tools/;
-echo "[+] Done.";
+echo "$GREEN[+]$RESET Done.";
 
-echo "[+] Installing massdns..";
+echo "$GREEN[+]$RESET Installing massdns..";
 git clone https://github.com/blechschmidt/massdns.git;
 cd massdns;
 docker build -t massdns .;
 cd ~/tools/;
-echo "[+] Done.";
+echo "$GREEN[+]$RESET Done.";
 
-echo "[+] Installing teh_s3_bucketeers..";
+echo "$GREEN[+]$RESET Installing teh_s3_bucketeers..";
 git clone https://github.com/tomdev/teh_s3_bucketeers.git;
 cd ~/tools/;
-echo "[+] Done.";
+echo "$GREEN[+]$RESET Done.";
 
-echo "[+] Installing virtual host discovery..";
+echo "$GREEN[+]$RESET Installing virtual host discovery..";
 git clone https://github.com/jobertabma/virtual-host-discovery.git;
 cd ~/tools/;
-echo "[+] Done.";
+echo "$GREEN[+]$RESET Done.";
 
-echo "[+] Installing nmap..";
+echo "$GREEN[+]$RESET Installing nmap..";
 sudo apt-get install -y nmap;
 cd ~/tools/;
-echo "[+] Done.";
+echo "$GREEN[+]$RESET Done.";
 
-echo "[+] Final step..";
+echo "$GREEN[+]$RESET Final step..";
 
 if [ -d tools ];then
 	# keypressed, read 1 char from stdin using dd
@@ -114,7 +114,7 @@ if [ -d tools ];then
 		stty icanon echo
 }
 
-while printf "[+] Install aquatone-docker? This will take some extra time:N\b" # default N to continue script
+while printf "$GREEN[+]$RESET Install aquatone-docker? This will take some extra time:N\b" # default N to continue script
 	  response=$(readkbd)
 	  printf "\r				\n"
 	  case "$response" in
@@ -124,16 +124,16 @@ while printf "[+] Install aquatone-docker? This will take some extra time:N\b" #
 	  esac
 	  [ "$response" = "Y" ]
 do
-                                echo "[+] Installing aquatone-docker..";
+                                echo "$GREEN[+]$RESET Installing aquatone-docker..";
                                 git clone https://github.com/x1mdev/aquatone-docker.git;
                                 cd aquatone-docker;
                                 docker build -t aquatone .;
                                 cd ~/tools/;
                                 done;
-                                echo "[+] Done.";
+                                echo "$GREEN[+]$RESET Done.";
 fi
 
 sleep 1;
 ls -la;
 displayLogo;
-echo "[+] Script finished!";
+echo "$GREEN[+]$RESET Script finished!";
