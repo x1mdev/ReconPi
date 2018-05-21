@@ -1,7 +1,6 @@
 # Recon Pi
 
 ```
-
 __________                          __________.__ 
 \______   \ ____   ____  ____   ____\______   \__|
  |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
@@ -9,7 +8,6 @@ __________                          __________.__
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
                           v0.1.1 - by @x1m_martijn
-
 ```
 
 ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and Docker.
@@ -25,9 +23,7 @@ Check the blogpost here for a complete guide: [ReconPi Guide](https://x1m.nl/pos
 Connect to your ReconPi with SSH (default credentials):
 
 ```
-
 $ ssh ubuntu@192.168.2.56
-
 ```
 
 Password: `ubuntu`
@@ -46,26 +42,20 @@ There are 2 options:
 Download the `install.sh` script:
 
 ```
-
 $ wget https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh
-
 ```
 
 Give it the right permission:
 
 ```
-
 $ chmod +x install.sh
-
 ```
 
 Run the install script:
 
 ```
-
 # Don't forget sudo!
 $ sudo bash install.sh
-
 ```
 
 Grab a cup of coffee since this will take a few minutes.
@@ -75,9 +65,7 @@ Grab a cup of coffee since this will take a few minutes.
 Usage:
 
 ```
-
 $ bash recon.sh domain.tld
-
 ```
 
 `recon.sh` creates a directory named equal to the `domain.tld` provided within it's initial directory `$HOME/bugbounty`. It then starts the recon process.
@@ -85,8 +73,8 @@ $ bash recon.sh domain.tld
 Tools that are being used at this moment:
 
  - [Subfinder](https://github.com/Ice3man543/subfinder)
- - [amass](https://github.com/caffix/amass)
- - [massdns](https://github.com/blechschmidt/massdns)
+ - [Amass](https://github.com/caffix/amass)
+ - [MassDNS](https://github.com/blechschmidt/massdns)
 
 More tools will be added in the future, feel free to make a Pull Request!
 
