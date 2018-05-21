@@ -1,106 +1,113 @@
 #!/bin/bash
-# ReconPi install.sh by @x1m_martijn
-# https://github.com/x1mdev/ReconPi
+: '
+	@name   ReconPi
+	@author Martijn Baalman <@x1m_martijn>
+	@link   https://github.com/x1mdev/ReconPi
+'
 
-echo '
-__________                          __________.__ 
+
+: 'Set the main variables'
+YELLOW="\033[1;33m"
+GREEN="\033[0;32m"
+RESET="\033[0m"
+ROOT="$HOME/bugbounty"
+FILE=`basename "$0"`
+VERSION="0.1.1"
+URL=$1
+
+
+: 'Display the logo'
+displayLogo()
+{
+	echo -e "
+__________                          __________.__
 \______   \ ____   ____  ____   ____\______   \__|
  |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
-        \/     \/     \/           \/             
-                        v0.1.0 - by @x1m_martijn
-                        
-        '
+        \/     \/     \/           \/
+                          v$VERSION - by $YELLOW@x1m_martijn$RESET
+	"
+}
 
-echo "[+] This script will install the required tools to run recon.sh, please stand by..";
-echo "[+] It will take a while, go grab a cup of coffee :)";
-sleep 1;
-echo "[+] Getting the basics..";
-sudo apt-get update -y;
-sudo apt-get upgrade -y;
+: 'Display help text when no arguments are given'
+checkArguments()
+{
+	if [[ -z $1 ]]; then
+		echo -e "Usage: bash $FILE <domain.tld>"
+		exit 1
+	fi
+}
 
-echo "[+] Installing Git..";
-sudo apt-get install -y git;
-echo "[+] Git installation complete.";
+: 'Check if the current domain has a directory, else make it'
+checkDirectory()
+{
+	if [ ! -d $ROOT ]; then
+		echo -e "[+] Making new directory: $GREEN$ROOT$RESET"
+		mkdir "$ROOT"
+		cd $ROOT
+	fi
+	if [ ! -d $ROOT/$1 ]; then
+		echo -e "[+] Making new directory: $GREEN$ROOT/$1$RESET"
+		mkdir -p "$ROOT/$1"
+		cd $ROOT/$1
+	fi
+}
 
-echo "[+] Installing rename..";
-sudo apt-get install -y rename;
-echo "[+] rename installation complete.";
+: 'Run Subfinder on the given domain'
+runSubfinder()
+{
+	echo -e "[+] Running Subfinder on $GREEN$1$RESET..."
+	
+	docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d $1 --silent > $ROOT/$1/$1.txt
 
-echo "[+] Installing snap..";
-sudo apt-get install -y snap;
-echo "[+] snap installation complete.";
+	echo -e "[+] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
+	touch $ROOT/$1/domains.txt
+	cat $ROOT/$1/$1.txt | grep $1 >> $ROOT/$1/domains.txt
+	
+	while read line; do
+		echo "$(dig +short $line | head -n 1)" >> ips.txt
+	done < $ROOT/$1/domains.txt
 
-echo "[+] Installing pip..";
-sudo apt-get install -y python3-pip;
-apt-get install -y python-pip;
-echo "[+] pip installation complete.";
+	rm -rf $ROOT/$1/$1.txt
+}
 
-echo "[+] Installing Docker..";
-sudo apt-get install -y docker;
-echo "[+] Docker installation complete.";
+: 'Run MassDNS on the given domains'
+runMassDNS()
+{
+	echo -e "[+] Starting MassDNS now!"
+
+	#This doesn't work yet because I need to find a way to get the resolved-domains.txt from the host to docker.
+	docker run -it massdns -r lists/resolvers.txt -t A -o S -w resolved-domains.txt > $ROOT/$1/massdns.txt
+
+	echo -e "[+] Done!"
+}
+
+: 'Check if host is online, then print it'
+checkDomainStatus()
+{
+	echo -e "[+] Checking which domains are online..."
+
+	touch $ROOT/$1/resolved-domains.txt
+
+	while IFS='' read -r line || [[ -n "$line" ]]; do
+		if ping -c 1 $(echo $line | tr -d '[:space:]') &> /dev/null
+		then
+			IP=`getent hosts $1 | cut -d' ' -f1 | head -n 1`
+			echo "$(echo $line | tr -d '[:space:]'),$IP"
+		fi
+	done < $ROOT/$1/domains.txt > $ROOT/$1/resolved-domains.txt
+
+	echo -e "[+] Online domains written to $GREEN$ROOT/$1/resolved-domains.txt$RESET!"
+	echo -e "[+] Displaying $GREEN$ROOT/$1/resolved-domains.txt$RESET:"
+	cat $ROOT/$1/resolved-domains.txt
+}
 
 
-echo "[+] Creating the tools directory.."
-mkdir -p tools;
-cd ~/tools/;
-echo "[+] Done.";
-
-echo "[+] Installing Subfinder..";
-git clone https://github.com/x1mdev/subfinder.git;
-cd subfinder;
-docker build -t subfinder .;
-cd ~/tools/;
-echo "[+] Done.";
-
-echo "[+] Installing amass..";
-sudo snap install amass;
-cd ~/tools/;
-echo "[+] Done.";
-
-echo "[+] Installing massdns..";
-git clone https://github.com/blechschmidt/massdns.git;
-cd massdns;
-docker build -t massdns .;
-cd ~/tools/;
-echo "[+] Done.";
-
-echo "[+] Installing teh_s3_bucketeers..";
-git clone https://github.com/tomdev/teh_s3_bucketeers.git;
-cd ~/tools/;
-echo "[+] Done.";
-
-echo "[+] Installing virtual host discovery..";
-git clone https://github.com/jobertabma/virtual-host-discovery.git;
-cd ~/tools/;
-echo "[+] Done.";
-
-echo "[+] Installing nmap..";
-sudo apt-get install -y nmap;
-cd ~/tools/;
-echo "[+] Done.";
-
-echo "[+] Installing ReconPi..";
-cd ~;
-git clone https://github.com/x1mdev/ReconPi.git;
-cd ReconPi;
-chmod +x recon.sh;
-cd ~/tools/;
-echo "[+] Done.";
-
-#echo "[+] Installing bash_profile aliases from recon_profile..";
-#git clone https://github.com/nahamsec/recon_profile.git;
-#cd recon_profile;
-#cat bash_profile >> ~/.bash_profile;
-#source ~/.bash_profile;
-#cd ~/tools/;
-#echo "[+] Done.";
-
-#docker -v;
-#sudo systemctl status docker --no-pager;
-#echo "[+] Docker installation complete.";
-
-sleep 1;
-ls -la;
-echo "[+] Script finished!";
+: 'Execute the main functions'
+displayLogo
+checkArguments    $1
+checkDirectory    $1
+runSubfinder      $1
+checkDomainStatus $1
+runMassDNS        $1
