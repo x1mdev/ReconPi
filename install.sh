@@ -89,18 +89,6 @@ chmod +x recon.sh;
 cd ~/tools/;
 echo "[+] Done.";
 
-#echo "[+] Installing bash_profile aliases from recon_profile..";
-#git clone https://github.com/nahamsec/recon_profile.git;
-#cd recon_profile;
-#cat bash_profile >> ~/.bash_profile;
-#source ~/.bash_profile;
-#cd ~/tools/;
-#echo "[+] Done.";
-
-#docker -v;
-#sudo systemctl status docker --no-pager;
-#echo "[+] Docker installation complete.";
-
 sleep 1;
 ls -la;
 echo "[+] Script finished!";
