@@ -1,6 +1,6 @@
 #!/bin/bash
 : '
-	@name   ReconPi
+	@name   ReconPi recon.sh
 	@author Martijn Baalman <@x1m_martijn>
 	@link   https://github.com/x1mdev/ReconPi
 '

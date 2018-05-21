@@ -34,7 +34,6 @@ There are 2 options:
 
  - `git clone https://github.com/x1mdev/ReconPi.git`
  - `cd ReconPi`
- - `chmod +x install.sh`
  - `sudo bash install.sh`
 
 **Option 2:**

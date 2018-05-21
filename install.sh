@@ -1,17 +1,33 @@
 #!/bin/bash
-# ReconPi install.sh by @x1m_martijn
-# https://github.com/x1mdev/ReconPi
+: '
+	@name   ReconPi install.sh
+	@author Martijn Baalman <@x1m_martijn>
+	@link   https://github.com/x1mdev/ReconPi
+'
 
-echo '
-__________                          __________.__ 
+
+: 'Set the main variables'
+YELLOW="\033[1;33m"
+GREEN="\033[0;32m"
+RESET="\033[0m"
+VERSION="0.1.1"
+
+
+: 'Display the logo'
+displayLogo()
+{
+	echo -e "
+__________                          __________.__
 \______   \ ____   ____  ____   ____\______   \__|
  |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
-        \/     \/     \/           \/             
-                        v0.1.0 - by @x1m_martijn
-                        
-        '
+        \/     \/     \/           \/
+                          v$VERSION - by $YELLOW@x1m_martijn$RESET
+	"
+}
+
+displayLogo
 
 echo "[+] This script will install the required tools to run recon.sh, please stand by..";
 echo "[+] It will take a while, go grab a cup of coffee :)";
@@ -19,6 +35,12 @@ sleep 1;
 echo "[+] Getting the basics..";
 sudo apt-get update -y;
 sudo apt-get upgrade -y;
+
+echo "[+] Installing ReconPi..";
+cd ~;
+git clone https://github.com/x1mdev/ReconPi.git;
+cd ~/tools/;
+echo "[+] Done.";
 
 echo "[+] Installing Git..";
 sudo apt-get install -y git;
@@ -81,14 +103,37 @@ sudo apt-get install -y nmap;
 cd ~/tools/;
 echo "[+] Done.";
 
-echo "[+] Installing ReconPi..";
-cd ~;
-git clone https://github.com/x1mdev/ReconPi.git;
-cd ReconPi;
-chmod +x recon.sh;
-cd ~/tools/;
-echo "[+] Done.";
+echo "[+] Final step.."
+
+if [ -d tools ];then
+	# keypressed, read 1 char from stdin using dd
+	# works using any sh-shell
+	readkbd(){
+		stty -icanon -echo
+		dd bs=1 count=1 2>/dev/null
+		stty icanon echo
+}
+
+while printf "[+] Install aquatone-docker? This will take some extra time:N\b" # default N to continue script
+	  response=$(readkbd)
+	  printf "\r				\n"
+	  case "$response" in
+	  			Y|y) response="Y" ;; 
+				n|N|"") response="N" ;; # default = ENTER
+				*) response="N"	;;
+	  esac
+	  [ "$response" = "Y" ]
+do
+                                echo "[+] Installing aquatone-docker..";
+                                git clone https://github.com/x1mdev/aquatone-docker.git;
+                                cd aquatone-docker;
+                                docker build -t aquatone .;
+                                cd ~/tools/;
+                                done;
+                                echo "[+] Done.";
+fi
 
 sleep 1;
 ls -la;
+displayLogo;
 echo "[+] Script finished!";
