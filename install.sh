@@ -103,7 +103,7 @@ sudo apt-get install -y nmap;
 cd ~/tools/;
 echo "[+] Done.";
 
-echo "[+] Final step.."
+echo "[+] Final step..";
 
 if [ -d tools ];then
 	# keypressed, read 1 char from stdin using dd
