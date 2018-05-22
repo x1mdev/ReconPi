@@ -12,7 +12,7 @@ GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
 FILE=`basename "$0"`
-VERSION="0.1.2"
+VERSION="0.1.3"
 URL=$1
 
 
