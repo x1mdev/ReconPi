@@ -64,7 +64,7 @@ sudo apt-get install -y docker;
 echo "[$GREEN+$RESET] Docker installation complete.";
 
 
-echo "[$GREEN+$RESET] Creating the tools directory.."
+echo "[$GREEN+$RESET] Creating the tools directory..";
 mkdir -p tools;
 cd ~/tools/;
 echo "[$GREEN+$RESET] Done.";

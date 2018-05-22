@@ -34,7 +34,7 @@ __________                          __________.__
 checkArguments()
 {
 	if [[ -z $1 ]]; then
-		echo -e "Usage: bash $FILE <domain.tld>"
+		echo -e "[$GREEN+$RESET] Usage: bash $FILE <domain.tld>"
 		exit 1
 	fi
 }
