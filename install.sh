@@ -29,102 +29,102 @@ __________                          __________.__
 
 displayLogo;
 
-echo "[$GREEN+$RESET] This script will install the required tools to run recon.sh, please stand by..";
-echo "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
+echo -e "[$GREEN+$RESET] This script will install the required tools to run recon.sh, please stand by..";
+echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
 sleep 1;
-echo "[$GREEN+$RESET] Getting the basics..";
+echo -e "[$GREEN+$RESET] Getting the basics..";
 sudo apt-get update -y;
 sudo apt-get upgrade -y;
 
-echo "[$GREEN+$RESET] Installing ReconPi..";
+echo -e "[$GREEN+$RESET] Installing ReconPi..";
 cd ~;
 git clone https://github.com/x1mdev/ReconPi.git;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Installing Git..";
+echo -e "[$GREEN+$RESET] Installing Git..";
 sudo apt-get install -y git;
-echo "[$GREEN+$RESET] Git installation complete.";
+echo -e "[$GREEN+$RESET] Git installation complete.";
 
-echo "[$GREEN+$RESET] Installing rename..";
+echo -e "[$GREEN+$RESET] Installing rename..";
 sudo apt-get install -y rename;
-echo "[$GREEN+$RESET] rename installation complete.";
+echo -e "[$GREEN+$RESET] rename installation complete.";
 
-echo "[$GREEN+$RESET] Installing snap..";
+echo -e "[$GREEN+$RESET] Installing snap..";
 sudo apt-get install -y snap;
-echo "[$GREEN+$RESET] snap installation complete.";
+echo -e "[$GREEN+$RESET] snap installation complete.";
 
-echo "[$GREEN+$RESET] Installing pip..";
+echo -e "[$GREEN+$RESET] Installing pip..";
 sudo apt-get install -y python3-pip;
 apt-get install -y python-pip;
-echo "[$GREEN+$RESET] pip installation complete.";
+echo -e "[$GREEN+$RESET] pip installation complete.";
 
-echo "[$GREEN+$RESET] Installing Docker..";
+echo -e "[$GREEN+$RESET] Installing Docker..";
 sudo apt-get install -y docker;
-echo "[$GREEN+$RESET] Docker installation complete.";
+echo -e "[$GREEN+$RESET] Docker installation complete.";
 
 
-echo "[$GREEN+$RESET] Creating the tools directory..";
+echo -e "[$GREEN+$RESET] Creating the tools directory..";
 mkdir -p tools;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Installing Subfinder..";
+echo -e "[$GREEN+$RESET] Installing Subfinder..";
 git clone https://github.com/x1mdev/subfinder.git;
 cd subfinder;
 docker build -t subfinder .;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Installing amass..";
+echo -e "[$GREEN+$RESET] Installing amass..";
 sudo snap install amass;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Installing massdns..";
+echo -e "[$GREEN+$RESET] Installing massdns..";
 git clone https://github.com/blechschmidt/massdns.git;
 cd massdns;
 docker build -t massdns .;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Installing teh_s3_bucketeers..";
+echo -e "[$GREEN+$RESET] Installing teh_s3_bucketeers..";
 git clone https://github.com/tomdev/teh_s3_bucketeers.git;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Installing virtual host discovery..";
+echo -e "[$GREEN+$RESET] Installing virtual host discovery..";
 git clone https://github.com/jobertabma/virtual-host-discovery.git;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Installing nmap..";
+echo -e "[$GREEN+$RESET] Installing nmap..";
 sudo apt-get install -y nmap;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Installing Nginx..";
+echo -e "[$GREEN+$RESET] Installing Nginx..";
 sudo apt-get install -y nginx;
-echo "[$GREEN+$RESET] Removing default Nginx setup..";
+echo -e "[$GREEN+$RESET] Removing default Nginx setup..";
 sudo rm /etc/nginx/sites-available/default;
 sudo rm /etc/nginx/sites-enabled/default;
-echo "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
+echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
 sudo cp ~/ReconPi/dashboard /etc/sites-available/dashboard;
 sudo ln -s /etc/nginx/sites-available/dashboard /etc/nginx/sites-enabled/dashboard;
 sudo service nginx restart;
 sudo nginx -t;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Installing subdomainDB..";
+echo -e "[$GREEN+$RESET] Installing subdomainDB..";
 cd ~/;
 https://github.com/smiegles/subdomainDB.git;
 cd subdomainDB;
 docker build --rm -t subdomaindb .;
 cd ~/tools/;
-echo "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Done.";
 
-echo "[$GREEN+$RESET] Final step..";
+echo -e "[$GREEN+$RESET] Final step..";
 
 if [ -d tools ];then
 	# keypressed, read 1 char from stdin using dd
@@ -145,16 +145,16 @@ while printf "[$GREEN+$RESET] Install aquatone-docker? This will take some extra
 	  esac
 	  [ "$response" = "Y" ]
 do
-                                echo "[$GREEN+$RESET] Installing aquatone-docker..";
+                                echo -e "[$GREEN+$RESET] Installing aquatone-docker..";
                                 git clone https://github.com/x1mdev/aquatone-docker.git;
                                 cd aquatone-docker;
                                 docker build -t aquatone .;
                                 cd ~/tools/;
                                 done;
-                                echo "[$GREEN+$RESET] Done.";
+                                echo -e "[$GREEN+$RESET] Done.";
 fi
 
 sleep 1;
 ls -la;
 displayLogo;
-echo "[$GREEN+$RESET] Script finished!";
+echo -e "[$GREEN+$RESET] Script finished!";
