@@ -58,7 +58,7 @@ checkDirectory()
 runSubfinder()
 {
 	echo -e "[$GREEN+$RESET] Running Subfinder on $GREEN$1$RESET..."
-	
+	# This output needs to be changed to .json
 	docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d $1 --silent > $ROOT/$1/$1.txt
 
 	echo -e "[$GREEN+$RESET] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
@@ -99,6 +99,18 @@ checkDomainStatus()
 	cat $ROOT/$1/resolved-domains.txt
 }
 
+: 'Run the dashboard + make POST API request with output from subfinder'
+runDashboard()
+{
+	echo -e "[$GREEN+$RESET] Starting up the dashboard.."
+
+	docker run -d -v subdomainDB:/subdomainDB -p 127.0.0.1:4000:4000 subdomaindb
+
+	# TO-DO: create function that makes the API POST request with .json output from subfinder.
+
+	echo -e "[$GREEN+$RESET] Dashboard is up and running! Visit http://pi.ip-address to check the results."
+
+}
 
 : 'Execute the main functions'
 displayLogo
@@ -107,3 +119,4 @@ checkDirectory    $1
 runSubfinder      $1
 checkDomainStatus $1
 runMassDNS        $1
+runDashboard      #$1

@@ -27,7 +27,7 @@ __________                          __________.__
 	"
 }
 
-displayLogo
+displayLogo;
 
 echo "[$GREEN+$RESET] This script will install the required tools to run recon.sh, please stand by..";
 echo "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
@@ -105,7 +105,14 @@ echo "[$GREEN+$RESET] Done.";
 
 echo "[$GREEN+$RESET] Installing Nginx..";
 sudo apt-get install -y nginx;
-# need to add the settings to be set to subdomainDB localhost running web app
+echo "[$GREEN+$RESET] Removing default Nginx setup..";
+sudo rm /etc/nginx/sites-available/default;
+sudo rm /etc/nginx/sites-enabled/default;
+echo "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
+sudo cp ~/ReconPi/dashboard /etc/sites-available/dashboard;
+sudo ln -s /etc/nginx/sites-available/dashboard /etc/nginx/sites-enabled/dashboard;
+sudo service nginx restart;
+sudo nginx -t;
 cd ~/tools/;
 echo "[$GREEN+$RESET] Done.";
 
@@ -114,11 +121,6 @@ cd ~/;
 https://github.com/smiegles/subdomainDB.git;
 cd subdomainDB;
 docker build --rm -t subdomaindb .;
-# or:
-# sudo apt-get install -y ruby-bundler;
-# bundle install;
-# bundle exec rake db:migrate
-# rerun -- rackup --port 4000 config.ru
 cd ~/tools/;
 echo "[$GREEN+$RESET] Done.";
 
