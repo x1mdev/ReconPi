@@ -68,7 +68,7 @@ Grab a cup of coffee since this will take a few minutes.
 Usage:
 
 ```
-$ bash recon.sh <domain.tld>
+$ sudo bash recon.sh <domain.tld>
 ```
 
 `recon.sh` creates a directory named equal to the `domain.tld` provided within it's initial directory `$HOME/bugbounty`. It then starts the recon process.
@@ -78,10 +78,13 @@ Tools that are being used at this moment:
  - [Subfinder](https://github.com/Ice3man543/subfinder)
  - [Amass](https://github.com/caffix/amass)
  - [MassDNS](https://github.com/blechschmidt/massdns)
+ - [subdomainDB](https://github.com/smiegles/subdomainDB)
 
 More tools will be added in the future, feel free to make a Pull Request!
 
-Current output is in simple `.txt` files. The plan is to develop a little dashboard that will launch as soon as `recon.sh` is done. Docker can probably make this happen :)
+Current output is in simple `.txt` files. I have added [subdomainDB](https://github.com/smiegles/subdomainDB) to the arsenal and it will be installed during the `install.sh` process.
+
+It doesn't have any input yet, but the dashboard is accessible within the local network. You can visit it by navigating to `https://192.168.2.PI-IP`
 
 ## Contributors
 
