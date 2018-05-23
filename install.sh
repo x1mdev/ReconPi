@@ -109,7 +109,7 @@ echo -e "[$GREEN+$RESET] Removing default Nginx setup..";
 sudo rm /etc/nginx/sites-available/default;
 sudo rm /etc/nginx/sites-enabled/default;
 echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
-sudo cp ~/ReconPi/dashboard /etc/sites-available/dashboard;
+sudo cp ~/ReconPi/dashboard /etc/sites-available/;
 sudo ln -s /etc/nginx/sites-available/dashboard /etc/nginx/sites-enabled/dashboard;
 sudo service nginx restart;
 sudo nginx -t;
@@ -118,7 +118,7 @@ echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing subdomainDB..";
 cd ~/;
-https://github.com/smiegles/subdomainDB.git;
+git clone https://github.com/smiegles/subdomainDB.git;
 cd subdomainDB;
 docker build --rm -t subdomaindb .;
 cd ~/tools/;
