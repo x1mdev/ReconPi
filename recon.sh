@@ -105,6 +105,7 @@ runDashboard()
 	echo -e "[$GREEN+$RESET] Starting up the dashboard.."
 
 	docker run -d -v subdomainDB:/subdomainDB -p 127.0.0.1:4000:4000 subdomaindb
+	sudo service nginx restart
 
 	# TO-DO: create function that makes the API POST request with .json output from subfinder.
 
