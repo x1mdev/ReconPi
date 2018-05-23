@@ -26,36 +26,12 @@ Connect to your ReconPi with SSH (default credentials):
 $ ssh ubuntu@192.168.2.56
 ```
 
-Password: `ubuntu`
+When you connect to the ReconPi for the first time you will be asked to change the default password (`ubuntu`). After the password change you will have to log in again with the new password.
 
-There are 2 options:
-
-**Option 1:**
+Now we can set up everything, it's quite simple: 
 
  - `git clone https://github.com/x1mdev/ReconPi.git`
- - `cd ReconPi`
- - `sudo bash install.sh`
-
-**Option 2:**
-
-Download the `install.sh` script:
-
-```
-$ wget https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh
-```
-
-Give it the right permission:
-
-```
-$ chmod +x install.sh
-```
-
-Run the install script:
-
-```
-# Don't forget sudo!
-$ sudo bash install.sh
-```
+ - `sudo bash ReconPi/install.sh`
 
 **THE INSTALL SCRIPT WILL ASK TO INSTALL AQUATONE, PLEASE USE DEFAULT OPTION "N" FOR NOW!**
 
@@ -64,8 +40,6 @@ It's under development.
 Grab a cup of coffee since this will take a few minutes.
 
 ## Usage
-
-Usage:
 
 ```
 $ sudo bash recon.sh <domain.tld>
