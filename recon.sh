@@ -12,7 +12,7 @@ GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
 FILE=`basename "$0"`
-VERSION="0.1.3"
+VERSION="0.1.4"
 URL=$1
 
 
@@ -99,18 +99,17 @@ checkDomainStatus()
 	cat $ROOT/$1/resolved-domains.txt
 }
 
-: 'Run the dashboard + make POST API request with output from subfinder'
-runDashboard()
+: 'Convert domains.txt to json (subdomainDB format) + make POST API request with output from subfinder'
+convertDomainsFile()
 {
-	echo -e "[$GREEN+$RESET] Starting up the dashboard.."
+	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
 
-	docker run -d -v subdomainDB:/subdomainDB -p 127.0.0.1:4000:4000 subdomaindb
-	sudo nginx -s reload
-
-	# TO-DO: create function that makes the API POST request with .json output from subfinder.
-
-	echo -e "[$GREEN+$RESET] Dashboard is up and running! Visit http://pi.ip-address to check the results."
-
+	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
+	
+	# >> $ROOT/$1/domains.json is not enough, it needs to be in /ReconPi/domains.json format
+	
+	# Post request to dashboard
+	curl -d "@$ROOT/$1/domains.json" -X POST http://127.0.0.1:4000/api/domain/:domain
 }
 
 : 'Execute the main functions'
@@ -120,4 +119,4 @@ checkDirectory    $1
 runSubfinder      $1
 checkDomainStatus $1
 runMassDNS        $1
-runDashboard      #$1
+#convertDomainsFile #$1

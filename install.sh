@@ -37,9 +37,9 @@ sudo apt-get update -y;
 sudo apt-get upgrade -y;
 
 echo -e "[$GREEN+$RESET] Installing ReconPi..";
-cd ~;
+cd $HOME;
 git clone https://github.com/x1mdev/ReconPi.git;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Git..";
@@ -66,41 +66,41 @@ echo -e "[$GREEN+$RESET] Docker installation complete.";
 
 echo -e "[$GREEN+$RESET] Creating the tools directory..";
 mkdir -p tools;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
 git clone https://github.com/x1mdev/subfinder.git;
 cd subfinder;
 docker build -t subfinder .;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing amass..";
 sudo snap install amass;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing massdns..";
 git clone https://github.com/blechschmidt/massdns.git;
 cd massdns;
 docker build -t massdns .;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing teh_s3_bucketeers..";
 git clone https://github.com/tomdev/teh_s3_bucketeers.git;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing virtual host discovery..";
 git clone https://github.com/jobertabma/virtual-host-discovery.git;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing nmap..";
 sudo apt-get install -y nmap;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Nginx..";
@@ -109,19 +109,23 @@ echo -e "[$GREEN+$RESET] Removing default Nginx setup..";
 sudo rm /etc/nginx/sites-available/default;
 sudo rm /etc/nginx/sites-enabled/default;
 echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
-sudo cp ~/ReconPi/dashboard /etc/nginx/sites-available/;
+sudo cp $HOME/ReconPi/dashboard /etc/nginx/sites-available/;
 sudo ln -s /etc/nginx/sites-available/dashboard /etc/nginx/sites-enabled/dashboard;
 sudo service nginx restart;
 sudo nginx -t;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing subdomainDB..";
-cd ~/;
+cd $HOME/;
 git clone https://github.com/smiegles/subdomainDB.git;
 cd subdomainDB;
 docker build --rm -t subdomaindb .;
-cd ~/tools/;
+echo -e "[$GREEN+$RESET] Starting up the dashboard..";
+docker run -d -v subdomainDB:/subdomainDB -p 127.0.0.1:4000:4000 subdomaindb;
+sudo nginx -s reload;
+echo -e "[$GREEN+$RESET] Dashboard is up and running!";
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Final step..";
@@ -149,7 +153,7 @@ do
                                 git clone https://github.com/x1mdev/aquatone-docker.git;
                                 cd aquatone-docker;
                                 docker build -t aquatone .;
-                                cd ~/tools/;
+                                cd $HOME/tools/;
                                 done;
                                 echo -e "[$GREEN+$RESET] Done.";
 fi
