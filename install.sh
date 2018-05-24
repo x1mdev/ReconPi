@@ -10,7 +10,7 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-VERSION="0.1.3"
+VERSION="0.1.4"
 
 
 : 'Display the logo'
@@ -34,17 +34,12 @@ echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
 sleep 1;
 echo -e "[$GREEN+$RESET] Getting the basics..";
 sudo apt-get update -y;
-sudo apt-get upgrade -y;
+#sudo apt-get upgrade -y; #turned off for dev, maybe not needed at all. Would improve the speed of the script
 
-echo -e "[$GREEN+$RESET] Installing ReconPi..";
+echo -e "[$GREEN+$RESET] Creating the tools directory..";
 cd $HOME;
-git clone https://github.com/x1mdev/ReconPi.git;
-cd $HOME/tools/;
+mkdir -p tools;
 echo -e "[$GREEN+$RESET] Done.";
-
-echo -e "[$GREEN+$RESET] Installing Git..";
-sudo apt-get install -y git;
-echo -e "[$GREEN+$RESET] Git installation complete.";
 
 echo -e "[$GREEN+$RESET] Installing rename..";
 sudo apt-get install -y rename;
@@ -54,20 +49,9 @@ echo -e "[$GREEN+$RESET] Installing snap..";
 sudo apt-get install -y snap;
 echo -e "[$GREEN+$RESET] snap installation complete.";
 
-echo -e "[$GREEN+$RESET] Installing pip..";
-sudo apt-get install -y python3-pip;
-apt-get install -y python-pip;
-echo -e "[$GREEN+$RESET] pip installation complete.";
-
 echo -e "[$GREEN+$RESET] Installing Docker..";
 sudo apt-get install -y docker.io;
 echo -e "[$GREEN+$RESET] Docker installation complete.";
-
-
-echo -e "[$GREEN+$RESET] Creating the tools directory..";
-mkdir -p tools;
-cd $HOME/tools/;
-echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
 git clone https://github.com/x1mdev/subfinder.git;
@@ -139,7 +123,7 @@ if [ -d tools ];then
 		stty icanon echo
 }
 
-while printf "[$GREEN+$RESET] Install aquatone-docker? This will take some extra time:N\b" # default N to continue script
+while printf "[$GREEN+$RESET] Install aquatone-docker? This will take some extra time [Default NO]:N\b" # default N to continue script
 	  response=$(readkbd)
 	  printf "\r				\n"
 	  case "$response" in
