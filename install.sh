@@ -60,6 +60,14 @@ docker build -t subfinder .;
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
+echo -e "[$GREEN+$RESET] Installing Subfinder..";
+sudo apt-get install -y golang-go;
+set gopath
+go get github.com/Ice3man543/subfinder;
+
+cd $HOME/tools/;
+echo -e "[$GREEN+$RESET] Done.";
+
 echo -e "[$GREEN+$RESET] Installing amass..";
 sudo snap install amass;
 cd $HOME/tools/;

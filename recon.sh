@@ -59,7 +59,7 @@ runSubfinder()
 {
 	echo -e "[$GREEN+$RESET] Running Subfinder on $GREEN$1$RESET..."
 	# This output needs to be changed to .json
-	docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d $1 --silent > $ROOT/$1/$1.txt
+	docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d $1 -nW --silent > $ROOT/$1/$1.txt
 
 	echo -e "[$GREEN+$RESET] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
 	touch $ROOT/$1/domains.txt
@@ -104,12 +104,15 @@ convertDomainsFile()
 {
 	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
 
-	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
+	#cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
+	#echo -e "{\n\"domains\":"; jq -Rs 'split("\n")' < domains.txt; echo -e "}"
+	echo -e "{\n\"domains\":"; jq -MRs 'split("\n")' < domains.txt | sed -z 's/,\n  ""//g'; echo -e "}"
 	
 	# >> $ROOT/$1/domains.json is not enough, it needs to be in /ReconPi/domains.json format
 	
 	# Post request to dashboard
-	curl -d "@$ROOT/$1/domains.json" -X POST http://127.0.0.1:4000/api/domain/:domain
+	curl -X POST -H "Content-Type: application/json"-H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain
+
 }
 
 : 'Execute the main functions'
