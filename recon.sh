@@ -122,4 +122,4 @@ checkDirectory    $1
 runSubfinder      $1
 checkDomainStatus $1
 runMassDNS        $1
-#convertDomainsFile #$1
+convertDomainsFile

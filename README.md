@@ -42,7 +42,7 @@ Grab a cup of coffee since this will take a few minutes.
 ## Usage
 
 ```
-$ sudo bash recon.sh <domain.tld>
+$ sudo bash ReconPi/recon.sh <domain.tld>
 ```
 
 `recon.sh` creates a directory named equal to the `domain.tld` provided within it's initial directory `$HOME/bugbounty`. It then starts the recon process.
