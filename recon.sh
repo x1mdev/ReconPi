@@ -111,7 +111,7 @@ convertDomainsFile()
 	# >> $ROOT/$1/domains.json is not enough, it needs to be in /ReconPi/domains.json format
 	
 	# Post request to dashboard
-	curl -X POST -H "Content-Type: application/json"-H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain
+	curl -X POST -H "Content-Type: application/json" -H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain
 
 }
 
