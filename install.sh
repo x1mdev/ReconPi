@@ -43,21 +43,23 @@ mkdir -p go;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing and setting up Go..";
-sudo apt-get install -y golang-go;
+cd $HOME;
+wget https://dl.google.com/go/go1.10.3.linux-armv6l.tar.gz; # takes a long time but does get a LOT of good dependencies
+sudo tar -xvf go1.10.3.linux-armv6l.tar.gz;
+sudo chmod 777 /home/ubuntu/*;
 # set export crap right
-echo -e 'export GOPATH=$HOME/go/bin' >> ~/.profile;
+echo -e 'export GOPATH=$HOME/tools' >> ~/.profile;
 echo -e 'export GOROOT=$HOME/go' >> ~/.profile;
-echo -e 'export GOBIN=$GOPATH/bin' >> ~/.profile;
-echo -e 'export PATH=$PATH:$GOPATH' >> ~/.profile;
-echo -e 'export PATH=$PATH:$GOROOT/bin' >> ~/.profile;
+#echo -e 'export PATH=$PATH:$GOPATH' >> ~/.profile;
+#echo -e 'export PATH=$PATH:$GOROOT/bin' >> ~/.profile;
 source ~/.profile;
 go version;
 go env;
 # extra dependencies, beautify later
-sudo apt-get install -y ruby;
-sudo apt-get install -y python-minimal;
-sudo apt-get install -y npm;
-sudo apt-get install -y nodejs-legacy;
+#sudo apt-get install -y ruby;
+#sudo apt-get install -y python-minimal;
+#sudo apt-get install -y npm;
+#sudo apt-get install -y nodejs-legacy;
 
 echo -e "[$GREEN+$RESET] Installing rename..";
 sudo apt-get install -y rename;
@@ -72,7 +74,7 @@ sudo apt-get install -y docker.io;
 echo -e "[$GREEN+$RESET] Docker installation complete.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
-go get github.com/subfinder/subfinder
+go get github.com/subfinder/subfinder;
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
