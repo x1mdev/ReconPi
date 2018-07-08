@@ -32,12 +32,15 @@ Now we can set up everything, it's quite simple:
 
  - `git clone https://github.com/x1mdev/ReconPi.git`
  - `sudo bash ReconPi/install.sh`
+ - The script gives a `logout` command at the end of `install.sh`, please login again to continue with `install2.sh`.
+ - `sudo bash RecoonPi/install2.sh`
 
-**THE INSTALL SCRIPT WILL ASK TO INSTALL AQUATONE, PLEASE USE DEFAULT OPTION "N" FOR NOW!**
+The `install.sh` script now consists of 2 parts, I'll try and think of a solution
+
 
 It's under development.
 
-Grab a cup of coffee since this will take a few minutes.
+Grab a cup of coffee since this will take a while.
 
 ## Usage
 
@@ -49,10 +52,11 @@ $ sudo bash ReconPi/recon.sh <domain.tld>
 
 Tools that are being used at this moment:
 
- - [Subfinder](https://github.com/Ice3man543/subfinder)
+ - [Subfinder](https://github.com/Ice3man543/subfinder) (now running on native Go)
  - [Amass](https://github.com/caffix/amass)
  - [MassDNS](https://github.com/blechschmidt/massdns)
  - [subdomainDB](https://github.com/smiegles/subdomainDB)
+ - [Aquatone](https://github.com/michenriksen/aquatone)
 
 More tools will be added in the future, feel free to make a Pull Request!
 

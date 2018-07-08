@@ -1,0 +1,62 @@
+sudo apt-get install -y nginx;
+echo -e "[$GREEN+$RESET] Removing default Nginx setup..";
+sudo rm /etc/nginx/sites-available/default;
+sudo rm /etc/nginx/sites-enabled/default;
+echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
+sudo cp $HOME/ReconPi/dashboard /etc/nginx/sites-available/;
+sudo ln -s /etc/nginx/sites-available/dashboard /etc/nginx/sites-enabled/dashboard;
+sudo service nginx restart;
+sudo nginx -t;
+cd $HOME/tools/;
+echo -e "[$GREEN+$RESET] Done.";
+
+echo -e "[$GREEN+$RESET] Installing subdomainDB..";
+cd $HOME/;
+git clone https://github.com/smiegles/subdomainDB.git;
+cd subdomainDB;
+docker build --rm -t subdomaindb .;
+echo -e "[$GREEN+$RESET] Starting up the dashboard..";
+docker run -d -v subdomainDB:/subdomainDB -p 127.0.0.1:4000:4000 subdomaindb;
+sudo nginx -s reload;
+echo -e "[$GREEN+$RESET] Dashboard is up and running!";
+cd $HOME/tools/;
+echo -e "[$GREEN+$RESET] Done.";
+
+
+# DONE
+echo -e "[$GREEN+$RESET] Final step..";
+
+## THIS STEP CAN BE REPLACED IF NATIVE RUBY WORKS FOR AQUATONE
+
+if [ -d tools ];then
+	# keypressed, read 1 char from stdin using dd
+	# works using any sh-shell
+	readkbd(){
+		stty -icanon -echo
+		dd bs=1 count=1 2>/dev/null
+		stty icanon echo
+}
+
+while printf "[$GREEN+$RESET] Install aquatone-docker? This will take some extra time [Default NO]:N\b" # default N to continue script
+	  response=$(readkbd)
+	  printf "\r				\n"
+	  case "$response" in
+	  			Y|y) response="Y" ;; 
+				n|N|"") response="N" ;; # default = ENTER
+				*) response="N"	;;
+	  esac
+	  [ "$response" = "Y" ]
+do
+                                echo -e "[$GREEN+$RESET] Installing aquatone-docker..";
+                                git clone https://github.com/x1mdev/aquatone-docker.git;
+                                cd aquatone-docker;
+                                docker build -t aquatone .;
+                                cd $HOME/tools/;
+                                done;
+                                echo -e "[$GREEN+$RESET] Done.";
+fi
+
+sleep 1;
+ls -la;
+displayLogo;
+echo -e "[$GREEN+$RESET] Script finished!";

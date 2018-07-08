@@ -59,7 +59,7 @@ runSubfinder()
 {
 	echo -e "[$GREEN+$RESET] Running Subfinder on $GREEN$1$RESET..."
 	# This output needs to be changed to .json
-	docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d $1 -nW --silent > $ROOT/$1/$1.txt
+	./go/bin/subfinder -d $1 -nW --silent > $ROOT/$1/$1.txt
 
 	echo -e "[$GREEN+$RESET] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
 	touch $ROOT/$1/domains.txt
@@ -67,6 +67,8 @@ runSubfinder()
 
 	rm -rf $ROOT/$1/$1.txt
 }
+
+# Get subfinder output that is in the Aquatone format to run it in Aquatone
 
 : 'Run MassDNS on the given domains'
 runMassDNS()
@@ -98,6 +100,8 @@ checkDomainStatus()
 	echo -e "[$GREEN+$RESET] Displaying $GREEN$ROOT/$1/resolved-domains.txt$RESET:"
 	cat $ROOT/$1/resolved-domains.txt
 }
+
+# THIS NEEDS TO BE CHANGED WHEN THE NEW DASHBOARD IS FINISHED
 
 : 'Convert domains.txt to json (subdomainDB format) + make POST API request with output from subfinder'
 convertDomainsFile()
