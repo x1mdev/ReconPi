@@ -36,20 +36,19 @@ echo -e "[$GREEN+$RESET] Getting the basics..";
 sudo apt-get update -y;
 #sudo apt-get upgrade -y; #turned off for dev, maybe not needed at all. Would improve the speed of the script
 
-echo -e "[$GREEN+$RESET] Creating directories..";
-cd $HOME;
-mkdir -p tools;
-mkdir -p go;
-echo -e "[$GREEN+$RESET] Done.";
-
 echo -e "[$GREEN+$RESET] Installing and setting up Go..";
 cd $HOME;
 wget https://dl.google.com/go/go1.10.3.linux-armv6l.tar.gz; # takes a long time but does get a LOT of good dependencies
 sudo tar -xvf go1.10.3.linux-armv6l.tar.gz;
-sudo chmod 777 /home/ubuntu/*;
+echo -e "[$GREEN+$RESET] Creating directories..";
+mv go go1.10;
+mkdir -p tools;
+mkdir -p go;
+echo -e "[$GREEN+$RESET] Done.";
+sudo chmod u+w .;
 # set export crap right
-echo -e 'export GOPATH=$HOME/tools' >> ~/.profile;
-echo -e 'export GOROOT=$HOME/go' >> ~/.profile;
+echo -e 'export GOPATH=$HOME/go' >> ~/.profile;
+echo -e 'export GOROOT=$HOME/go1.10' >> ~/.profile;
 #echo -e 'export PATH=$PATH:$GOPATH' >> ~/.profile;
 #echo -e 'export PATH=$PATH:$GOROOT/bin' >> ~/.profile;
 source ~/.profile;
