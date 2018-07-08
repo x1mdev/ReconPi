@@ -86,19 +86,19 @@ checkDomainStatus()
 {
 	echo -e "[$GREEN+$RESET] Checking which domains are online..."
 
-	touch $ROOT/$1/resolved-domains.txt
+	touch "$ROOT"/"$1"/resolved-domains.txt
 
 	while IFS='' read -r line || [[ -n "$line" ]]; do
-		if ping -c 1 $(echo $line | tr -d '[:space:]') &> /dev/null
+		if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
 		then
-			IP=`getent hosts $1 | cut -d' ' -f1 | head -n 1`
-			echo "$(echo $line | tr -d '[:space:]'),$IP"
+			IP=`getent hosts "$1" | cut -d' ' -f1 | head -n 1`
+			echo "$(echo "$line" | tr -d '[:space:]'),$IP"
 		fi
-	done < $ROOT/$1/domains.txt > $ROOT/$1/resolved-domains.txt
+	done < "$ROOT"/"$1"/domains.txt > "$ROOT"/"$1"/resolved-domains.txt
 
 	echo -e "[$GREEN+$RESET] Online domains written to $GREEN$ROOT/$1/resolved-domains.txt$RESET!"
 	echo -e "[$GREEN+$RESET] Displaying $GREEN$ROOT/$1/resolved-domains.txt$RESET:"
-	cat $ROOT/$1/resolved-domains.txt
+	cat "$ROOT"/"$1"/resolved-domains.txt
 }
 
 # THIS NEEDS TO BE CHANGED WHEN THE NEW DASHBOARD IS FINISHED
@@ -110,7 +110,7 @@ convertDomainsFile()
 
 	#cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
 	#echo -e "{\n\"domains\":"; jq -Rs 'split("\n")' < domains.txt; echo -e "}"
-	echo -e "{\n\"domains\":"; jq -MRs 'split("\n")' < domains.txt | sed -z 's/,\n  ""//g'; echo -e "}"
+	echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains.txt | sed -z 's/,\n  ""//g'; echo -e "}"
 	
 	# >> $ROOT/$1/domains.json is not enough, it needs to be in /ReconPi/domains.json format
 	
@@ -121,9 +121,9 @@ convertDomainsFile()
 
 : 'Execute the main functions'
 displayLogo
-checkArguments    $1
-checkDirectory    $1
-runSubfinder      $1
-checkDomainStatus $1
-runMassDNS        $1
+checkArguments    "$1"
+checkDirectory    "$1"
+runSubfinder      "$1"
+checkDomainStatus "$1"
+runMassDNS        "$1"
 convertDomainsFile

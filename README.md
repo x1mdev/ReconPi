@@ -31,11 +31,11 @@ When you connect to the ReconPi for the first time you will be asked to change t
 Now we can set up everything, it's quite simple: 
 
  - `git clone https://github.com/x1mdev/ReconPi.git`
- - `sudo bash ReconPi/install.sh`
+ - `sudo bash ReconPi/initial_install.sh`
  - The script gives a `logout` command at the end of `install.sh`, please login again to continue with `install2.sh`.
- - `sudo bash RecoonPi/install2.sh`
+ - `sudo bash ReconPi/second_install.sh`
 
-The `install.sh` script now consists of 2 parts, I'll try and think of a solution
+The `install.sh` script now consists of 2 parts, I'll try and think of a solution to combine it back in to one script.
 
 
 It's under development.

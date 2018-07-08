@@ -101,3 +101,14 @@ cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Nginx.."; #needs new dashboard
+sudo apt-get install -y nginx;
+echo -e "[$GREEN+$RESET] Removing default Nginx setup..";
+sudo rm /etc/nginx/sites-available/default;
+sudo rm /etc/nginx/sites-enabled/default;
+echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
+sudo cp $HOME/ReconPi/dashboard-nginx /etc/nginx/sites-available/;
+sudo ln -s /etc/nginx/sites-available/dashboard-nginx /etc/nginx/sites-enabled/dashboard-nginx;
+sudo service nginx restart;
+sudo nginx -t;
+cd $HOME/tools/;
+echo -e "[$GREEN+$RESET] Done.";
