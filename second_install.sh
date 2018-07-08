@@ -112,3 +112,7 @@ sudo service nginx restart;
 sudo nginx -t;
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Both of the required installation scripts have finished!";
+echo -e "[$GREEN+$RESET] Your ReconPi is now ready to be used for recon.";
+sleep 1;
+displayLogo;
