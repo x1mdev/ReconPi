@@ -10,7 +10,7 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-VERSION="0.1.4"
+VERSION="0.2.0"
 
 
 : 'Display the logo'
@@ -36,10 +36,28 @@ echo -e "[$GREEN+$RESET] Getting the basics..";
 sudo apt-get update -y;
 #sudo apt-get upgrade -y; #turned off for dev, maybe not needed at all. Would improve the speed of the script
 
-echo -e "[$GREEN+$RESET] Creating the tools directory..";
+echo -e "[$GREEN+$RESET] Creating directories..";
 cd $HOME;
 mkdir -p tools;
+mkdir -p go;
 echo -e "[$GREEN+$RESET] Done.";
+
+echo -e "[$GREEN+$RESET] Installing and setting up Go..";
+sudo apt-get install -y golang-go;
+# set export crap right
+echo -e 'export GOPATH=$HOME/go/bin' >> ~/.profile;
+echo -e 'export GOROOT=$HOME/go' >> ~/.profile;
+echo -e 'export GOBIN=$GOPATH/bin' >> ~/.profile;
+echo -e 'export PATH=$PATH:$GOPATH' >> ~/.profile;
+echo -e 'export PATH=$PATH:$GOROOT/bin' >> ~/.profile;
+source ~/.profile;
+go version;
+go env;
+# extra dependencies, beautify later
+sudo apt-get install -y ruby;
+sudo apt-get install -y python-minimal;
+sudo apt-get install -y npm;
+sudo apt-get install -y nodejs-legacy;
 
 echo -e "[$GREEN+$RESET] Installing rename..";
 sudo apt-get install -y rename;
@@ -54,16 +72,9 @@ sudo apt-get install -y docker.io;
 echo -e "[$GREEN+$RESET] Docker installation complete.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
-git clone https://github.com/x1mdev/subfinder.git;
-cd subfinder;
-docker build -t subfinder .;
+go get github.com/subfinder/subfinder
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
-
-echo -e "[$GREEN+$RESET] Installing Subfinder..";
-sudo apt-get install -y golang-go;
-set gopath
-go get github.com/Ice3man543/subfinder;
 
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
