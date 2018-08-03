@@ -10,7 +10,7 @@ __________                          __________.__
                           v0.2.0 - by @x1m_martijn
 ```
 
-ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and Docker.
+ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and GO.
 
 Start using that Raspberry Pi -- I know you all have one laying around somewhere ;^)
 
@@ -18,17 +18,21 @@ This project is in development. Pull Requests are welcome!
 
 ## Installation
 
-Check the blogpost here for a complete guide: [ReconPi Guide](https://x1m.nl/posts/recon-pi/)
+Check the blogpost here for a complete guide: [ReconPi Guide](https://x1m.nl/posts/recon-pi/) 
+
+> Needs to be updated due to changes!
 
 Connect to your ReconPi with SSH (default credentials):
 
 ```
-$ ssh ubuntu@192.168.2.56
+$ ssh pi@192.168.2.56
 ```
 
-When you connect to the ReconPi for the first time you will be asked to change the default password (`ubuntu`). After the password change you will have to log in again with the new password.
+When you connect to the ReconPi for the first time you will be asked to change the default password (`pi`). After the password change you will have to log in again with the new password.
 
-Now we can set up everything, it's quite simple: 
+Now we can set up everything, it's quite simple:
+
+(maybe do a wget to first script because stretch lite does not have git by default)
 
  - `git clone https://github.com/x1mdev/ReconPi.git`
  - `sudo bash ReconPi/initial_install.sh`
