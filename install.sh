@@ -33,12 +33,9 @@ echo -e "[$GREEN+$RESET] This is the first script that will install the required
 echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
 sleep 1;
 echo -e "[$GREEN+$RESET] Getting the basics..";
-echo -e 'export LC_ALL="en_US.UTF-8"' >> $HOME/.bashrc;
-echo -e 'export LC_CTYPE="en_US.UTF-8"' >> $HOME/.bashrc;
-source $HOME/.bashrc;
 sudo apt-get install git -y;
 sudo apt-get update -y;
-#sudo apt-get upgrade -y; #turned off for dev, maybe not needed at all. Would improve the speed of the script
+sudo apt-get upgrade -y; #turned off for dev, needs to run at initial setup though. security yo
 
 echo -e "[$GREEN+$RESET] Installing and setting up Go..";
 cd "$HOME" || return;
@@ -71,30 +68,16 @@ echo -e "[$GREEN+$RESET] Installing Subfinder..";
 go get github.com/subfinder/subfinder;
 echo -e "[$GREEN+$RESET] Done.";
 
-#echo -e "[$GREEN+$RESET] Installing snap..";
-#sudo apt-get install -y snap;
-#sudo apt-get install -y snapd;
-#echo -e "[$GREEN+$RESET] Done.";
-
-# BOTH WORK BUT MAY NOT BE NECCESITO
-
-#echo -e "[$GREEN+$RESET] Installing amass..";
-#sudo snap install amass;
-#cd $HOME/tools/;
-#echo -e "[$GREEN+$RESET] Done.";
-
-echo -e "[$GREEN+$RESET] Installing Docker..";
-sudo apt-get install -y docker.io;
-sudo service docker start;
-sudo usermod -aG docker $(whoami);
-cd $HOME/tools/;
-echo -e "[$GREEN+$RESET] Done.";
+# skipping docker as massdns make command runs perfectly
 
 echo -e "[$GREEN+$RESET] Installing massdns..";
+cd $HOME/tools/;
 git clone https://github.com/blechschmidt/massdns.git;
-#cd massdns;
-#docker build -t massdns .;
-# werkt nog niet
+cd massdns;
+make;
+cd $HOME/tools/massdns/bin;
+sudo cp massdns /usr/local/bin/
+# werkt met make command, sneller dan docker
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
@@ -113,51 +96,28 @@ sudo apt-get install -y nmap;
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
-echo -e "[$GREEN+$RESET] Installing and setting up PHP..";
-echo -e "[$GREEN+$RESET] SKIPPING";
-# maybe not needed as php7.2 is default on ubuntu 18.04 
-# PHP and Composer are used for the Laravel dashboard - maybe dockerize this? dockerize database only i guess if 7.2 is native on 18.04
-#apt-get install -y python-software-properties;
-#sudo add-apt-repository -y ppa:ondrej/php;
-#sudo apt-get update;
-#sudo apt-get install -y php7.2;
-# if 18.04 uncomment this: (for later)
-#sudo apt-get install -y php;
-#php -v;
-#sudo apt-get install -y php-pear php-fpm php-dev php-zip php-curl php-xmlrpc php-gd php-mysql php-mbstring php-xml libapache2-mod-php;
-#sudo apt-get install -y composer;
-#echo -e 'export PATH="$PATH:$HOME/.config/composer/vendor/bin"' >> ~/.bashrc
-#source ~/.bashrc;
-#composer global require "laravel/installer";
-# REPLACE WITH DASHBOARD FROM OTHER REPO
-#./.config/composer/vendor/bin/laravel new dashboard;
-# ~/dashboard is the directory I  created a test laravel install
-# git clone ReconPi Dashboard repo
-#cd dashboard || return;
-#composer update
-#sudo chgrp -R www-data storage bootstrap/cache;
-# sudo chgrp -R ubuntu storage bootstrap/cache;
-#sudo chmod -R ug+rwx storage bootstrap/cache;
+# NEEDS TO BE SORTED OUT WITH NEW GO WEBAPP
+
+echo -e "[$GREEN+$RESET] Installing Nginx.."; #needs new dashboard
+sudo apt-get install -y nginx;
+echo -e "[$GREEN+$RESET] Removing default Nginx setup..";
+#sudo rm /etc/nginx/sites-available/default;
+#sudo rm /etc/nginx/sites-enabled/default;
+echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
+#sudo cp $HOME/ReconPi/dashboard-nginx /etc/nginx/sites-available/;
+#sudo ln -s /etc/nginx/sites-available/dashboard-nginx /etc/nginx/sites-enabled/dashboard-nginx;
+#sudo service nginx restart;
+sudo nginx -t;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
-# extra dependencies, beautify later
-#sudo apt-get install -y ruby; #doesn't work, needs RVM
-#RVM:
-echo -e "[$GREEN+$RESET] Installing and setting up RVM..";
-echo -e "[$GREEN+$RESET] SKIPPING";
-#sudo apt-get install -y software-properties-common;
-#sudo apt-add-repository -y ppa:rael-gc/rvm;
-#sudo apt-get update;
-#sudo apt-get install -y rvm;
-#source /etc/profile.d/rvm.sh;
-#sudo usermod -a -G rvm ubuntu;
 echo -e "[$GREEN+$RESET] Cleaning up.";
-#echo -e "[$GREEN+$RESET] The script will now logout, please use ./install2.sh to continue the installation!";
-#echo -e "[$GREEN+$RESET] Logout in 5 seconds..";
 displayLogo;
+cd $HOME;
 rm go1.10.3.linux-armv6l.tar.gz;
-sleep 5;
+rm install.sh; 
+sleep 2;
 echo -e "[$GREEN+$RESET] Initial script finished! System will reboot to finalize install.";
 sleep 1;
 sudo reboot;
-# Script needs to do logout because of all the changes
+# Pi needs  a reboot because of all the changes

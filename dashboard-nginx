@@ -2,7 +2,7 @@ server {
     listen 80;
     listen [::]:80;
 
-    root /home/ubuntu/ReconPi/dashboard/public;
+    root /home/pi/ReconPi/dashboard/public;
     index index.php index.html index.htm index.nginx-debian.html
 
     server_name _;
