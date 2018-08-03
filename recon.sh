@@ -76,7 +76,7 @@ runMassDNS()
 	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
 
 	#This doesn't work yet because I need to find a way to get the resolved-domains.txt from the host to docker.
-	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w resolved-domains.txt > $ROOT/$1/massdns.txt
+	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/resolved-domains.txt > $ROOT/$1/massdns.txt
 
 	echo -e "[$GREEN+$RESET] Done!"
 }
@@ -108,7 +108,7 @@ convertDomainsFile()
 {
 	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
 
-	#cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
+	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
 	#echo -e "{\n\"domains\":"; jq -Rs 'split("\n")' < domains.txt; echo -e "}"
 	echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains.txt | sed -z 's/,\n  ""//g'; echo -e "}"
 	
