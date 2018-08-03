@@ -33,10 +33,10 @@ echo -e "[$GREEN+$RESET] This is the first script that will install the required
 echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
 sleep 1;
 echo -e "[$GREEN+$RESET] Getting the basics..";
-echo -e 'export LC_ALL="en_US.UTF-8"' >> ~/.profile;
-echo -e 'export LC_CTYPE="en_US.UTF-8"' >> ~/.profile;
-source ~/.profile;
-sudo apt-get install git;
+echo -e 'export LC_ALL="en_US.UTF-8"' >> $HOME/.bashrc;
+echo -e 'export LC_CTYPE="en_US.UTF-8"' >> $HOME/.bashrc;
+source $HOME/.bashrc;
+sudo apt-get install git -y;
 sudo apt-get update -y;
 #sudo apt-get upgrade -y; #turned off for dev, maybe not needed at all. Would improve the speed of the script
 
@@ -53,11 +53,11 @@ git clone https://github.com/x1mdev/ReconPi.git;
 echo -e "[$GREEN+$RESET] Done.";
 sudo chmod u+w .;
 # set export crap right
-echo -e 'export GOPATH=$HOME/go' >> ~/.profile;
-echo -e 'export GOROOT=$HOME/go1.10' >> ~/.profile;
+echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
+echo -e 'export GOROOT=$HOME/go1.10' >> $HOME/.bashrc;
 #echo -e 'export PATH=$PATH:$GOPATH' >> ~/.profile;
 #echo -e 'export PATH=$PATH:$GOROOT/bin' >> ~/.profile;
-source ~/.profile;
+source $HOME/.bashrc;
 go version;
 go env;
 cd $HOME/tools/;
