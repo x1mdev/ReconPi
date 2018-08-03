@@ -76,7 +76,7 @@ runMassDNS()
 	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
 
 	#This doesn't work yet because I need to find a way to get the resolved-domains.txt from the host to docker.
-	massdns -r lists/resolvers.txt -t A -o S -w resolved-domains.txt > $ROOT/$1/massdns.txt
+	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w resolved-domains.txt > $ROOT/$1/massdns.txt
 
 	echo -e "[$GREEN+$RESET] Done!"
 }
