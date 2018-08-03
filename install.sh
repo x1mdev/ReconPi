@@ -78,6 +78,7 @@ cd massdns;
 make;
 sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
 # werkt met make command, sneller dan docker
+sudo apt-get install jq;
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
