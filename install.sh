@@ -66,6 +66,7 @@ echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
 go get github.com/subfinder/subfinder;
+sudo cp $HOME/go/bin/subfinder /usr/local/bin/;
 echo -e "[$GREEN+$RESET] Done.";
 
 # skipping docker as massdns make command runs perfectly
@@ -75,8 +76,7 @@ cd $HOME/tools/;
 git clone https://github.com/blechschmidt/massdns.git;
 cd massdns;
 make;
-cd $HOME/tools/massdns/bin;
-sudo cp massdns /usr/local/bin/
+sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
 # werkt met make command, sneller dan docker
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";

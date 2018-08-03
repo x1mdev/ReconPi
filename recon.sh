@@ -59,7 +59,7 @@ runSubfinder()
 {
 	echo -e "[$GREEN+$RESET] Running Subfinder on $GREEN$1$RESET..."
 	# This output needs to be changed to .json
-	./go/bin/subfinder -d $1 -nW --silent > $ROOT/$1/$1.txt
+	subfinder -d $1 -nW --silent > $ROOT/$1/$1.txt
 
 	echo -e "[$GREEN+$RESET] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
 	touch $ROOT/$1/domains.txt
@@ -76,7 +76,7 @@ runMassDNS()
 	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
 
 	#This doesn't work yet because I need to find a way to get the resolved-domains.txt from the host to docker.
-	docker run -it massdns -r lists/resolvers.txt -t A -o S -w resolved-domains.txt > $ROOT/$1/massdns.txt
+	massdns -r lists/resolvers.txt -t A -o S -w resolved-domains.txt > $ROOT/$1/massdns.txt
 
 	echo -e "[$GREEN+$RESET] Done!"
 }
