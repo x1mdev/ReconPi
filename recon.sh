@@ -110,7 +110,7 @@ convertDomainsFile()
 
 	#cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
 	#echo -e "{\n\"domains\":"; jq -Rs 'split("\n")' < domains.txt; echo -e "}"
-	echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains.txt | sed -z 's/,\n  ""//g'; echo -e "}" $ROOT/$1/domains.json
+	echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains.txt | sed -z 's/,\n  ""//g'; echo -e "}" >> $ROOT/$1/domains.json
 	
 	# >> $ROOT/$1/domains.json is not enough, it needs to be in /ReconPi/domains.json format
 	
