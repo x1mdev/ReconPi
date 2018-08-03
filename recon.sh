@@ -13,7 +13,7 @@ RESET="\033[0m"
 ROOT="$HOME/bugbounty"
 FILE=`basename "$0"`
 VERSION="0.2.0"
-URL=$1
+#URL=$1
 
 
 : 'Display the logo'
