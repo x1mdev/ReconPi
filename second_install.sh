@@ -60,6 +60,8 @@ echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Docker..";
 sudo apt-get install -y docker.io;
+sudo service docker start;
+sudo usermod -aG docker $(whoami)
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
@@ -71,12 +73,7 @@ sudo snap install amass;
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
-echo -e "[$GREEN+$RESET] Installing massdns..";
-git clone https://github.com/blechschmidt/massdns.git;
-cd massdns;
-docker build -t massdns .;
-cd $HOME/tools/;
-echo -e "[$GREEN+$RESET] Done.";
+
 
 echo -e "[$GREEN+$RESET] Installing teh_s3_bucketeers..";
 git clone https://github.com/tomdev/teh_s3_bucketeers.git;

@@ -55,8 +55,8 @@ sudo chmod u+w .;
 # set export crap right
 echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
 echo -e 'export GOROOT=$HOME/go1.10' >> $HOME/.bashrc;
-#echo -e 'export PATH=$PATH:$GOPATH' >> ~/.profile;
-#echo -e 'export PATH=$PATH:$GOROOT/bin' >> ~/.profile;
+echo -e 'export PATH=$PATH:$GOPATH' >> $HOME/.bashrc;
+echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
 source $HOME/.bashrc;
 go version;
 go env;
@@ -71,12 +71,30 @@ echo -e "[$GREEN+$RESET] Installing Subfinder..";
 go get github.com/subfinder/subfinder;
 echo -e "[$GREEN+$RESET] Done.";
 
-echo -e "[$GREEN+$RESET] Installing snap..";
-sudo apt-get install -y snap;
+#echo -e "[$GREEN+$RESET] Installing snap..";
+#sudo apt-get install -y snap;
+#sudo apt-get install -y snapd;
+#echo -e "[$GREEN+$RESET] Done.";
+
+# BOTH WORK BUT MAY NOT BE NECCESITO
+
+#echo -e "[$GREEN+$RESET] Installing amass..";
+#sudo snap install amass;
+#cd $HOME/tools/;
+#echo -e "[$GREEN+$RESET] Done.";
+
+echo -e "[$GREEN+$RESET] Installing Docker..";
+sudo apt-get install -y docker.io;
+sudo service docker start;
+sudo usermod -aG docker $(whoami);
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
-echo -e "[$GREEN+$RESET] Installing amass..";
-sudo snap install amass;
+echo -e "[$GREEN+$RESET] Installing massdns..";
+git clone https://github.com/blechschmidt/massdns.git;
+#cd massdns;
+#docker build -t massdns .;
+# werkt nog niet
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
@@ -133,12 +151,13 @@ echo -e "[$GREEN+$RESET] SKIPPING";
 #sudo apt-get install -y rvm;
 #source /etc/profile.d/rvm.sh;
 #sudo usermod -a -G rvm ubuntu;
-echo -e "[$GREEN+$RESET] First part of the installation is complete.";
+echo -e "[$GREEN+$RESET] Cleaning up.";
 #echo -e "[$GREEN+$RESET] The script will now logout, please use ./install2.sh to continue the installation!";
 #echo -e "[$GREEN+$RESET] Logout in 5 seconds..";
 displayLogo;
+rm go1.10.3.linux-armv6l.tar.gz;
 sleep 5;
-echo -e "[$GREEN+$RESET] Initial script finished! Please login again and start second_install.sh";
+echo -e "[$GREEN+$RESET] Initial script finished! System will reboot to finalize install.";
 sleep 1;
-#logout;
+sudo reboot;
 # Script needs to do logout because of all the changes
