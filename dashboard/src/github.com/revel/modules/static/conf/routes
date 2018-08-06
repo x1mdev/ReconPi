@@ -1,7 +1,0 @@
-# Routes
-# The routes file used for icons for the folders
-# ~~~~
-
-
-# Map static resources from the /app/public folder to the /public path
-GET /public/static/*filepath _LOCAL_\Static.ServeModule("_LOCAL_\","public")
