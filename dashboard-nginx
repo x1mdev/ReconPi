@@ -2,17 +2,12 @@ server {
     listen 80;
     listen [::]:80;
 
-    root /home/pi/ReconPi/dashboard/public;
+    root /home/pi/go/bin/
     index index.php index.html index.htm index.nginx-debian.html
 
     server_name _;
 
     location / {
-        try_files $uri $uri/ /index.php?$query_string;
+        proxy pass localhost:9000;
     }
-
-    location ~ \.php$ {
-            include snippets/fastcgi-php.conf;
-            fastcgi_pass unix:/run/php/php7.2-fpm.sock;
-     }
 }

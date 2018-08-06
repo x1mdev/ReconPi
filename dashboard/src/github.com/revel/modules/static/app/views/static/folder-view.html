@@ -1,0 +1,27 @@
+#! go
+{{/*
+
+*/}}{{template "static/header.html"}}
+{{with .details}}
+<h1>
+  {{msg $ `_LOCAL_\Index Of %s` .dirName}}
+</h1>
+<table>
+  <tr>
+    <th></th>
+    <th>{{msg $ `_LOCAL_\Name`}}</th>
+    <th>{{msg $ `_LOCAL_\Size`}}</th>
+    <th>{{msg $ `_LOCAL_\Date Modified`}}</th>
+  </tr>
+  {{range  .content}}
+
+  <tr>
+    <td><img width="30" src="{{url `static\static.servemodule(_LOCAL_\,public)` `img`}}/{{.Icon}}"/></td>
+    <td><a href="{{.Relative}}">{{.Name}}</a></td>
+    <td>{{.NiceSize}}</td>
+    <td>{{with .Modified}}{{.Format ($.details.dateformat)}}{{end}}</td>
+  </tr>
+  {{end}}
+</table>
+{{end}}
+{{template "static/footer.html"}}

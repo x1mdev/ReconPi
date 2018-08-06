@@ -98,6 +98,15 @@ cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 # NEEDS TO BE SORTED OUT WITH NEW GO WEBAPP
+echo -e "[$GREEN+$RESET] Installing ReconPi Dashboard + Database..";
+go get github.com/mattn/go-sqlite3;
+cd $HOME/go/src/mattn/go-sqlite3;
+env CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ \
+    CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 \
+    go build -v main.go;
+echo -e "[$GREEN+$RESET] Installing Revel framework (GO)..";
+go get github.com/revel/cmd/revel;
+#revel run github.com/x1mdev/recon-pi-db; misschien screen/tmux?
 
 echo -e "[$GREEN+$RESET] Installing Nginx.."; #needs new dashboard
 sudo apt-get install -y nginx;
