@@ -99,21 +99,22 @@ echo -e "[$GREEN+$RESET] Done.";
 
 # NEEDS TO BE SORTED OUT WITH NEW GO WEBAPP
 echo -e "[$GREEN+$RESET] Installing ReconPi Dashboard + Database..";
-go get github.com/mattn/go-sqlite3;
-cd $HOME/go/src/mattn/go-sqlite3;
-env CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ \
-    CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 \
-    go build -v main.go;
-echo -e "[$GREEN+$RESET] Installing Revel framework (GO)..";
-go get github.com/revel/cmd/revel;
+#go get github.com/mattn/go-sqlite3;
+#cd $HOME/go/src/mattn/go-sqlite3;
+#env CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ \
+#    CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 \
+#    go build -v main.go;
+echo -e "[$GREEN+$RESET] Installing Echo framework (GO)..";
+go get -u github.com/labstack/echo/...
+#go get github.com/revel/cmd/revel;
 #revel run github.com/x1mdev/recon-pi-db; misschien screen/tmux?
 
 echo -e "[$GREEN+$RESET] Installing Nginx.."; #needs new dashboard
 sudo apt-get install -y nginx;
-echo -e "[$GREEN+$RESET] Removing default Nginx setup..";
+echo -e "[$GREEN+$RESET] Removing default Nginx setup..[SKIPPING]";
 #sudo rm /etc/nginx/sites-available/default;
 #sudo rm /etc/nginx/sites-enabled/default;
-echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
+echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..[SKPPING]";
 #sudo cp $HOME/ReconPi/dashboard-nginx /etc/nginx/sites-available/;
 #sudo ln -s /etc/nginx/sites-available/dashboard-nginx /etc/nginx/sites-enabled/dashboard-nginx;
 #sudo service nginx restart;

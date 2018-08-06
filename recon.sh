@@ -119,6 +119,15 @@ convertDomainsFile()
 
 }
 
+: 'Start up the dashboard server'
+startDashboard()
+{
+	echo -e "[$GREEN+$RESET] Starting dashboard with results for $GREEN$1$RESET:"
+	go run server.go &;
+	echo -e "[$GREEN+$RESET] Dashboard running on http://192.168.2.39:1337/"
+	# needs template rendering and json input from other functions
+}
+
 : 'Execute the main functions'
 displayLogo
 checkArguments    "$1"
@@ -127,3 +136,4 @@ runSubfinder      "$1"
 checkDomainStatus "$1"
 runMassDNS        "$1"
 convertDomainsFile "$1"
+startDashboard "$1"
