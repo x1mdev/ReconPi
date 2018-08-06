@@ -123,9 +123,12 @@ convertDomainsFile()
 startDashboard()
 {
 	echo -e "[$GREEN+$RESET] Starting dashboard with results for $GREEN$1$RESET:"
+	cd $HOME/ReconPi/dashboard/;
 	go run server.go &;
 	echo -e "[$GREEN+$RESET] Dashboard running on http://192.168.2.39:1337/"
 	# needs template rendering and json input from other functions
+	# because the server.go keeps on running it is possible to post
+	# scan results on a different port per asset, just an idea
 }
 
 : 'Execute the main functions'
