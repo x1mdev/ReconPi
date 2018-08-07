@@ -3,13 +3,19 @@ package main
 import (
 	"net/http"
 
+	"github.com/GeertJohan/go.rice"
 	"github.com/labstack/echo"
 )
 
 func main() {
 	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World! ReconPi Dashboard - Work in Progress :)")
-	})
+	// the file server for rice. "app" is the folder where the files come from.
+	assetHandler := http.FileServer(rice.MustFindBox("app").HTTPBox())
+	// serves the index.html from rice
+	e.GET("/", echo.WrapHandler(assetHandler))
+
+	// servers other static files
+	e.GET("/static/*", echo.WrapHandler(http.StripPrefix("/static/", assetHandler)))
+
 	e.Logger.Fatal(e.Start(":1337"))
 }
