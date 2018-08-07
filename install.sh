@@ -105,7 +105,8 @@ echo -e "[$GREEN+$RESET] Installing ReconPi Dashboard + Database..";
 #    CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 \
 #    go build -v main.go;
 echo -e "[$GREEN+$RESET] Installing Echo framework (GO)..";
-go get -u github.com/labstack/echo/...
+go get -u github.com/labstack/echo/...;
+go get github.com/GeertJohan/go.rice;
 #go get github.com/revel/cmd/revel;
 #revel run github.com/x1mdev/recon-pi-db; misschien screen/tmux?
 
