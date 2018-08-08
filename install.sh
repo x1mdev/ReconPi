@@ -10,7 +10,7 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-VERSION="0.1.3"
+VERSION="0.2.1"
 
 
 : 'Display the logo'
@@ -29,132 +29,86 @@ __________                          __________.__
 
 displayLogo;
 
-echo -e "[$GREEN+$RESET] This script will install the required tools to run recon.sh, please stand by..";
+echo -e "[$GREEN+$RESET] This is the install script that will install the required dependencies to run recon.sh, please stand by..";
 echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
 sleep 1;
 echo -e "[$GREEN+$RESET] Getting the basics..";
+sudo apt-get install git -y;
 sudo apt-get update -y;
 sudo apt-get upgrade -y;
+# You can choose to comment out the `sudo apt-get upgrade` line for speed. NOT advised tho
 
-echo -e "[$GREEN+$RESET] Installing ReconPi..";
-cd ~;
-git clone https://github.com/x1mdev/ReconPi.git;
-cd ~/tools/;
-echo -e "[$GREEN+$RESET] Done.";
-
-echo -e "[$GREEN+$RESET] Installing Git..";
-sudo apt-get install -y git;
-echo -e "[$GREEN+$RESET] Git installation complete.";
-
-echo -e "[$GREEN+$RESET] Installing rename..";
-sudo apt-get install -y rename;
-echo -e "[$GREEN+$RESET] rename installation complete.";
-
-echo -e "[$GREEN+$RESET] Installing snap..";
-sudo apt-get install -y snap;
-echo -e "[$GREEN+$RESET] snap installation complete.";
-
-echo -e "[$GREEN+$RESET] Installing pip..";
-sudo apt-get install -y python3-pip;
-apt-get install -y python-pip;
-echo -e "[$GREEN+$RESET] pip installation complete.";
-
-echo -e "[$GREEN+$RESET] Installing Docker..";
-sudo apt-get install -y docker.io;
-echo -e "[$GREEN+$RESET] Docker installation complete.";
-
-
-echo -e "[$GREEN+$RESET] Creating the tools directory..";
+echo -e "[$GREEN+$RESET] Installing and setting up Go..";
+cd "$HOME" || return;
+wget https://dl.google.com/go/go1.10.3.linux-armv6l.tar.gz;
+sudo tar -xvf go1.10.3.linux-armv6l.tar.gz;
+echo -e "[$GREEN+$RESET] Creating directories..";
+mv go go1.10;
 mkdir -p tools;
-cd ~/tools/;
+mkdir -p go;
+git clone https://github.com/x1mdev/ReconPi.git;
+echo -e "[$GREEN+$RESET] Done.";
+sudo chmod u+w .;
+echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
+echo -e 'export GOROOT=$HOME/go1.10' >> $HOME/.bashrc;
+echo -e 'export PATH=$PATH:$GOPATH' >> $HOME/.bashrc;
+echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
+source $HOME/.bashrc;
+go version;
+go env;
+cd $HOME/tools/;
+
+echo -e "[$GREEN+$RESET] Installing Node & NPM..";
+sudo apt-get install -y npm;
+sudo apt-get install -y nodejs-legacy;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
-git clone https://github.com/x1mdev/subfinder.git;
-cd subfinder;
-docker build -t subfinder .;
-cd ~/tools/;
-echo -e "[$GREEN+$RESET] Done.";
-
-echo -e "[$GREEN+$RESET] Installing amass..";
-sudo snap install amass;
-cd ~/tools/;
+go get github.com/subfinder/subfinder;
+sudo cp $HOME/go/bin/subfinder /usr/local/bin/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing massdns..";
+cd $HOME/tools/;
 git clone https://github.com/blechschmidt/massdns.git;
 cd massdns;
-docker build -t massdns .;
-cd ~/tools/;
+echo -e "[$GREEN+$RESET] Running make command for massdns..";
+make;
+sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
+sudo apt-get install jq;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing teh_s3_bucketeers..";
 git clone https://github.com/tomdev/teh_s3_bucketeers.git;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing virtual host discovery..";
 git clone https://github.com/jobertabma/virtual-host-discovery.git;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing nmap..";
 sudo apt-get install -y nmap;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
+
+echo -e "[$GREEN+$RESET] Installing Echo framework (GO)..";
+go get -u github.com/labstack/echo/...;
+go get github.com/GeertJohan/go.rice;
 
 echo -e "[$GREEN+$RESET] Installing Nginx..";
 sudo apt-get install -y nginx;
-echo -e "[$GREEN+$RESET] Removing default Nginx setup..";
-sudo rm /etc/nginx/sites-available/default;
-sudo rm /etc/nginx/sites-enabled/default;
-echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..";
-sudo cp ~/ReconPi/dashboard /etc/nginx/sites-available/;
-sudo ln -s /etc/nginx/sites-available/dashboard /etc/nginx/sites-enabled/dashboard;
-sudo service nginx restart;
 sudo nginx -t;
-cd ~/tools/;
+cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
-echo -e "[$GREEN+$RESET] Installing subdomainDB..";
-cd ~/;
-git clone https://github.com/smiegles/subdomainDB.git;
-cd subdomainDB;
-docker build --rm -t subdomaindb .;
-cd ~/tools/;
-echo -e "[$GREEN+$RESET] Done.";
-
-echo -e "[$GREEN+$RESET] Final step..";
-
-if [ -d tools ];then
-	# keypressed, read 1 char from stdin using dd
-	# works using any sh-shell
-	readkbd(){
-		stty -icanon -echo
-		dd bs=1 count=1 2>/dev/null
-		stty icanon echo
-}
-
-while printf "[$GREEN+$RESET] Install aquatone-docker? This will take some extra time:N\b" # default N to continue script
-	  response=$(readkbd)
-	  printf "\r				\n"
-	  case "$response" in
-	  			Y|y) response="Y" ;; 
-				n|N|"") response="N" ;; # default = ENTER
-				*) response="N"	;;
-	  esac
-	  [ "$response" = "Y" ]
-do
-                                echo -e "[$GREEN+$RESET] Installing aquatone-docker..";
-                                git clone https://github.com/x1mdev/aquatone-docker.git;
-                                cd aquatone-docker;
-                                docker build -t aquatone .;
-                                cd ~/tools/;
-                                done;
-                                echo -e "[$GREEN+$RESET] Done.";
-fi
-
-sleep 1;
-ls -la;
+echo -e "[$GREEN+$RESET] Cleaning up..";
 displayLogo;
-echo -e "[$GREEN+$RESET] Script finished!";
+cd $HOME;
+rm go1.10.3.linux-armv6l.tar.gz;
+rm install.sh; 
+echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation.";
+sleep 1;
+sudo reboot;

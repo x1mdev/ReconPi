@@ -12,8 +12,7 @@ GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
 FILE=`basename "$0"`
-VERSION="0.1.3"
-URL=$1
+VERSION="0.2.1"
 
 
 : 'Display the logo'
@@ -43,12 +42,12 @@ checkArguments()
 checkDirectory()
 {
 	if [ ! -d $ROOT ]; then
-		echo -e "[$GREEN+$RESET] Making new directory: $GREEN$ROOT$RESET"
+		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$ROOT$RESET"
 		mkdir "$ROOT"
 		cd $ROOT
 	fi
 	if [ ! -d $ROOT/$1 ]; then
-		echo -e "[$GREEN+$RESET] Making new directory: $GREEN$ROOT/$1$RESET"
+		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$ROOT/$1$RESET"
 		mkdir -p "$ROOT/$1"
 		cd $ROOT/$1
 	fi
@@ -58,8 +57,7 @@ checkDirectory()
 runSubfinder()
 {
 	echo -e "[$GREEN+$RESET] Running Subfinder on $GREEN$1$RESET..."
-	# This output needs to be changed to .json
-	docker run -v $HOME/.config/subfinder:/root/.config/subfinder -it subfinder -d $1 --silent > $ROOT/$1/$1.txt
+	subfinder -d $1 -nW --silent > $ROOT/$1/$1.txt
 
 	echo -e "[$GREEN+$RESET] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
 	touch $ROOT/$1/domains.txt
@@ -68,56 +66,66 @@ runSubfinder()
 	rm -rf $ROOT/$1/$1.txt
 }
 
-: 'Run MassDNS on the given domains'
-runMassDNS()
-{
-	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
-
-	#This doesn't work yet because I need to find a way to get the resolved-domains.txt from the host to docker.
-	docker run -it massdns -r lists/resolvers.txt -t A -o S -w resolved-domains.txt > $ROOT/$1/massdns.txt
-
-	echo -e "[$GREEN+$RESET] Done!"
-}
+# Get subfinder output that is in the Aquatone format to run it in Aquatone
 
 : 'Check if host is online, then print it'
 checkDomainStatus()
 {
 	echo -e "[$GREEN+$RESET] Checking which domains are online..."
 
-	touch $ROOT/$1/resolved-domains.txt
+	touch "$ROOT"/"$1"/resolved-domains.txt
 
 	while IFS='' read -r line || [[ -n "$line" ]]; do
-		if ping -c 1 $(echo $line | tr -d '[:space:]') &> /dev/null
+		if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
 		then
-			IP=`getent hosts $1 | cut -d' ' -f1 | head -n 1`
-			echo "$(echo $line | tr -d '[:space:]'),$IP"
+			IP=`getent hosts "$1" | cut -d' ' -f1 | head -n 1`
+			echo "$(echo "$line" | tr -d '[:space:]'),$IP"
 		fi
-	done < $ROOT/$1/domains.txt > $ROOT/$1/resolved-domains.txt
+	done < "$ROOT"/"$1"/domains.txt > "$ROOT"/"$1"/resolved-domains.txt
 
 	echo -e "[$GREEN+$RESET] Online domains written to $GREEN$ROOT/$1/resolved-domains.txt$RESET!"
 	echo -e "[$GREEN+$RESET] Displaying $GREEN$ROOT/$1/resolved-domains.txt$RESET:"
-	cat $ROOT/$1/resolved-domains.txt
+	cat "$ROOT"/"$1"/resolved-domains.txt
 }
 
-: 'Run the dashboard + make POST API request with output from subfinder'
-runDashboard()
+: 'Run MassDNS on the given domains'
+runMassDNS()
 {
-	echo -e "[$GREEN+$RESET] Starting up the dashboard.."
+	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
+	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/resolved-domains.txt > $ROOT/$1/massdns.txt
+	echo -e "[$GREEN+$RESET] Done!"
+}
 
-	docker run -d -v subdomainDB:/subdomainDB -p 127.0.0.1:4000:4000 subdomaindb
-	sudo nginx -s reload
+: 'Convert domains.txt to json (subdomainDB format) + make POST API request with output from subfinder'
+convertDomainsFile()
+{
+	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
+	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
+	echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains.json | sed -z 's/,\n  ""//g'; echo -e "}"
+	
+	# TODO: Post request to dashboard - work in progress
+	#curl -X POST -H "Content-Type: application/json" -H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain
 
-	# TO-DO: create function that makes the API POST request with .json output from subfinder.
+}
 
-	echo -e "[$GREEN+$RESET] Dashboard is up and running! Visit http://pi.ip-address to check the results."
-
+: 'Start up the dashboard server'
+startDashboard()
+{
+	echo -e "[$GREEN+$RESET] Starting dashboard with results for $GREEN$1$RESET:"
+	cd $HOME/ReconPi/dashboard/;
+	go run server.go &;
+	echo -e "[$GREEN+$RESET] Dashboard running on http://192.168.2.39:1337/"
+	# TODO: Needs template rendering and json input from other functions
+	# TODO: Check if server is running, otherwise skip this step.
+	# TODO: Check if we can print out the correct IP address
 }
 
 : 'Execute the main functions'
 displayLogo
-checkArguments    $1
-checkDirectory    $1
-runSubfinder      $1
-checkDomainStatus $1
-runMassDNS        $1
-runDashboard      #$1
+checkArguments    		"$1"
+checkDirectory    		"$1"
+runSubfinder      		"$1"
+checkDomainStatus 		"$1"
+runMassDNS        		"$1"
+convertDomainsFile 		"$1"
+startDashboard 	   		"$1"

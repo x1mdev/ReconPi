@@ -1,0 +1,6 @@
+{
+  "domains" : [
+    "admin.example.com",
+    "test.example.com"
+  ]
+}
