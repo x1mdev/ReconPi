@@ -7,48 +7,44 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
-                          v0.2.0 - by @x1m_martijn
+                          v0.2.1 - by @x1m_martijn
 ```
 
-ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and GO.
+ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and GO. After the installation the ReconPi only needs a WiFi connection and some power, easy does it.
 
-Start using that Raspberry Pi -- I know you all have one laying around somewhere ;^)
+Start using that Raspberry Pi -- I know you all have one laying around somewhere ;)
 
-This project is in development. Pull Requests are welcome!
+This project is in development. Pull requests are welcome!
 
 > Complete overhaul of the ReconPi project. It no longer uses the Ubuntu 16.04 ARM image but Raspbian Stretch Lite. This reduces the image size significantly. Docker has been replaced by the native make command (massdns). For subdomain recon it uses Subfinder with a native go installation (v1.10.3 arm). More to be added.
 
 ## Installation
 
-Check the blogpost here for a complete guide: [ReconPi Guide](https://x1m.nl/posts/recon-pi/) 
+Check the blogpost here for a complete guide on how to set up your own ReconPi: [ReconPi Guide](https://x1m.nl/posts/recon-pi/) 
 
-> Needs to be updated due to changes!
+> The guide will be updated soon!
 
-Connect to your ReconPi with SSH (default credentials):
+If you prepared your Raspberry Pi through the guide linked above you should be able to continue below.
+
+Connect to your ReconPi with SSH:
 
 ```
-$ ssh pi@192.168.2.56
+$ ssh pi@192.168.2.39 [Change IP to ReconPi IP]
 ```
 
-When you connect to the ReconPi for the first time you will be asked to change the default password (`pi`). After the password change you will have to log in again with the new password.
+When you connect to the ReconPi for the first time you will be asked to change the default password (`raspberry`). After the password change you will have to log in again with the new password.
 
 Now we can set up everything, it's quite simple:
 
-(maybe do a wget to first script because stretch lite does not have git by default)
-
- - `git clone https://github.com/x1mdev/ReconPi.git`
- - `sudo bash ReconPi/initial_install.sh`
- - The script gives a `logout` command at the end of `install.sh`, please login again to continue with `install2.sh`.
- - `sudo bash ReconPi/second_install.sh`
-
-The `install.sh` script now consists of 2 parts, I'll try and think of a solution to combine it back in to one script.
-
-
-It's under development.
+ - `wget https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh`
+ - `sudo bash ReconPi/install.sh`
+ - The script gives a `reboot` command at the end of `install.sh`, please login again to start using the ReconPi.
 
 Grab a cup of coffee since this will take a while.
 
 ## Usage
+
+After installing all of the dependencies for the ReconPi we can finally start doing some recon!
 
 ```
 $ sudo bash ReconPi/recon.sh <domain.tld>
@@ -58,18 +54,20 @@ $ sudo bash ReconPi/recon.sh <domain.tld>
 
 Tools that are being used at this moment:
 
+ - [Raspbian Stretch Lite image](https://www.raspberrypi.org/downloads/raspbian/)
+ - [GO](https://github.com/golang)
+ - [Echo](https://github.com/labstack/echo)
  - [Subfinder](https://github.com/Ice3man543/subfinder) (now running on native Go)
- - [Amass](https://github.com/caffix/amass)
  - [MassDNS](https://github.com/blechschmidt/massdns)
- - [subdomainDB](https://github.com/smiegles/subdomainDB)
- - [Aquatone](https://github.com/michenriksen/aquatone)
 
 More tools will be added in the future, feel free to make a Pull Request!
 
-Current output is in simple `.txt` files. I have added [subdomainDB](https://github.com/smiegles/subdomainDB) to the arsenal and it will be installed during the `install.sh` process.
+Current output is in simple `.txt` and `.json` files. I have developed a little web application that runs on a minimal Go server, which will be installed during the `install.sh` process.
 
-It doesn't have any input yet, but the dashboard is accessible within the local network. You can visit it by navigating to `https://192.168.2.PI-IP`
+It doesn't have any input yet, but the dashboard is accessible within the local network. You can visit it by navigating to `https://192.168.2.PI-IP:1337`
 
 ## Contributors
 
- - [Damian Ebelties](https://github.com/ebelties) 
+ - [Damian Ebelties](https://github.com/ebelties)
+
+If you like this project you can get me a cup of coffee :) [ko-fi.com/martijn](http://ko-fi.com/martijn)

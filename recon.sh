@@ -13,7 +13,6 @@ RESET="\033[0m"
 ROOT="$HOME/bugbounty"
 FILE=`basename "$0"`
 VERSION="0.2.1"
-#URL=$1
 
 
 : 'Display the logo'
@@ -43,12 +42,12 @@ checkArguments()
 checkDirectory()
 {
 	if [ ! -d $ROOT ]; then
-		echo -e "[$GREEN+$RESET] Making new directory: $GREEN$ROOT$RESET"
+		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$ROOT$RESET"
 		mkdir "$ROOT"
 		cd $ROOT
 	fi
 	if [ ! -d $ROOT/$1 ]; then
-		echo -e "[$GREEN+$RESET] Making new directory: $GREEN$ROOT/$1$RESET"
+		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$ROOT/$1$RESET"
 		mkdir -p "$ROOT/$1"
 		cd $ROOT/$1
 	fi
@@ -58,7 +57,6 @@ checkDirectory()
 runSubfinder()
 {
 	echo -e "[$GREEN+$RESET] Running Subfinder on $GREEN$1$RESET..."
-	# This output needs to be changed to .json
 	subfinder -d $1 -nW --silent > $ROOT/$1/$1.txt
 
 	echo -e "[$GREEN+$RESET] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
@@ -69,17 +67,6 @@ runSubfinder()
 }
 
 # Get subfinder output that is in the Aquatone format to run it in Aquatone
-
-: 'Run MassDNS on the given domains'
-runMassDNS()
-{
-	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
-
-	#This doesn't work yet because I need to find a way to get the resolved-domains.txt from the host to docker.
-	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/resolved-domains.txt > $ROOT/$1/massdns.txt
-
-	echo -e "[$GREEN+$RESET] Done!"
-}
 
 : 'Check if host is online, then print it'
 checkDomainStatus()
@@ -101,20 +88,22 @@ checkDomainStatus()
 	cat "$ROOT"/"$1"/resolved-domains.txt
 }
 
-# THIS NEEDS TO BE CHANGED WHEN THE NEW DASHBOARD IS FINISHED
+: 'Run MassDNS on the given domains'
+runMassDNS()
+{
+	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
+	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/resolved-domains.txt > $ROOT/$1/massdns.txt
+	echo -e "[$GREEN+$RESET] Done!"
+}
 
 : 'Convert domains.txt to json (subdomainDB format) + make POST API request with output from subfinder'
 convertDomainsFile()
 {
 	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
-
 	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
-	#echo -e "{\n\"domains\":"; jq -Rs 'split("\n")' < domains.txt; echo -e "}"
 	echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains.json | sed -z 's/,\n  ""//g'; echo -e "}"
 	
-	# >> $ROOT/$1/domains.json is not enough, it needs to be in /ReconPi/domains.json format
-	
-	# Post request to dashboard
+	# TODO: Post request to dashboard - work in progress
 	#curl -X POST -H "Content-Type: application/json" -H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain
 
 }
@@ -126,17 +115,17 @@ startDashboard()
 	cd $HOME/ReconPi/dashboard/;
 	go run server.go &;
 	echo -e "[$GREEN+$RESET] Dashboard running on http://192.168.2.39:1337/"
-	# needs template rendering and json input from other functions
-	# because the server.go keeps on running it is possible to post
-	# scan results on a different port per asset, just an idea
+	# TODO: Needs template rendering and json input from other functions
+	# TODO: Check if server is running, otherwise skip this step.
+	# TODO: Check if we can print out the correct IP address
 }
 
 : 'Execute the main functions'
 displayLogo
-checkArguments    "$1"
-checkDirectory    "$1"
-runSubfinder      "$1"
-checkDomainStatus "$1"
-runMassDNS        "$1"
-convertDomainsFile "$1"
-startDashboard 	   "$1"
+checkArguments    		"$1"
+checkDirectory    		"$1"
+runSubfinder      		"$1"
+checkDomainStatus 		"$1"
+runMassDNS        		"$1"
+convertDomainsFile 		"$1"
+startDashboard 	   		"$1"

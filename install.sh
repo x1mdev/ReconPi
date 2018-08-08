@@ -29,27 +29,26 @@ __________                          __________.__
 
 displayLogo;
 
-echo -e "[$GREEN+$RESET] This is the first script that will install the required dependencies to run recon.sh, please stand by..";
+echo -e "[$GREEN+$RESET] This is the install script that will install the required dependencies to run recon.sh, please stand by..";
 echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
 sleep 1;
 echo -e "[$GREEN+$RESET] Getting the basics..";
 sudo apt-get install git -y;
 sudo apt-get update -y;
-sudo apt-get upgrade -y; #turned off for dev, needs to run at initial setup though. security yo
+sudo apt-get upgrade -y;
+# You can choose to comment out the `sudo apt-get upgrade` line for speed. NOT advised tho
 
 echo -e "[$GREEN+$RESET] Installing and setting up Go..";
 cd "$HOME" || return;
-wget https://dl.google.com/go/go1.10.3.linux-armv6l.tar.gz; # takes a long time but does get a LOT of good dependencies
+wget https://dl.google.com/go/go1.10.3.linux-armv6l.tar.gz;
 sudo tar -xvf go1.10.3.linux-armv6l.tar.gz;
 echo -e "[$GREEN+$RESET] Creating directories..";
 mv go go1.10;
 mkdir -p tools;
 mkdir -p go;
-# clone ReconPi repo because stretch lite lacks git by default -.-
 git clone https://github.com/x1mdev/ReconPi.git;
 echo -e "[$GREEN+$RESET] Done.";
 sudo chmod u+w .;
-# set export crap right
 echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
 echo -e 'export GOROOT=$HOME/go1.10' >> $HOME/.bashrc;
 echo -e 'export PATH=$PATH:$GOPATH' >> $HOME/.bashrc;
@@ -69,15 +68,13 @@ go get github.com/subfinder/subfinder;
 sudo cp $HOME/go/bin/subfinder /usr/local/bin/;
 echo -e "[$GREEN+$RESET] Done.";
 
-# skipping docker as massdns make command runs perfectly
-
 echo -e "[$GREEN+$RESET] Installing massdns..";
 cd $HOME/tools/;
 git clone https://github.com/blechschmidt/massdns.git;
 cd massdns;
+echo -e "[$GREEN+$RESET] Running make command for massdns..";
 make;
 sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
-# werkt met make command, sneller dan docker
 sudo apt-get install jq;
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
@@ -97,39 +94,21 @@ sudo apt-get install -y nmap;
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
-# NEEDS TO BE SORTED OUT WITH NEW GO WEBAPP
-echo -e "[$GREEN+$RESET] Installing ReconPi Dashboard + Database..";
-#go get github.com/mattn/go-sqlite3;
-#cd $HOME/go/src/mattn/go-sqlite3;
-#env CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ \
-#    CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 \
-#    go build -v main.go;
 echo -e "[$GREEN+$RESET] Installing Echo framework (GO)..";
 go get -u github.com/labstack/echo/...;
 go get github.com/GeertJohan/go.rice;
-#go get github.com/revel/cmd/revel;
-#revel run github.com/x1mdev/recon-pi-db; misschien screen/tmux?
 
-echo -e "[$GREEN+$RESET] Installing Nginx.."; #needs new dashboard
+echo -e "[$GREEN+$RESET] Installing Nginx..";
 sudo apt-get install -y nginx;
-echo -e "[$GREEN+$RESET] Removing default Nginx setup..[SKIPPING]";
-#sudo rm /etc/nginx/sites-available/default;
-#sudo rm /etc/nginx/sites-enabled/default;
-echo -e "[$GREEN+$RESET] Configuring ReconPi Nginx setup..[SKPPING]";
-#sudo cp $HOME/ReconPi/dashboard-nginx /etc/nginx/sites-available/;
-#sudo ln -s /etc/nginx/sites-available/dashboard-nginx /etc/nginx/sites-enabled/dashboard-nginx;
-#sudo service nginx restart;
 sudo nginx -t;
 cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
-echo -e "[$GREEN+$RESET] Cleaning up.";
+echo -e "[$GREEN+$RESET] Cleaning up..";
 displayLogo;
 cd $HOME;
 rm go1.10.3.linux-armv6l.tar.gz;
 rm install.sh; 
-sleep 2;
-echo -e "[$GREEN+$RESET] Initial script finished! System will reboot to finalize install.";
+echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation.";
 sleep 1;
 sudo reboot;
-# Pi needs  a reboot because of all the changes

@@ -1,6 +1,6 @@
 package main
 
-// This is just the skeleton, Echo should be able to handle JSON requests.
+// This is just the skeleton, Echo should be able to handle JSON requests through middleware/controllers.
 
 import (
 	"net/http"
