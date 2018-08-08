@@ -113,8 +113,8 @@ startDashboard()
 {
 	echo -e "[$GREEN+$RESET] Starting dashboard with results for $GREEN$1$RESET:"
 	cd $HOME/ReconPi/dashboard/;
-	go run server.go &;
-	echo -e "[$GREEN+$RESET] Dashboard running on http://192.168.2.39:1337/"
+	go run server.go &
+	echo -e "[$GREEN+$RESET] Dashboard running on http://recon.pi.ip.address:1337/"
 	# TODO: Needs template rendering and json input from other functions
 	# TODO: Check if server is running, otherwise skip this step.
 	# TODO: Check if we can print out the correct IP address
