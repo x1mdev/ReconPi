@@ -95,7 +95,7 @@ cd $HOME/tools/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Echo framework (GO)..";
-go get -u github.com/labstack/echo/...;
+go get -u github.com/labstack/echo;
 go get github.com/GeertJohan/go.rice;
 
 echo -e "[$GREEN+$RESET] Installing Nginx..";
