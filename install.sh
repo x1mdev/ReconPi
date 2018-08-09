@@ -56,7 +56,7 @@ echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
 source $HOME/.bashrc;
 go version;
 go env;
-cd $HOME/tools/;
+cd $HOME/tools/  || return;
 
 echo -e "[$GREEN+$RESET] Installing Node & NPM..";
 sudo apt-get install -y npm;
@@ -69,29 +69,29 @@ sudo cp $HOME/go/bin/subfinder /usr/local/bin/;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing massdns..";
-cd $HOME/tools/;
+cd $HOME/tools/ || return;
 git clone https://github.com/blechschmidt/massdns.git;
 cd massdns;
 echo -e "[$GREEN+$RESET] Running make command for massdns..";
 make;
-sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
+sudo cp "$HOME/tools/massdns/bin/massdns /usr/local/bin/";
 sudo apt-get install jq;
-cd $HOME/tools/;
+cd $HOME/tools/ || return;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing teh_s3_bucketeers..";
 git clone https://github.com/tomdev/teh_s3_bucketeers.git;
-cd $HOME/tools/;
+cd $HOME/tools/ || return;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing virtual host discovery..";
 git clone https://github.com/jobertabma/virtual-host-discovery.git;
-cd $HOME/tools/;
+cd $HOME/tools/ || return;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing nmap..";
 sudo apt-get install -y nmap;
-cd $HOME/tools/;
+cd $HOME/tools/ || return;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Echo framework (GO)..";
@@ -101,12 +101,12 @@ go get github.com/GeertJohan/go.rice;
 echo -e "[$GREEN+$RESET] Installing Nginx..";
 sudo apt-get install -y nginx;
 sudo nginx -t;
-cd $HOME/tools/;
+cd $HOME/tools/  || return;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Cleaning up..";
 displayLogo;
-cd $HOME;
+cd $HOME || return;
 rm go1.10.3.linux-armv6l.tar.gz;
 rm install.sh; 
 echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation.";
