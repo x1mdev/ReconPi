@@ -12,7 +12,7 @@ GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
 FILE=`basename "$0"`
-VERSION="0.2.1"
+VERSION="0.2.2"
 
 
 : 'Display the logo'
@@ -117,7 +117,7 @@ startDashboard()
 	echo -e "[$GREEN+$RESET] Dashboard running on http://recon.pi.ip.address:1337/"
 	# TODO: Needs template rendering and json input from other functions
 	# TODO: Check if server is running, otherwise skip this step.
-	# TODO: Check if we can print out the correct IP address
+	# TODO: Check if we can print out the correct ReconPi local network IP address 
 }
 
 : 'Execute the main functions'
@@ -129,3 +129,6 @@ checkDomainStatus 		"$1"
 runMassDNS        		"$1"
 convertDomainsFile 		"$1"
 startDashboard 	   		"$1"
+
+# TODO: Add gobuster functionality
+# TODO: more

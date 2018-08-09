@@ -10,7 +10,7 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-VERSION="0.2.1"
+VERSION="0.2.2"
 
 
 : 'Display the logo'
@@ -52,8 +52,8 @@ sudo chmod u+w .;
 # echo to .bashrc needs to be tested.
 echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
 echo -e 'export GOROOT=/usr/local/go' >> $HOME/.bashrc;
-#echo -e 'export PATH=$PATH:$GOPATH' >> $HOME/.bashrc;
 echo -e 'export PATH=$PATH:$HOME/go/bin/' >> $HOME/.bashrc;
+echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
 source $HOME/.bashrc;
 go version;
 go env;
@@ -67,6 +67,16 @@ echo -e "[$GREEN+$RESET] Done.";
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
 go get github.com/subfinder/subfinder;
 #sudo cp $HOME/go/bin/subfinder /usr/local/bin/; # probably not needed due to right settings above
+echo -e "[$GREEN+$RESET] Done.";
+
+echo -e "[$GREEN+$RESET] Installing gobuster..";
+cd $HOME/go/src  || return;
+mkdir -p OJ;
+cd $HOME/go/src/OJ  || return;
+git clone https://github.com/OJ/gobuster.git;
+cd $HOME/go/src/OJ/gobuster  || return;
+go get && go build;
+go install;
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing massdns..";
