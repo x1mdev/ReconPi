@@ -41,18 +41,19 @@ sudo apt-get upgrade -y;
 echo -e "[$GREEN+$RESET] Installing and setting up Go..";
 cd "$HOME" || return;
 wget https://dl.google.com/go/go1.10.3.linux-armv6l.tar.gz;
-sudo tar -xvf go1.10.3.linux-armv6l.tar.gz;
+sudo tar -C /usr/local -xvf go1.10.3.linux-armv6l.tar.gz;
 echo -e "[$GREEN+$RESET] Creating directories..";
-mv go go1.10;
-mkdir -p tools;
-mkdir -p go;
+#mv go go1.10; not needed anymore I guess due to change to tar above
+mkdir -p $HOME/tools;
+mkdir -p $HOME/go;
 git clone https://github.com/x1mdev/ReconPi.git;
 echo -e "[$GREEN+$RESET] Done.";
 sudo chmod u+w .;
+# echo to .bashrc needs to be tested.
 echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
-echo -e 'export GOROOT=$HOME/go1.10' >> $HOME/.bashrc;
-echo -e 'export PATH=$PATH:$GOPATH' >> $HOME/.bashrc;
-echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
+echo -e 'export GOROOT=/usr/local/go' >> $HOME/.bashrc;
+#echo -e 'export PATH=$PATH:$GOPATH' >> $HOME/.bashrc;
+echo -e 'export PATH=$PATH:$HOME/go/bin/' >> $HOME/.bashrc;
 source $HOME/.bashrc;
 go version;
 go env;
@@ -65,7 +66,7 @@ echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
 go get github.com/subfinder/subfinder;
-sudo cp $HOME/go/bin/subfinder /usr/local/bin/;
+#sudo cp $HOME/go/bin/subfinder /usr/local/bin/; # probably not needed due to right settings above
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing massdns..";
