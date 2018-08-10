@@ -92,7 +92,7 @@ checkDomainStatus()
 runMassDNS()
 {
 	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
-	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/resolved-domains.txt > $ROOT/$1/massdns.txt
+	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/massdns.txt $ROOT/$1/resolved-domains.txt
 	echo -e "[$GREEN+$RESET] Done!"
 }
 
