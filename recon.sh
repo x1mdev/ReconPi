@@ -112,11 +112,13 @@ convertDomainsFile()
 startDashboard()
 {
 	echo -e "[$GREEN+$RESET] Starting dashboard with results for $GREEN$1$RESET:"
-	cd $HOME/ReconPi/dashboard/;
+	# TODO: Check if server is running, otherwise skip this step.
+	cd $HOME/ReconPi/dashboard/ || return;
 	go run server.go &
 	echo -e "[$GREEN+$RESET] Dashboard running on http://recon.pi.ip.address:1337/"
+	mv $ROOT/$1/domains.txt $HOME/ReconPi/dashboard/app/$1-domains.txt
+	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:1337/static/$1-domains.txt"	
 	# TODO: Needs template rendering and json input from other functions
-	# TODO: Check if server is running, otherwise skip this step.
 	# TODO: Check if we can print out the correct ReconPi local network IP address 
 }
 
