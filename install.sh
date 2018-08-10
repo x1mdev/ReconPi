@@ -117,6 +117,10 @@ echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Cleaning up..";
 displayLogo;
+cd "$HOME" || return;
+touch motd
+displayLogo >> motd;
+sudo mv $HOME/motd /etc/motd;
 cd $HOME || return;
 rm go1.10.3.linux-armv6l.tar.gz;
 rm install.sh; 
