@@ -114,9 +114,9 @@ sudo apt-get install -y nmap;
 cd $HOME/tools/ || return;
 echo -e "[$GREEN+$RESET] Done.";
 
-echo -e "[$GREEN+$RESET] Installing Echo framework (GO)..";
-go get -u github.com/labstack/echo;
-go get github.com/GeertJohan/go.rice;
+#echo -e "[$GREEN+$RESET] Installing Echo framework (GO)..";
+#go get -u github.com/labstack/echo;
+#go get github.com/GeertJohan/go.rice;
 
 echo -e "[$GREEN+$RESET] Installing Nginx..";
 sudo apt-get install -y nginx;
