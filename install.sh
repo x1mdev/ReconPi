@@ -36,20 +36,22 @@ echo -e "[$GREEN+$RESET] Getting the basics..";
 sudo apt-get install git -y;
 sudo apt-get update -y;
 sudo apt-get upgrade -y;
-# You can choose to comment out the `sudo apt-get upgrade` line for speed. NOT advised tho
 
 echo -e "[$GREEN+$RESET] Installing and setting up Go..";
 cd "$HOME" || return;
+sudo apt-get install -y gcc;
+sudo apt-get install -y build-essential;
 wget https://dl.google.com/go/go1.11.1.linux-armv6l.tar.gz;
 sudo tar -C /usr/local -xvf go1.11.1.linux-armv6l.tar.gz;
 echo -e "[$GREEN+$RESET] Creating directories..";
+sleep 1;
 #mv go go1.11; not needed anymore I guess due to change to tar above
 mkdir -p $HOME/tools;
 mkdir -p $HOME/go;
 git clone https://github.com/x1mdev/ReconPi.git;
 echo -e "[$GREEN+$RESET] Done.";
 sudo chmod u+w .;
-# echo to .bashrc needs to be tested.
+# echo to .bashrc needs to be tested. This sometimes fails?
 echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
 echo -e 'export GOROOT=/usr/local/go' >> $HOME/.bashrc;
 echo -e 'export PATH=$PATH:$HOME/go/bin/' >> $HOME/.bashrc;
@@ -58,20 +60,6 @@ source $HOME/.bashrc;
 go version;
 go env;
 cd $HOME/tools/  || return;
-
-
-# docker setup for subdomainDB
-# sudo apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
-# curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-# echo "deb [arch=armhf] https://download.docker.com/linux/debian \
-#               						$(lsb_release -cs) stable" | \
-#             						sudo tee /etc/apt/sources.list.d/docker.list
-# sudo apt-get install docker-ce
-
-# echo -e "[$GREEN+$RESET] Installing Node & NPM..";
-# sudo apt-get install -y npm;
-# sudo apt-get install -y nodejs-legacy;
-# echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
 go get github.com/subfinder/subfinder;
@@ -114,15 +102,18 @@ sudo apt-get install -y nmap;
 cd $HOME/tools/ || return;
 echo -e "[$GREEN+$RESET] Done.";
 
-#echo -e "[$GREEN+$RESET] Installing Echo framework (GO)..";
-#go get -u github.com/labstack/echo;
-#go get github.com/GeertJohan/go.rice;
-
 echo -e "[$GREEN+$RESET] Installing Nginx..";
 sudo apt-get install -y nginx;
 sudo nginx -t;
 cd $HOME/tools/  || return;
 echo -e "[$GREEN+$RESET] Done.";
+
+echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up..";
+git clone https://github.com/smiegles/subdomainDB.git;
+cd subdomainDB;
+docker build --rm -t subdomaindb .;
+docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindbD;
+cd $HOME/tools/ || return;
 
 echo -e "[$GREEN+$RESET] Cleaning up..";
 displayLogo;
