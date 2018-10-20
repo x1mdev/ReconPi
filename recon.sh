@@ -106,7 +106,10 @@ convertDomainsFile()
 	# Fixed: write all input from the jq line into one file
 	# TODO: Post request to dashboard - work in progress
 	#curl -X POST -H "Content-Type: application/json" -H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain x1m.nl
-# 	POST /api/domain/ x1m2.nl HTTP/1.1
+	#
+	# You have to do this manual now, WIP! ;)
+
+# POST /api/domain/ $1.nl HTTP/1.1
 # Host: 127.0.0.1:4000
 # Content-Type: application/json
 # Cache-Control: no-cache
