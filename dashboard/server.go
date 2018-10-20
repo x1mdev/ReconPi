@@ -16,7 +16,8 @@ func main() {
 	// serves the index.html from rice
 	e.GET("/", echo.WrapHandler(assetHandler))
 
-	// servers other static files
+	// serves other static files
+	// the scan results have to be written to ReconPi/dashboard/app
 	e.GET("/static/*", echo.WrapHandler(http.StripPrefix("/static/", assetHandler)))
 
 	e.Logger.Fatal(e.Start(":1337"))

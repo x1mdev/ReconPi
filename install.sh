@@ -85,7 +85,7 @@ git clone https://github.com/blechschmidt/massdns.git;
 cd massdns;
 echo -e "[$GREEN+$RESET] Running make command for massdns..";
 make;
-sudo cp "$HOME/tools/massdns/bin/massdns /usr/local/bin/";
+sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
 sudo apt-get install jq;
 cd $HOME/tools/ || return;
 echo -e "[$GREEN+$RESET] Done.";

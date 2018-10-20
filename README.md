@@ -16,8 +16,6 @@ Start using that Raspberry Pi -- I know you all have one laying around somewhere
 
 This project is in development. Pull requests are welcome!
 
-> Complete overhaul of the ReconPi project. It no longer uses the Ubuntu 16.04 ARM image but Raspbian Stretch Lite. This reduces the image size significantly. Docker has been replaced by the native make command (massdns). For subdomain recon it uses Subfinder with a native go installation (v1.10.3 arm). More to be added.
-
 ## Installation
 
 Check the blogpost here for a complete guide on how to set up your own ReconPi: [ReconPi Guide](https://x1m.nl/posts/recon-pi/) 
@@ -71,3 +69,8 @@ It doesn't have any input yet, but the dashboard is accessible within the local 
  - [Damian Ebelties](https://github.com/ebelties)
 
 If you like this project you can get me a cup of coffee :) [ko-fi.com/martijn](http://ko-fi.com/martijn)
+
+## v1.0.0 Changelog
+
+ - Fixed massdns issue; the `cp` command in `install.sh` did not work due to "
+ - Fixing domains.json result write

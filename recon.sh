@@ -100,6 +100,7 @@ runMassDNS()
 convertDomainsFile()
 {
 	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
+	touch $ROOT/$1/domains.json
 	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
 	echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains.json | sed -z 's/,\n  ""//g'; echo -e "}"
 	
@@ -116,6 +117,9 @@ startDashboard()
 	cd $HOME/ReconPi/dashboard/ || return;
 	go run server.go &
 	echo -e "[$GREEN+$RESET] Dashboard running on http://recon.pi.ip.address:1337/"
+	#
+	# needs some work, static scan results need to be rendered for better view
+	#
 	mv $ROOT/$1/domains.txt $HOME/ReconPi/dashboard/app/$1-domains.txt
 	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:1337/static/$1-domains.txt"	
 	# TODO: Needs template rendering and json input from other functions
