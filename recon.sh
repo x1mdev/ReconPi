@@ -12,7 +12,7 @@ GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
 FILE=`basename "$0"`
-VERSION="0.2.2"
+VERSION="1.0.0"
 
 
 : 'Display the logo'
@@ -100,10 +100,10 @@ runMassDNS()
 convertDomainsFile()
 {
 	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
-	touch $ROOT/$1/domains.json
-	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.json
-	echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains.json | sed -z 's/,\n  ""//g'; echo -e "}"
+	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains-striped.txt
+	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> domains.json
 	
+	# Fixed: write all input from the jq line into one file
 	# TODO: Post request to dashboard - work in progress
 	#curl -X POST -H "Content-Type: application/json" -H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain
 
@@ -120,8 +120,8 @@ startDashboard()
 	#
 	# needs some work, static scan results need to be rendered for better view
 	#
-	mv $ROOT/$1/domains.txt $HOME/ReconPi/dashboard/app/$1-domains.txt
-	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:1337/static/$1-domains.txt"	
+	cp $ROOT/$1/domains.json $HOME/ReconPi/dashboard/app/$1-domains.json
+	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:1337/static/$1-domains.json"	
 	# TODO: Needs template rendering and json input from other functions
 	# TODO: Check if we can print out the correct ReconPi local network IP address 
 }

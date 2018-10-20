@@ -7,7 +7,7 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
-                          v0.2.2 - by @x1m_martijn
+                          v1.0.0 - by @x1m_martijn
 ```
 
 ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and GO. After the installation the ReconPi only needs a WiFi connection and some power, easy does it.
@@ -73,4 +73,4 @@ If you like this project you can get me a cup of coffee :) [ko-fi.com/martijn](h
 ## v1.0.0 Changelog
 
  - Fixed massdns issue; the `cp` command in `install.sh` did not work due to "
- - Fixing domains.json result write
+ - Fixed write issue to domains.json
