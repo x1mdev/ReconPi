@@ -40,10 +40,10 @@ sudo apt-get upgrade -y;
 
 echo -e "[$GREEN+$RESET] Installing and setting up Go..";
 cd "$HOME" || return;
-wget https://dl.google.com/go/go1.10.3.linux-armv6l.tar.gz;
-sudo tar -C /usr/local -xvf go1.10.3.linux-armv6l.tar.gz;
+wget https://dl.google.com/go/go1.11.1.linux-armv6l.tar.gz;
+sudo tar -C /usr/local -xvf go1.11.1.linux-armv6l.tar.gz;
 echo -e "[$GREEN+$RESET] Creating directories..";
-#mv go go1.10; not needed anymore I guess due to change to tar above
+#mv go go1.11; not needed anymore I guess due to change to tar above
 mkdir -p $HOME/tools;
 mkdir -p $HOME/go;
 git clone https://github.com/x1mdev/ReconPi.git;
@@ -59,10 +59,19 @@ go version;
 go env;
 cd $HOME/tools/  || return;
 
-echo -e "[$GREEN+$RESET] Installing Node & NPM..";
-sudo apt-get install -y npm;
-sudo apt-get install -y nodejs-legacy;
-echo -e "[$GREEN+$RESET] Done.";
+
+# docker setup for subdomainDB
+# sudo apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+# curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+# echo "deb [arch=armhf] https://download.docker.com/linux/debian \
+#               						$(lsb_release -cs) stable" | \
+#             						sudo tee /etc/apt/sources.list.d/docker.list
+# sudo apt-get install docker-ce
+
+# echo -e "[$GREEN+$RESET] Installing Node & NPM..";
+# sudo apt-get install -y npm;
+# sudo apt-get install -y nodejs-legacy;
+# echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
 go get github.com/subfinder/subfinder;

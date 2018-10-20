@@ -105,8 +105,19 @@ convertDomainsFile()
 	
 	# Fixed: write all input from the jq line into one file
 	# TODO: Post request to dashboard - work in progress
-	#curl -X POST -H "Content-Type: application/json" -H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain
+	#curl -X POST -H "Content-Type: application/json" -H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain x1m.nl
+# 	POST /api/domain/ x1m2.nl HTTP/1.1
+# Host: 127.0.0.1:4000
+# Content-Type: application/json
+# Cache-Control: no-cache
 
+# {
+# "domains":
+# [
+#   "mail.x1m.nl",
+#   "www.x1m.nl"
+# ]
+# }
 }
 
 : 'Start up the dashboard server'
@@ -124,6 +135,8 @@ startDashboard()
 	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:1337/static/$1-domains.json"	
 	# TODO: Needs template rendering and json input from other functions
 	# TODO: Check if we can print out the correct ReconPi local network IP address 
+	#
+	# This function will probably be changed to serve subdomaindb
 }
 
 : 'Execute the main functions'
@@ -134,7 +147,7 @@ runSubfinder      		"$1"
 checkDomainStatus 		"$1"
 runMassDNS        		"$1"
 convertDomainsFile 		"$1"
-startDashboard 	   		"$1"
+#startDashboard 	   		"$1"
 
 # TODO: Add gobuster functionality
 # TODO: more
