@@ -101,7 +101,8 @@ convertDomainsFile()
 {
 	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
 	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains-striped.txt
-	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> domains.json
+	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $ROOT/$1/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $ROOT/$1/domains.json
+	# file was not getting the right input
 }
 
 : 'Start up the dashboard server'
@@ -124,6 +125,6 @@ checkArguments    		"$1"
 checkDirectory    		"$1"
 runSubfinder      		"$1"
 checkDomainStatus 		"$1"
-runMassDNS        		"$1"
+#runMassDNS        		"$1" # something is up with massdns
 convertDomainsFile 		"$1"
 startDashboard 	   		"$1"
