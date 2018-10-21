@@ -74,3 +74,6 @@ If you like this project you can get me a cup of coffee :) [ko-fi.com/martijn](h
 
  - Fixed massdns issue; the `cp` command in `install.sh` did not work due to "
  - Fixed write issue to domains.json
+ - Implemented [subdomainDB](https://github.com/smiegles/subdomainDB)
+ - Switched base OS: [Hypriot OS](https://blog.hypriot.com/downloads/), Docker ships by default.
+ - Made a few changes to `install.sh` to get all the requirements needed for `recon.sh`

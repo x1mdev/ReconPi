@@ -102,25 +102,6 @@ convertDomainsFile()
 	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
 	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains-striped.txt
 	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> domains.json
-	
-	# Fixed: write all input from the jq line into one file
-	# TODO: Post request to dashboard - work in progress
-	#curl -X POST -H "Content-Type: application/json" -H "X-Hacking: is Illegal!" -d "@domains.json" http://127.0.0.1:4000/api/domain/:domain x1m.nl
-	#
-	# You have to do this manual now, WIP! ;)
-
-# POST /api/domain/ $1.nl HTTP/1.1
-# Host: 127.0.0.1:4000
-# Content-Type: application/json
-# Cache-Control: no-cache
-
-# {
-# "domains":
-# [
-#   "mail.x1m.nl",
-#   "www.x1m.nl"
-# ]
-# }
 }
 
 : 'Start up the dashboard server'
@@ -129,17 +110,9 @@ startDashboard()
 	echo -e "[$GREEN+$RESET] Starting dashboard with results for $GREEN$1$RESET:"
 	# TODO: Check if server is running, otherwise skip this step.
 	cd $HOME/ReconPi/dashboard/ || return;
-	go run server.go &
-	echo -e "[$GREEN+$RESET] Dashboard running on http://recon.pi.ip.address:1337/"
-	#
-	# needs some work, static scan results need to be rendered for better view
-	#
-	cp $ROOT/$1/domains.json $HOME/ReconPi/dashboard/app/$1-domains.json
+	
 	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:1337/static/$1-domains.json"	
-	# TODO: Needs template rendering and json input from other functions
-	# TODO: Check if we can print out the correct ReconPi local network IP address 
-	#
-	# This function will probably be changed to serve subdomaindb
+	
 }
 
 : 'Execute the main functions'
