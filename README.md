@@ -18,19 +18,16 @@ This project is in development. Pull requests are welcome!
 
 ## Installation
 
-Check the blogpost here for a complete guide on how to set up your own ReconPi: [ReconPi Guide](https://x1m.nl/posts/recon-pi/) 
+Check the updated blogpost here for a complete guide on how to set up your own ReconPi: [ReconPi Guide](https://x1m.nl/posts/recon-pi/) 
 
-> The guide will be updated soon!
 
 If you prepared your Raspberry Pi through the guide linked above you should be able to continue below.
 
 Connect to your ReconPi with SSH:
 
 ```
-$ ssh pi@192.168.2.39 [Change IP to ReconPi IP]
+$ ssh pirate@192.168.2.16 [Change IP to ReconPi IP]
 ```
-
-When you connect to the ReconPi for the first time you will be asked to change the default password (`raspberry`). After the password change you will have to log in again with the new password.
 
 Now we can set up everything, it's quite simple:
 
@@ -42,7 +39,7 @@ Grab a cup of coffee since this will take a while.
 
 ## Usage
 
-After installing all of the dependencies for the ReconPi we can finally start doing some recon!
+After installing all of the dependencies for the ReconPi you can finally start doing some recon!
 
 ```
 $ sudo bash ReconPi/recon.sh <domain.tld>
@@ -52,23 +49,20 @@ $ sudo bash ReconPi/recon.sh <domain.tld>
 
 Tools that are being used at this moment:
 
- - [Raspbian Stretch Lite image](https://www.raspberrypi.org/downloads/raspbian/)
+ - [Hypriot OS](https://blog.hypriot.com/downloads/)
  - [GO](https://github.com/golang)
- - [Echo](https://github.com/labstack/echo)
+ - [Docker](https://www.docker.com/)
+ - [subdomainDB](https://github.com/smiegles/subdomainDB)
  - [Subfinder](https://github.com/Ice3man543/subfinder) (now running on native Go)
  - [MassDNS](https://github.com/blechschmidt/massdns)
 
 More tools will be added in the future, feel free to make a Pull Request!
 
-Current output is in simple `.txt` and `.json` files. I have developed a little web application that runs on a minimal Go server, which will be installed during the `install.sh` process.
-
-It doesn't have any input yet, but the dashboard is accessible within the local network. You can visit it by navigating to `https://192.168.2.PI-IP:1337`
+Output is written to http://192.168.2.16:4000 (replace with your own ReconPi address).
 
 ## Contributors
 
  - [Damian Ebelties](https://github.com/ebelties)
-
-If you like this project you can get me a cup of coffee :) [ko-fi.com/martijn](http://ko-fi.com/martijn)
 
 ## v1.0.0 Changelog
 

@@ -96,7 +96,7 @@ runMassDNS()
 	echo -e "[$GREEN+$RESET] Done!"
 }
 
-: 'Convert domains.txt to json (subdomainDB format) + make POST API request with output from subfinder'
+: 'Convert domains.txt to json (subdomainDB format)'
 convertDomainsFile()
 {
 	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
@@ -107,11 +107,14 @@ convertDomainsFile()
 : 'Start up the dashboard server'
 startDashboard()
 {
-	echo -e "[$GREEN+$RESET] Starting dashboard with results for $GREEN$1$RESET:"
-	# TODO: Check if server is running, otherwise skip this step.
-	cd $HOME/ReconPi/dashboard/ || return;
+	echo -e "[$GREEN+$RESET] Starting dashboard and adding results for $GREEN$1$RESET:"
+	docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb
+	# cd $HOME/ReconPi/dashboard/ || return;
+	#
+	# TODO: Send the domains.json results to the API.
+	#
 	
-	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:1337/static/$1-domains.json"	
+	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:4000"	
 	
 }
 
@@ -123,7 +126,4 @@ runSubfinder      		"$1"
 checkDomainStatus 		"$1"
 runMassDNS        		"$1"
 convertDomainsFile 		"$1"
-#startDashboard 	   		"$1"
-
-# TODO: Add gobuster functionality
-# TODO: more
+startDashboard 	   		"$1"

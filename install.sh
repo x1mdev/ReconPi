@@ -112,7 +112,7 @@ echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up..";
 git clone https://github.com/smiegles/subdomainDB.git;
 cd subdomainDB;
 docker build --rm -t subdomaindb .;
-docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindbD;
+docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb;
 cd $HOME/tools/ || return;
 
 echo -e "[$GREEN+$RESET] Cleaning up..";
