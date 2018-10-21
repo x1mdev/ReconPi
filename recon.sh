@@ -66,8 +66,6 @@ runSubfinder()
 	rm -rf $ROOT/$1/$1.txt
 }
 
-# Get subfinder output that is in the Aquatone format to run it in Aquatone
-
 : 'Check if host is online, then print it'
 checkDomainStatus()
 {
@@ -102,7 +100,6 @@ convertDomainsFile()
 	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
 	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains-striped.txt
 	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $ROOT/$1/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $ROOT/$1/domains.json
-	# file was not getting the right input
 }
 
 : 'Start up the dashboard server'
@@ -110,10 +107,6 @@ startDashboard()
 {
 	echo -e "[$GREEN+$RESET] Starting dashboard and adding results for $GREEN$1$RESET:"
 	docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb
-	# cd $HOME/ReconPi/dashboard/ || return;
-	#
-	# TODO: Send the domains.json results to the API.
-	#
 	curl -X POST \
   	http://0.0.0.0:4000//api/domain/%20$1 \
   	-H 'cache-control: no-cache' \

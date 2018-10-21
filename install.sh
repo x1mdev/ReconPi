@@ -45,7 +45,6 @@ wget https://dl.google.com/go/go1.11.1.linux-armv6l.tar.gz;
 sudo tar -C /usr/local -xvf go1.11.1.linux-armv6l.tar.gz;
 echo -e "[$GREEN+$RESET] Creating directories..";
 sleep 1;
-#mv go go1.11; not needed anymore I guess due to change to tar above
 mkdir -p $HOME/tools;
 mkdir -p $HOME/go;
 git clone https://github.com/x1mdev/ReconPi.git;
@@ -63,7 +62,6 @@ cd $HOME/tools/  || return;
 
 echo -e "[$GREEN+$RESET] Installing Subfinder..";
 go get github.com/subfinder/subfinder;
-#sudo cp $HOME/go/bin/subfinder /usr/local/bin/; # probably not needed due to right settings above
 echo -e "[$GREEN+$RESET] Done.";
 
 echo -e "[$GREEN+$RESET] Installing gobuster..";
@@ -112,7 +110,8 @@ echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up..";
 git clone https://github.com/smiegles/subdomainDB.git;
 cd subdomainDB;
 docker build --rm -t subdomaindb .;
-docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb;
+# docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb;
+# dashboard will start up in recon.sh
 cd $HOME/tools/ || return;
 
 echo -e "[$GREEN+$RESET] Cleaning up..";
