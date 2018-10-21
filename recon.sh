@@ -107,6 +107,7 @@ startDashboard()
 {
 	echo -e "[$GREEN+$RESET] Starting dashboard and adding results for $GREEN$1$RESET:"
 	docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb
+	sleep 10 # Required for the first run only, otherwise the POST request will be rejected.
 	curl -X POST \
   	http://0.0.0.0:4000//api/domain/%20$1 \
   	-H 'cache-control: no-cache' \

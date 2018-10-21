@@ -31,8 +31,9 @@ $ ssh pirate@192.168.2.16 [Change IP to ReconPi IP]
 
 Now we can set up everything, it's quite simple:
 
- - `wget https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh`
- - `sudo bash ReconPi/install.sh`
+ - `git clone https://github.com/x1mdev/ReconPi.git`
+ - `cd ReconPi`
+ - `./install.sh`
  - The script gives a `reboot` command at the end of `install.sh`, please login again to start using the ReconPi.
 
 Grab a cup of coffee since this will take a while.
@@ -42,7 +43,7 @@ Grab a cup of coffee since this will take a while.
 After installing all of the dependencies for the ReconPi you can finally start doing some recon!
 
 ```
-$ sudo bash ReconPi/recon.sh <domain.tld>
+$ recon <domain.tld>
 ```
 
 `recon.sh` creates a directory named equal to the `domain.tld` provided within it's initial directory `$HOME/bugbounty`. It then starts the recon process.
@@ -71,3 +72,5 @@ Output is written to http://192.168.2.16:4000 (replace with your own ReconPi add
  - Implemented [subdomainDB](https://github.com/smiegles/subdomainDB)
  - Switched base OS: [Hypriot OS](https://blog.hypriot.com/downloads/), Docker ships by default.
  - Made a few changes to `install.sh` to get all the requirements needed for `recon.sh`
+ - Finished the curl POST request call to show data on the dashboard.
+ - Tested the `install.sh` and `recon.sh` scripts on a freshly installed RPi + Hypriot OS.

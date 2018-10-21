@@ -55,6 +55,8 @@ echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
 echo -e 'export GOROOT=/usr/local/go' >> $HOME/.bashrc;
 echo -e 'export PATH=$PATH:$HOME/go/bin/' >> $HOME/.bashrc;
 echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
+echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> $HOME/.bashrc;
+alias recon='bash $HOME/ReconPi/recon.sh'
 source $HOME/.bashrc;
 go version;
 go env;
@@ -81,7 +83,7 @@ cd massdns;
 echo -e "[$GREEN+$RESET] Running make command for massdns..";
 make;
 sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
-sudo apt-get install jq;
+sudo apt-get install -y jq;
 cd $HOME/tools/ || return;
 echo -e "[$GREEN+$RESET] Done.";
 
