@@ -114,7 +114,11 @@ startDashboard()
 	#
 	# TODO: Send the domains.json results to the API.
 	#
-	
+	curl -X POST \
+  	http://0.0.0.0:4000//api/domain/%20$1 \
+  	-H 'cache-control: no-cache' \
+  	-H 'content-type: application/json' \
+  	-d @$ROOT/$1/domains.json
 	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:4000"	
 	
 }
