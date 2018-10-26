@@ -12,7 +12,7 @@ GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
 FILE=`basename "$0"`
-VERSION="1.0.0"
+VERSION="1.0.1"
 
 
 : 'Display the logo'
@@ -62,8 +62,6 @@ runSubfinder()
 	echo -e "[$GREEN+$RESET] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
 	touch $ROOT/$1/domains.txt
 	cat $ROOT/$1/$1.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.txt
-
-	rm -rf $ROOT/$1/$1.txt
 }
 
 : 'Check if host is online, then print it'
@@ -89,6 +87,7 @@ checkDomainStatus()
 : 'Run MassDNS on the given domains'
 runMassDNS()
 {
+	# something is up with this
 	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
 	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/massdns.txt $ROOT/$1/resolved-domains.txt
 	echo -e "[$GREEN+$RESET] Done!"
@@ -117,6 +116,17 @@ startDashboard()
 	
 }
 
+: 'Clean up'
+cleanup()
+{
+	# TODO: Check if there are more useless files
+	echo -e "[$GREEN+$RESET] Cleaning up.."
+	rm $ROOT/$1/$1.txt
+	rm $ROOT/$1/domains-striped.txt
+	sleep 1
+	echo -e "[$GREEN+$RESET] Done, ready for the next scan!"
+}
+
 : 'Execute the main functions'
 displayLogo
 checkArguments    		"$1"
@@ -126,3 +136,5 @@ checkDomainStatus 		"$1"
 #runMassDNS        		"$1" # something is up with massdns
 convertDomainsFile 		"$1"
 startDashboard 	   		"$1"
+cleanup					"$1"
+# Maybe create a cleanup function
