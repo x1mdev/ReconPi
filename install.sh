@@ -10,7 +10,7 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-VERSION="1.0.0"
+VERSION="1.0.1"
 
 
 : 'Display the logo'
@@ -117,13 +117,14 @@ docker build --rm -t subdomaindb .;
 cd $HOME/tools/ || return;
 
 echo -e "[$GREEN+$RESET] Cleaning up..";
+# Probably going to create functions for this script too
 displayLogo;
 cd "$HOME" || return;
 touch motd
 displayLogo >> motd;
 sudo mv $HOME/motd /etc/motd;
 cd $HOME || return;
-rm go1.10.3.linux-armv6l.tar.gz;
+rm go1.11.1.linux-armv6l.tar.gz;
 rm install.sh; 
 echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation.";
 sleep 1;
