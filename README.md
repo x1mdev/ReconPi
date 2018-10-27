@@ -65,6 +65,11 @@ Output is written to http://192.168.2.16:4000 (replace with your own ReconPi add
 
  - [Damian Ebelties](https://github.com/ebelties)
 
+## Coming soon
+
+ - More detailed scan results on the dashboard.
+ - Add more tools.
+
 ## v1.0.0 Changelog
 
  - Fixed massdns issue; the `cp` command in `install.sh` did not work due to "
