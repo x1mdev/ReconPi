@@ -11,7 +11,6 @@ YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
-FILE=`basename "$0"`
 VERSION="1.0.1"
 
 
@@ -33,7 +32,7 @@ __________                          __________.__
 checkArguments()
 {
 	if [[ -z $1 ]]; then
-		echo -e "[$GREEN+$RESET] Usage: bash $FILE <domain.tld>"
+		echo -e "[$GREEN+$RESET] Usage: recon <domain.tld>"
 		exit 1
 	fi
 }
@@ -137,4 +136,3 @@ checkDomainStatus 		"$1"
 convertDomainsFile 		"$1"
 startDashboard 	   		"$1"
 cleanup					"$1"
-# Maybe create a cleanup function

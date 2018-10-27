@@ -36,11 +36,11 @@ echo -e "[$GREEN+$RESET] Getting the basics..";
 sudo apt-get install git -y;
 sudo apt-get update -y;
 sudo apt-get upgrade -y;
+sudo apt-get install -y gcc;
+sudo apt-get install -y build-essential;
 
 echo -e "[$GREEN+$RESET] Installing and setting up Go..";
 cd "$HOME" || return;
-sudo apt-get install -y gcc;
-sudo apt-get install -y build-essential;
 wget https://dl.google.com/go/go1.11.1.linux-armv6l.tar.gz;
 sudo tar -C /usr/local -xvf go1.11.1.linux-armv6l.tar.gz;
 echo -e "[$GREEN+$RESET] Creating directories..";
@@ -48,9 +48,9 @@ sleep 1;
 mkdir -p $HOME/tools;
 mkdir -p $HOME/go;
 git clone https://github.com/x1mdev/ReconPi.git;
-echo -e "[$GREEN+$RESET] Done.";
 sudo chmod u+w .;
-# echo to .bashrc needs to be tested. This sometimes fails?
+echo -e "[$GREEN+$RESET] Done.";
+echo -e "[$GREEN+$RESET] Adding recon alias & Golang to .bashrc..";
 echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
 echo -e 'export GOROOT=/usr/local/go' >> $HOME/.bashrc;
 echo -e 'export PATH=$PATH:$HOME/go/bin/' >> $HOME/.bashrc;
@@ -58,6 +58,7 @@ echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
 echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> $HOME/.bashrc;
 alias recon='bash $HOME/ReconPi/recon.sh'
 source $HOME/.bashrc;
+echo -e "[$GREEN+$RESET] Done.";
 go version;
 go env;
 cd $HOME/tools/  || return;
@@ -112,7 +113,6 @@ echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up..";
 git clone https://github.com/smiegles/subdomainDB.git;
 cd subdomainDB;
 docker build --rm -t subdomaindb .;
-# docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb;
 # dashboard will start up in recon.sh
 cd $HOME/tools/ || return;
 
