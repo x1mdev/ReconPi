@@ -11,7 +11,7 @@ YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
-VERSION="1.0.1"
+VERSION="1.0.2"
 
 
 : 'Display the logo'
