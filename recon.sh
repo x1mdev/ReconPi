@@ -11,7 +11,7 @@ YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
-VERSION="1.0.2"
+VERSION="1.1.0"
 
 
 : 'Display the logo'
@@ -86,7 +86,6 @@ checkDomainStatus()
 : 'Run MassDNS on the given domains'
 runMassDNS()
 {
-	# something is up with this
 	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
 	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/massdns.txt $ROOT/$1/resolved-domains.txt
 	echo -e "[$GREEN+$RESET] Done!"
@@ -132,7 +131,7 @@ checkArguments    		"$1"
 checkDirectory    		"$1"
 runSubfinder      		"$1"
 checkDomainStatus 		"$1"
-#runMassDNS        		"$1" # something is up with massdns
+runMassDNS        		"$1" # something is up with massdns -> fixed with Re4son Kali Pi image :)
 convertDomainsFile 		"$1"
 startDashboard 	   		"$1"
 cleanup					"$1"
