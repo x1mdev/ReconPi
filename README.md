@@ -26,7 +26,7 @@ If you prepared your Raspberry Pi through the guide linked above you should be a
 Connect to your ReconPi with SSH:
 
 ```
-$ ssh pirate@192.168.2.16 [Change IP to ReconPi IP]
+$ ssh root@192.168.2.16 [Change IP to ReconPi IP]
 ```
 
 Now we can set up everything, it's quite simple:
