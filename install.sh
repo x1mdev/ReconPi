@@ -76,6 +76,7 @@ golangInstall()
     echo -e "[$GREEN+$RESET] Golang has been configured, checking go env..";
     go version;
     go env;
+    sleep 1;
 
     echo -e "[$GREEN+$RESET] Installing Subfinder..";
     go get github.com/subfinder/subfinder;
@@ -91,6 +92,15 @@ golangInstall()
     go install;
     echo -e "[$GREEN+$RESET] Done.";
     cd $HOME/tools/  || return;
+
+    echo -e "[$GREEN+$RESET] Installing GetJS..";
+    go get -u github.com/003random/getJS;
+    echo -e "[$GREEN+$RESET] Done.";
+
+    echo -e "[$GREEN+$RESET] Installing tojson..";
+    go get -u github.com/tomnomnom/hacks/tojson;
+    echo -e "[$GREEN+$RESET] Done.";
+    
 }
 
 : 'Additional tools'

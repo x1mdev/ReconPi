@@ -99,10 +99,19 @@ convertDomainsFile()
 	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $ROOT/$1/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $ROOT/$1/domains.json
 }
 
+: 'Run GetJS on scanresults and store output in file'
+runGetJS()
+{
+	echo -e "[$GREEN+$RESET] Running $GREEN GetJS$RESET on scan results.."
+	cat $ROOT/$1/domains.txt | getJS | tojson >> $ROOT/$1/$1-JS-files.txt
+	echo -e "[$GREEN+$RESET] Done, output has been saved to: $1-JS-files.txt"
+}
+
 : 'Start up the dashboard server'
 startDashboard()
 {
 	echo -e "[$GREEN+$RESET] Starting dashboard and adding results for $GREEN$1$RESET:"
+	# make some sort of check to see if the docker is already running and if so, don't run the docker command.
 	docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb
 	sleep 10 # Required for the first run only, otherwise the POST request will be rejected.
 	curl -X POST \

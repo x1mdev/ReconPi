@@ -23,6 +23,8 @@ Check the updated blogpost here for a complete guide on how to set up your own R
 
 If you prepared your Raspberry Pi through the guide linked above you should be able to continue below.
 
+> ReconPi v1.1.0 needs the Kali Pi image to work 100%!
+
 Connect to your ReconPi with SSH:
 
 ```
@@ -56,6 +58,8 @@ Tools that are being used at this moment:
  - [subdomainDB](https://github.com/smiegles/subdomainDB)
  - [Subfinder](https://github.com/Ice3man543/subfinder) (now running on native Go)
  - [MassDNS](https://github.com/blechschmidt/massdns)
+ - [GetJS](https://github.com/003random/getJS)
+ - [tojson](https://github.com/tomnomnom/hacks/tojson)
 
 More tools will be added in the future, feel free to make a Pull Request!
 
@@ -70,6 +74,12 @@ Output is written to http://192.168.2.16:4000 (replace with your own ReconPi add
  - More detailed scan results on the dashboard.
  - Add more tools.
 
+## v1.1.0 Changelog
+
+- Added some more tools: 
+ [GetJS](https://github.com/003random/getJS) &
+ [tojson](https://github.com/tomnomnom/hacks/tojson)
+- 
 ## v1.0.2 Changelog
 
  - Fixed massdns issue; the `cp` command in `install.sh` did not work due to "
