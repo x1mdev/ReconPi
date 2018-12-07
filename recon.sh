@@ -11,7 +11,7 @@ YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
 ROOT="$HOME/bugbounty"
-VERSION="1.0.2"
+VERSION="1.1.0"
 
 
 : 'Display the logo'
@@ -86,7 +86,6 @@ checkDomainStatus()
 : 'Run MassDNS on the given domains'
 runMassDNS()
 {
-	# something is up with this
 	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
 	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/massdns.txt $ROOT/$1/resolved-domains.txt
 	echo -e "[$GREEN+$RESET] Done!"
@@ -100,10 +99,19 @@ convertDomainsFile()
 	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $ROOT/$1/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $ROOT/$1/domains.json
 }
 
+: 'Run GetJS on scanresults and store output in file'
+runGetJS()
+{
+	echo -e "[$GREEN+$RESET] Running $GREEN GetJS$RESET on scan results.."
+	cat $ROOT/$1/domains.txt | getJS | tojson >> $ROOT/$1/$1-JS-files.txt
+	echo -e "[$GREEN+$RESET] Done, output has been saved to: $1-JS-files.txt"
+}
+
 : 'Start up the dashboard server'
 startDashboard()
 {
 	echo -e "[$GREEN+$RESET] Starting dashboard and adding results for $GREEN$1$RESET:"
+	# make some sort of check to see if the docker is already running and if so, don't run the docker command.
 	docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb
 	sleep 10 # Required for the first run only, otherwise the POST request will be rejected.
 	curl -X POST \
@@ -132,7 +140,7 @@ checkArguments    		"$1"
 checkDirectory    		"$1"
 runSubfinder      		"$1"
 checkDomainStatus 		"$1"
-#runMassDNS        		"$1" # something is up with massdns
+runMassDNS        		"$1" # something is up with massdns -> fixed with Re4son Kali Pi image :)
 convertDomainsFile 		"$1"
 startDashboard 	   		"$1"
 cleanup					"$1"

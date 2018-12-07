@@ -7,7 +7,7 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
-                          v1.0.2 - by @x1m_martijn
+                          v1.1.0 - by @x1m_martijn
 ```
 
 ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and GO. After the installation the ReconPi only needs an internet connection and some power, easy does it.
@@ -23,10 +23,12 @@ Check the updated blogpost here for a complete guide on how to set up your own R
 
 If you prepared your Raspberry Pi through the guide linked above you should be able to continue below.
 
+> ReconPi v1.1.0 needs the Kali Pi image to work 100%!
+
 Connect to your ReconPi with SSH:
 
 ```
-$ ssh pirate@192.168.2.16 [Change IP to ReconPi IP]
+$ ssh root@192.168.2.16 [Change IP to ReconPi IP]
 ```
 
 Now we can set up everything, it's quite simple:
@@ -56,6 +58,8 @@ Tools that are being used at this moment:
  - [subdomainDB](https://github.com/smiegles/subdomainDB)
  - [Subfinder](https://github.com/Ice3man543/subfinder) (now running on native Go)
  - [MassDNS](https://github.com/blechschmidt/massdns)
+ - [GetJS](https://github.com/003random/getJS)
+ - [tojson](https://github.com/tomnomnom/hacks/tojson)
 
 More tools will be added in the future, feel free to make a Pull Request!
 
@@ -70,6 +74,12 @@ Output is written to http://192.168.2.16:4000 (replace with your own ReconPi add
  - More detailed scan results on the dashboard.
  - Add more tools.
 
+## v1.1.0 Changelog
+
+- Added some more tools: 
+ [GetJS](https://github.com/003random/getJS) &
+ [tojson](https://github.com/tomnomnom/hacks/tojson)
+- 
 ## v1.0.2 Changelog
 
  - Fixed massdns issue; the `cp` command in `install.sh` did not work due to "

@@ -10,7 +10,7 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-VERSION="1.0.2"
+VERSION="1.1.0"
 
 
 : 'Display the logo'
@@ -40,6 +40,7 @@ basicRequirements()
     sudo apt-get upgrade -y;
     sudo apt-get install -y gcc;
     sudo apt-get install -y build-essential;
+    sudo apt install -y lua5.1 alsa-utils;
     echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -61,17 +62,21 @@ golangInstall()
     sudo chmod u+w .;
     echo -e "[$GREEN+$RESET] Done.";
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to ~/.bashrc..";
+    sleep 1;
     echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
     echo -e 'export GOROOT=/usr/local/go' >> $HOME/.bashrc;
     echo -e 'export PATH=$PATH:$HOME/go/bin/' >> $HOME/.bashrc;
     echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
+    echo -e 'export PATH=$PATH:$HOME/.local/bin' >> $HOME/.bashrc;
     echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> $HOME/.bashrc;
     alias recon='bash $HOME/ReconPi/recon.sh'
+    sleep 1;
     source $HOME/.bashrc;
     cd $HOME  || return;
     echo -e "[$GREEN+$RESET] Golang has been configured, checking go env..";
     go version;
     go env;
+    sleep 1;
 
     echo -e "[$GREEN+$RESET] Installing Subfinder..";
     go get github.com/subfinder/subfinder;
@@ -87,6 +92,15 @@ golangInstall()
     go install;
     echo -e "[$GREEN+$RESET] Done.";
     cd $HOME/tools/  || return;
+
+    echo -e "[$GREEN+$RESET] Installing GetJS..";
+    go get -u github.com/003random/getJS;
+    echo -e "[$GREEN+$RESET] Done.";
+
+    echo -e "[$GREEN+$RESET] Installing tojson..";
+    go get -u github.com/tomnomnom/hacks/tojson;
+    echo -e "[$GREEN+$RESET] Done.";
+    
 }
 
 : 'Additional tools'
@@ -128,7 +142,14 @@ setupDashboard()
     cd $HOME/tools/  || return;
     echo -e "[$GREEN+$RESET] Done.";
 
+    echo -e "[$GREEN+$RESET] Installing Docker.."
+    sudo apt install -y docker.io;
+    service docker start;
+    sleep 1;
+    echo -e "[$GREEN+$RESET] Done."
+
     echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up..";
+    cd $HOME/tools/  || return;
     git clone https://github.com/smiegles/subdomainDB.git;
     cd subdomainDB;
     docker build --rm -t subdomaindb .;
