@@ -145,6 +145,7 @@ setupDashboard()
     echo -e "[$GREEN+$RESET] Installing Docker.."
     sudo apt install -y docker.io;
     service docker start;
+    sudo systemctl enable docker;
     sleep 1;
     echo -e "[$GREEN+$RESET] Done."
 
