@@ -7,7 +7,7 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
-                          v1.1.0 - by @x1m_martijn
+                            v2.0 - by @x1m_martijn
 ```
 
 ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and GO. After the installation the ReconPi only needs an internet connection and some power, easy does it.
@@ -91,3 +91,7 @@ Output is written to http://192.168.2.16:4000 (replace with your own ReconPi add
  - Tested the `install.sh` and `recon.sh` scripts on a freshly installed RPi + Hypriot OS.
  - Added cleanup function
  - Moved all of the loose parts in to functions in `install.sh`
+
+ ## v2.0 Changelog
+
+  - tba

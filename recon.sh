@@ -64,8 +64,8 @@ if [ ! -d $RESULTDIR ]; then
 bruteForce()
 {
   echo -e "[$GREEN+$RESET] Creating wordlists"
-  bash "$BASE"/scripts/append_subdomains.sh "$BASE"/wordlists/commonspeak2-subdomains.txt "$domain" "$RESULTDIR/commonspeak-wordlist.txt"
-  bash "$BASE"/scripts/append_subdomains.sh "$BASE"/wordlists/stackoverflow-subdomains.txt "$domain" "$RESULTDIR/stackoverflow-wordlist.txt"
+  bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/commonspeak2-subdomains.txt "$domain" "$RESULTDIR/commonspeak-wordlist.txt"
+  bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/stackoverflow-subdomains.txt "$domain" "$RESULTDIR/stackoverflow-wordlist.txt"
   touch "$RESULTDIR"/subdomains.txt
 
   echo -e "[$GREEN+$RESET] Sorting and making combo list unique"
@@ -190,7 +190,7 @@ portMasscan()
 }
 
 : 'check online'
-quicknDirty()
+checkOnline()
 {
   echo -e "[$GREEN+$RESET] Check online targets"
   #printf "https://poc-server.com\nhttps://example.com\nhttps://notexisting003.com\nhttp://google.com" | online
@@ -289,11 +289,17 @@ cleanup()
 displayLogo
 checkArguments    		
 checkDirectory    
-checkDirectory2			
-runSubfinder      		
-checkDomainStatus 		
-runMassDNS 
-sortBRUTEResults       		
-convertDomainsFile 		
-startDashboard 	   		
-cleanup					
+checkDirectory2
+bruteForce			
+runSubfinder
+runAmass
+runAltdns 
+checkWildcards
+runGetJS
+portMasscan
+checkOnline
+sortBRUTEResults
+resultsOverview
+convertDomainsFile
+startDashboard
+cleanup				
