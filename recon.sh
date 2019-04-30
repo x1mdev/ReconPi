@@ -74,7 +74,7 @@ bruteForce()
 
   echo -e "[$GREEN+$RESET] resolving subdomains.."
   "$HOME"/tools/massdns/bin/massdns -r "$BASE"/wordlists/resolvers.txt -q -t A -o S -w "$RESULTDIR/wordlist-online.txt" "$RESULTDIR/wordlist.txt"
-  awk -F ". " '{print $1}' "$RESULTDIR/wordlist-online.txt" > "$RESULTDIR/wordlist-filtered.txt" && mv "$RESULTDIR/wordlist-filtered.txt" "$RESULTDIR/wordlist-online.txt"
+  awk -F ". " '{print $domain}' "$RESULTDIR/wordlist-online.txt" > "$RESULTDIR/wordlist-filtered.txt" && mv "$RESULTDIR/wordlist-filtered.txt" "$RESULTDIR/wordlist-online.txt"
   echo -e "[$GREEN+$RESET] DUURT LANG!1!!"
   touch "$RESULTDIR"/bruteforce-online.txt
 
@@ -173,10 +173,10 @@ checkWildcards()
 runGetJS()
 {
 	echo -e "[$GREEN+$RESET] Running $GREEN GetJS$RESET on scan results.."
-	sed 's#^#http://#g' $ROOT/$1/domains.txt > $ROOT/$1/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
-	sed 's#^#https://#g' $ROOT/$1/domains.txt > $ROOT/$1/domains-https.txt
-	cat $ROOT/$1/all-subdomains.txt | getJS | tojson >> $ROOT/$1/$1-JS-files.txt
-	echo -e "[$GREEN+$RESET] Done, output has been saved to: $1-JS-files.txt"
+	sed 's#^#http://#g' $BASERESULT/$domain/domains.txt > $BASERESULT/$domain/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
+	sed 's#^#https://#g' $BASERESULT/$domain/domains.txt > $BASERESULT/$domain/domains-https.txt
+	cat $BASERESULT/$domain/all-subdomains.txt | getJS | tojson >> $BASERESULT/$domain/$domain-JS-files.txt
+	echo -e "[$GREEN+$RESET] Done, output has been saved to: $domain-JS-files.txt"
 }
 
 : 'portscan masscan'
@@ -253,25 +253,24 @@ resultsOverview()
 : 'Convert domains.txt to json (subdomainDB format)'
 convertDomainsFile()
 {
-	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
-	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains-striped.txt
-	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $ROOT/$1/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $ROOT/$1/domains.json
+	echo -e "[$GREEN+$RESET] Converting $GREEN$BASERESULT/$domain/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
+	cat $BASERESULT/$domain/domains.txt | grep -P "([A-Za-z0-9]).*$domain" >> $BASERESULT/$domain/domains-striped.txt
+	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $BASERESULT/$domain/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $BASERESULT/$domain/domains.json
 }
 
 : 'Start up the dashboard server'
 startDashboard()
 {
-	echo -e "[$GREEN+$RESET] Starting dashboard and adding results for $GREEN$1$RESET:"
+	echo -e "[$GREEN+$RESET] Starting dashboard and adding results for $GREEN$domain$RESET:"
 	# make some sort of check to see if the docker is already running and if so, don't run the docker command.
 	docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb
 	sleep 10 # Required for the first run only, otherwise the POST request will be rejected.
 	curl -X POST \
-  	http://0.0.0.0:4000//api/domain/%20$1 \
+  	http://0.0.0.0:4000//api/domain/%20$domain \
   	-H 'cache-control: no-cache' \
   	-H 'content-type: application/json' \
-  	-d @$ROOT/$1/domains.json
-	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:4000"	
-	
+  	-d @$BASERESULT/$domain/domains.json # fix (done?)
+	echo -e "[$GREEN+$RESET] $domain scan results available on http://recon.pi.ip.address:4000"	
 }
 
 : 'Clean up'
@@ -279,8 +278,8 @@ cleanup()
 {
 	# TODO: Check if there are more useless files
 	echo -e "[$GREEN+$RESET] Cleaning up.."
-	rm $ROOT/$1/$1.txt
-	rm $ROOT/$1/domains-striped.txt
+	#rm $ROOT/$1/$1.txt
+	#rm $ROOT/$1/domains-striped.txt
 	sleep 1
 	echo -e "[$GREEN+$RESET] Done, ready for the next scan!"
 }
@@ -298,7 +297,7 @@ checkWildcards
 runGetJS
 portMasscan
 checkOnline
-sortBRUTEResults
+sortBruteResults
 resultsOverview
 convertDomainsFile
 startDashboard

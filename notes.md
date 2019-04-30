@@ -50,3 +50,10 @@ rm: cannot remove '//.txt': No such file or directory
 [+] Done, ready for the next scan!
 
 ```
+
+## TODO
+
+- add sublert.py
+- add directory bruteforce / content discovery (gobuster/dirsearch)
+- fix altdns.py
+- fix cronjobs
