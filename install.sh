@@ -37,7 +37,7 @@ basicRequirements()
     echo -e "[$GREEN+$RESET] Getting the basics..";
     #sudo apt-get install git -y; # installed by default re4sonpi
     sudo apt-get update -y;
-    sudo apt-get upgrade -y;
+    #sudo apt-get upgrade -y; #uit voor test
     #sudo apt-get install -y gcc; # installed by default re4sonpi
     #sudo apt-get install -y build-essential; # installed by default re4sonpi
     sudo apt install -y lua5.1 alsa-utils; # still needed
