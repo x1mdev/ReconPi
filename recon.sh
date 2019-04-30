@@ -10,8 +10,12 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-ROOT="$HOME/bugbounty"
-VERSION="1.1.0"
+BASE="$HOME/ReconPi"
+domain="$1"
+#ROOT="$HOME/bugbounty"
+BASERESULT="$HOME/bugbounty"
+RESULTDIR="$HOME/bugbounty/$domain"
+VERSION="2.0"
 
 
 : 'Display the logo'
@@ -31,7 +35,7 @@ __________                          __________.__
 : 'Display help text when no arguments are given'
 checkArguments()
 {
-	if [[ -z $1 ]]; then
+	if [[ -z $domain ]]; then
 		echo -e "[$GREEN+$RESET] Usage: recon <domain.tld>"
 		exit 1
 	fi
@@ -40,71 +44,218 @@ checkArguments()
 : 'Check if the current domain has a directory, else make it'
 checkDirectory()
 {
-	if [ ! -d $ROOT ]; then
-		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$ROOT$RESET"
-		mkdir "$ROOT"
-		cd $ROOT
-	fi
-	if [ ! -d $ROOT/$1 ]; then
-		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$ROOT/$1$RESET"
-		mkdir -p "$ROOT/$1"
-		cd $ROOT/$1
+	if [ ! -d $BASERESULT ]; then
+		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$BASERESULT$RESET"
+		mkdir "$BASERESULT"
+		#cd $RESULTDIR
 	fi
 }
 
-: 'Run Subfinder on the given domain'
+checkDirectory2()
+{
+if [ ! -d $RESULTDIR ]; then
+		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$RESULTDIR$RESET"
+		mkdir -p "$RESULTDIR"
+		#cd $ROOT/$domain
+	fi
+}
+
+: 'bruteforce'
+bruteForce()
+{
+  echo -e "[$GREEN+$RESET] Creating wordlists"
+  bash "$BASE"/scripts/append_subdomains.sh "$BASE"/wordlists/commonspeak2-subdomains.txt "$domain" "$RESULTDIR/commonspeak-wordlist.txt"
+  bash "$BASE"/scripts/append_subdomains.sh "$BASE"/wordlists/stackoverflow-subdomains.txt "$domain" "$RESULTDIR/stackoverflow-wordlist.txt"
+  touch "$RESULTDIR"/subdomains.txt
+
+  echo -e "[$GREEN+$RESET] Sorting and making combo list unique"
+  cat "$RESULTDIR"/commonspeak-wordlist.txt "$RESULTDIR"/stackoverflow-wordlist.txt >> "$RESULTDIR"/wordlist.txt
+  sort -u "$RESULTDIR/wordlist.txt" -o "$RESULTDIR/wordlist.txt"
+
+  echo -e "[$GREEN+$RESET] resolving subdomains.."
+  "$HOME"/tools/massdns/bin/massdns -r "$BASE"/wordlists/resolvers.txt -q -t A -o S -w "$RESULTDIR/wordlist-online.txt" "$RESULTDIR/wordlist.txt"
+  awk -F ". " '{print $1}' "$RESULTDIR/wordlist-online.txt" > "$RESULTDIR/wordlist-filtered.txt" && mv "$RESULTDIR/wordlist-filtered.txt" "$RESULTDIR/wordlist-online.txt"
+  echo -e "[$GREEN+$RESET] DUURT LANG!1!!"
+  touch "$RESULTDIR"/bruteforce-online.txt
+
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+	  if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
+	  then
+		  IP=$(getent hosts "$domain" | cut -d' ' -f1 | head -n 1)
+		  echo "$(echo "$line" | tr -d '[:space:]'),$IP" # misschien $ip eruit
+	  fi
+  done < "$RESULTDIR"/wordlist-online.txt > "$RESULTDIR"/bruteforce-online.txt
+}
+
+: 'subfinder'
 runSubfinder()
 {
-	echo -e "[$GREEN+$RESET] Running Subfinder on $GREEN$1$RESET..."
-	subfinder -d $1 -nW --silent > $ROOT/$1/$1.txt
-
-	echo -e "[$GREEN+$RESET] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
-	touch $ROOT/$1/domains.txt
-	cat $ROOT/$1/$1.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.txt
+  echo -e "[$GREEN+$RESET] SUBFINDER GO"
+  ~/go/bin/subfinder -d "$domain" -o "$RESULTDIR/subfinder-online.txt" -rL "$BASE"/wordlists/resolvers.txt
+  echo -e "[$GREEN+$RESET] COMBINE & SORT SUBFINDER"
+  cat "$RESULTDIR"/bruteforce-online.txt "$RESULTDIR"/subfinder-online.txt >> "$RESULTDIR"/subdomains.txt
+  sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
 }
 
-: 'Check if host is online, then print it'
-checkDomainStatus()
+#### functie tijdelijk niet gebruiken
+# : 'Check if host is online, then print it'
+# checkDomainStatus()
+# {
+# 	echo -e "[$GREEN+$RESET] Checking which domains are online..."
+
+# 	touch "$ROOT"/"$1"/resolved-domains.txt
+
+# 	while IFS='' read -r line || [[ -n "$line" ]]; do
+# 		if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
+# 		then
+# 			IP=`getent hosts "$1" | cut -d' ' -f1 | head -n 1`
+# 			echo "$(echo "$line" | tr -d '[:space:]'),$IP"
+# 		fi
+# 	done < "$ROOT"/"$1"/domains.txt > "$ROOT"/"$1"/resolved-domains.txt
+
+# 	echo -e "[$GREEN+$RESET] Online domains written to $GREEN$ROOT/$1/resolved-domains.txt$RESET!"
+# 	echo -e "[$GREEN+$RESET] Displaying $GREEN$ROOT/$1/resolved-domains.txt$RESET:"
+# 	cat "$ROOT"/"$1"/resolved-domains.txt
+# }
+
+: 'amass'
+runAmass()
 {
-	echo -e "[$GREEN+$RESET] Checking which domains are online..."
 
-	touch "$ROOT"/"$1"/resolved-domains.txt
+  echo -e "[$GREEN+$RESET] AMASS"
+  #touch "$RESULTDIR"/amass.txt
 
-	while IFS='' read -r line || [[ -n "$line" ]]; do
-		if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
-		then
-			IP=`getent hosts "$1" | cut -d' ' -f1 | head -n 1`
-			echo "$(echo "$line" | tr -d '[:space:]'),$IP"
-		fi
-	done < "$ROOT"/"$1"/domains.txt > "$ROOT"/"$1"/resolved-domains.txt
+  ## -rf "$BASE"/wordlists/resolvers.txt
+  ## werkt niet, to many output error
+  amass -d "$domain" -o "$RESULTDIR/amass.txt"
+  echo -e "[$GREEN+$RESET] CHECK AMASS"
+  #touch "$RESULTDIR"/amass-online.txt
+  #"$HOME"/tools/massdns/bin/massdns -r "$BASE"/wordlists/resolvers.txt -q -t A -o S -w "$RESULTDIR/amass-domains.txt" "$RESULTDIR/amass.txt"
+  #sed 's#^#http://#g' $ROOT/$1/domains.txt > $ROOT/$1/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
+	#sed 's#^#https://#g' $ROOT/$1/domains.txt > $ROOT/$1/domains-https.txt
+  #cat "$RESULTDIR"/amass-domains.txt | online >> "$RESULTDIR"/amass-online.txt
+  # TODO CHECKEN
 
-	echo -e "[$GREEN+$RESET] Online domains written to $GREEN$ROOT/$1/resolved-domains.txt$RESET!"
-	echo -e "[$GREEN+$RESET] Displaying $GREEN$ROOT/$1/resolved-domains.txt$RESET:"
-	cat "$ROOT"/"$1"/resolved-domains.txt
+  # while IFS='' read -r line || [[ -n "$line" ]]; do
+	#   if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
+	#   then
+	# 	  IP=$(getent hosts "$domain" | cut -d' ' -f1 | head -n 1)
+	# 	  echo "$(echo "$line" | tr -d '[:space:]'),$IP"
+	#   fi
+  # done < "$RESULTDIR"/amass-domains.txt > "$RESULTDIR"/amass-online.txt
+  echo "COMBINE & SORT AMASS"
+  cat "$RESULTDIR"/amass.txt >> "$RESULTDIR"/subdomains.txt # voor nu raw amass results
+  sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
 }
 
-: 'Run MassDNS on the given domains'
-runMassDNS()
+: 'run altdns'
+runAltdns()
 {
-	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
-	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/massdns.txt $ROOT/$1/resolved-domains.txt
-	echo -e "[$GREEN+$RESET] Done!"
+  echo -e "[$GREEN+$RESET] ALTDNS"
+  python "$HOME"/tools/altdns/altdns.py -i "$RESULTDIR/subdomains.txt"  -o "$RESULTDIR/altdns-wordlist.txt" -w "$HOME"/tools/altdns/words.txt
+  echo -e "[$GREEN+$RESET] COMBINE & SORT ALTDNS"
+  cat "$RESULTDIR"/altdns-wordlist.txt >> "$RESULTDIR"/subdomains.txt
+  sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
 }
 
-: 'Convert domains.txt to json (subdomainDB format)'
-convertDomainsFile()
+: 'check wildcards'
+checkWildcards()
 {
-	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
-	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains-striped.txt
-	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $ROOT/$1/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $ROOT/$1/domains.json
+  echo -e "[$GREEN+$RESET] Checking for wildcards"
+  if [[ "$(dig @1.1.1.1 A,CNAME {test321123,testingforwildcard,plsdontgimmearesult}."$domain" +short | wc -l)" -gt "1" ]]; then
+      echo "[!] Possible wildcard detected."
+      else
+        echo -e "[$GREEN+$RESET] No wildcards found."
+  fi
 }
 
 : 'Run GetJS on scanresults and store output in file'
 runGetJS()
 {
 	echo -e "[$GREEN+$RESET] Running $GREEN GetJS$RESET on scan results.."
-	cat $ROOT/$1/domains.txt | getJS | tojson >> $ROOT/$1/$1-JS-files.txt
+	sed 's#^#http://#g' $ROOT/$1/domains.txt > $ROOT/$1/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
+	sed 's#^#https://#g' $ROOT/$1/domains.txt > $ROOT/$1/domains-https.txt
+	cat $ROOT/$1/all-subdomains.txt | getJS | tojson >> $ROOT/$1/$1-JS-files.txt
 	echo -e "[$GREEN+$RESET] Done, output has been saved to: $1-JS-files.txt"
+}
+
+: 'portscan masscan'
+portMasscan()
+{
+  echo -e "[$GREEN+$RESET] Starting masscan portscan"
+  "$HOME"/tools/masscan/bin/masscan $(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1) -p0-10001 --rate 1000 --wait 3 2> /dev/null | grep -o -P '(?<=port ).*(?=/)' >> $RESULTDIR/$domain-ports.txt
+
+  echo -e "[$GREEN+$RESET] Starting nmap scan"
+  nmap -p $(cat "$RESULTDIR"/"$domain"-ports.txt | paste -sd "," -) $(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)
+}
+
+: 'check online'
+quicknDirty()
+{
+  echo -e "[$GREEN+$RESET] Check online targets"
+  #printf "https://poc-server.com\nhttps://example.com\nhttps://notexisting003.com\nhttp://google.com" | online
+  # use cat subdomains.txt | online?
+
+  for port in `sed '/^$/d' "$RESULTDIR/$domain-ports.txt"`; do
+    url="$domain:$port"
+    http=false
+    https=false
+    protocol=""
+
+    if [[ $(echo "http://$url" | online) ]]; then http=true; else http=false; fi
+    if [[ $(echo "https://$url" | online) ]]; then https=true; else https=false; fi
+
+    if [[ "$http" = true ]]; then protocol="http"; fi
+    if [[ "$https" = true ]]; then protocol="https"; fi
+
+    if [[ "$http" = true && "$https" = true ]]; then
+      # If the content length of http is greater than the content length of https, then we choose http, otherwise we go with https
+      contentLengthHTTP=$(curl -s http://$url | wc -c)
+      contentLengthHTTPS=$(curl -s https://$url | wc -c)
+      if [[ "$contentLengthHTTP" -gt "$contentLengthHTTPS" ]]; then protocol="http"; else protocol="https"; fi
+
+      if [[ "$port" == "80" ]]; then protocol="http"; fi
+      if [[ "$port" == "443" ]]; then protocol="https"; fi
+    fi
+
+    if [[ ! -z "$protocol" ]]; then
+      echo "$protocol://$domain:$port"
+    fi
+  done >> $RESULTDIR/$domain-urls.txt
+
+  echo -e "[$GREEN+$RESET] URLs found:" $(cat $RESULTDIR/$domain-urls.txt | wc -l)
+}
+
+: 'sort results from bruteforce'
+sortBRUTEResults()
+{
+  echo -e "[$GREEN+$RESET] Sorting last results.."
+  touch subs-filtered.txt
+  cat "$RESULTDIR"/amass.txt "$RESULTDIR"/subfinder-online.txt >> "$RESULTDIR"/subs-filtered.txt
+  sort -u "$RESULTDIR/subs-filtered.txt" -o "$RESULTDIR/subs-filtered.txt"
+  echo -e "[$GREEN+$RESET] Done"
+}
+
+: 'results overview'
+resultsOverview()
+{
+  echo -e "Finished"
+  echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
+  echo -e $(cat "$RESULTDIR"/bruteforce-online.txt | wc -l) "- bruteforce"
+  echo -e $(cat "$RESULTDIR"/amass.txt | wc -l) "- amass"
+  echo -e $(cat "$RESULTDIR"/subfinder-online.txt | wc -l) "- subfinder"
+  echo -e $(cat "$RESULTDIR"/altdns-wordlist.txt | wc -l) "- altdns"
+  echo -e $(cat "$RESULTDIR"/subdomains.txt | wc -l) "- total"
+  echo -e $(cat "$RESULTDIR"/subs-filtered.txt | wc -l) "- filtered/online"
+  echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
+}
+### CHECKEN
+: 'Convert domains.txt to json (subdomainDB format)'
+convertDomainsFile()
+{
+	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
+	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains-striped.txt
+	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $ROOT/$1/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $ROOT/$1/domains.json
 }
 
 : 'Start up the dashboard server'
@@ -136,11 +287,13 @@ cleanup()
 
 : 'Execute the main functions'
 displayLogo
-checkArguments    		"$1"
-checkDirectory    		"$1"
-runSubfinder      		"$1"
-checkDomainStatus 		"$1"
-runMassDNS        		"$1" # something is up with massdns -> fixed with Re4son Kali Pi image :)
-convertDomainsFile 		"$1"
-startDashboard 	   		"$1"
-cleanup					"$1"
+checkArguments    		
+checkDirectory    
+checkDirectory2			
+runSubfinder      		
+checkDomainStatus 		
+runMassDNS 
+sortBRUTEResults       		
+convertDomainsFile 		
+startDashboard 	   		
+cleanup					
