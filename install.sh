@@ -51,7 +51,7 @@ golangInstall()
     cd "$HOME" || return;
     # wget https://dl.google.com/go/go1.12.4.linux-armv6l.tar.gz;
     # sudo tar -C /usr/local -xvf go1.12.4.linux-armv6l.tar.gz;
-    apt-get install -y golang;
+    sudo apt install -y golang;
     echo -e "[$GREEN+$RESET] Creating directories..";
     sleep 1;
     mkdir -p $HOME/tools;

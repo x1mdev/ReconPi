@@ -57,3 +57,4 @@ rm: cannot remove '//.txt': No such file or directory
 - add directory bruteforce / content discovery (gobuster/dirsearch)
 - fix altdns.py
 - fix cronjobs
+- go get github.com/Ice3man543/SubOver
