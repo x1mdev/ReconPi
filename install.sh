@@ -10,6 +10,7 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
+BASERESULT="$HOME/bugbounty"
 VERSION="2.0"
 
 
@@ -35,8 +36,16 @@ basicRequirements()
     cd $HOME  || return;
     sleep 1;
     echo -e "[$GREEN+$RESET] Getting the basics..";
+    mkdir -p $BASERESULT;
     #sudo apt-get install git -y; # installed by default re4sonpi
     sudo apt-get update -y;
+    sudo apt-get install -y \
+       apt-transport-https \
+       ca-certificates \
+       curl \
+       gnupg2 \
+       software-properties-common
+    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
     #sudo apt-get upgrade -y; #uit voor test
     #sudo apt-get install -y gcc; # installed by default re4sonpi
     #sudo apt-get install -y build-essential; # installed by default re4sonpi
@@ -59,7 +68,7 @@ golangInstall()
     mkdir -p $HOME/go/src;
     mkdir -p $HOME/go/bin;
     mkdir -p $HOME/go/pkg;
-    git clone https://github.com/x1mdev/ReconPi.git;
+    # git clone https://github.com/x1mdev/ReconPi.git;
     sudo chmod u+w .;
     echo -e "[$GREEN+$RESET] Done.";
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to ~/.bashrc..";
@@ -87,6 +96,10 @@ golangTools()
     go get github.com/subfinder/subfinder;
     echo -e "[$GREEN+$RESET] Done.";
 
+    echo -e "[$GREEN+$RESET] Installing SubOver"
+    go get github.com/Ice3man543/SubOver;
+    echo -e "[$GREEN+$RESET] Done."
+
     echo -e "[$GREEN+$RESET] Installing online..";
     go get -u github.com/003random/online;
     echo -e "[$GREEN+$RESET] Done.";
@@ -106,6 +119,7 @@ golangTools()
     go get -u github.com/OWASP/Amass/...;
     cd $HOME/go/src/github.com/OWASP/Amass;
     go install ./...;
+    #cp $HOME/go/src/github.com/OWASP/Amass/wordlists/* $HOME/wordlists/ # placed by default in wordlist dir
     echo -e "[$GREEN+$RESET] Done.";
 
     echo -e "[$GREEN+$RESET] Installing GetJS..";
@@ -123,13 +137,19 @@ additionalTools()
 {
     echo -e "[$GREEN+$RESET] Installing massdns..";
     cd $HOME/tools/ || return;
-    git clone https://github.com/blechschmidt/massdns.git;
-    cd massdns;
+    git clone https://github.com/blechschmidt/massdns.git && cd massdns;
     echo -e "[$GREEN+$RESET] Running make command for massdns..";
     make;
     sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
     sudo apt-get install -y jq;
     cd $HOME/tools/ || return;
+    echo -e "[$GREEN+$RESET] Done.";
+
+    echo -e "[$GREEN+$RESET] Installing sublert..";
+    # needs check
+    git clone https://github.com/yassineaboukir/sublert.git && cd sublert;
+    apt install libpq-dev;
+    pip3 install -r requirements.txt;
     echo -e "[$GREEN+$RESET] Done.";
 
     # echo -e "[$GREEN+$RESET] Installing teh_s3_bucketeers..";
@@ -146,6 +166,16 @@ additionalTools()
     # sudo apt-get install -y nmap;
     # cd $HOME/tools/ || return;
     # echo -e "[$GREEN+$RESET] Done.";
+}
+
+: 'Subdomain takeover setup'
+subdomainTOcheck()
+{
+    echo -e "[$GREEN]+$RESET] Setting up subdomain takeover checks.."
+    cd $HOME  || return;
+    mkdir subdomain_takeover;
+    cd $BASERESULT/subdomain_takeover;
+    git clone https://github.com/arkadiyt/bounty-targets-data;
 }
 
 : 'Dashboard setup'

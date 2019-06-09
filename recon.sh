@@ -41,7 +41,7 @@ checkArguments()
 	fi
 }
 
-: 'Check if the current domain has a directory, else make it'
+: 'Check if the current domain has a directory, if not create it'
 checkDirectory()
 {
 	if [ ! -d $BASERESULT ]; then
@@ -53,7 +53,7 @@ checkDirectory()
 
 checkDirectory2()
 {
-if [ ! -d $RESULTDIR ]; then
+if [ ! -d "$RESULTDIR" ]; then
 		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$RESULTDIR$RESET"
 		mkdir -p "$RESULTDIR"
 		#cd $ROOT/$domain
@@ -64,12 +64,16 @@ if [ ! -d $RESULTDIR ]; then
 bruteForce()
 {
   echo -e "[$GREEN+$RESET] Creating wordlists"
+  ## Maybe set flag for more curated list options, depending on target
   bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/commonspeak2-subdomains.txt "$domain" "$RESULTDIR/commonspeak-wordlist.txt"
   bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/stackoverflow-subdomains.txt "$domain" "$RESULTDIR/stackoverflow-wordlist.txt"
+  bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/bitquark_subdomains_top100K.txt "$domain" "$RESULTDIR/bitquark-wordlist.txt"
+  bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/subdomains-top1mil-110000.txt "$domain" "$RESULTDIR/top1mil-wordlist.txt"
+  bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/subdomains.lst "$domain" "$RESULTDIR/subdomainslst-wordlist.txt"
   touch "$RESULTDIR"/subdomains.txt
 
   echo -e "[$GREEN+$RESET] Sorting and making combo list unique"
-  cat "$RESULTDIR"/commonspeak-wordlist.txt "$RESULTDIR"/stackoverflow-wordlist.txt >> "$RESULTDIR"/wordlist.txt
+  cat "$RESULTDIR"/commonspeak-wordlist.txt "$RESULTDIR"/stackoverflow-wordlist.txt "$RESULTDIR"/bitquark-wordlist.txt "$RESULTDIR"/top1mil-wordlist.txt "$RESULTDIR"/subdomainslst-wordlist.txt >> "$RESULTDIR"/wordlist.txt
   sort -u "$RESULTDIR/wordlist.txt" -o "$RESULTDIR/wordlist.txt"
 
   echo -e "[$GREEN+$RESET] resolving subdomains.."
@@ -173,9 +177,9 @@ checkWildcards()
 runGetJS()
 {
 	echo -e "[$GREEN+$RESET] Running $GREEN GetJS$RESET on scan results.."
-	sed 's#^#http://#g' $BASERESULT/$domain/domains.txt > $BASERESULT/$domain/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
-	sed 's#^#https://#g' $BASERESULT/$domain/domains.txt > $BASERESULT/$domain/domains-https.txt
-	cat $BASERESULT/$domain/all-subdomains.txt | getJS | tojson >> $BASERESULT/$domain/$domain-JS-files.txt
+	sed 's#^#http://#g' "$BASERESULT"/$"domain"/domains.txt > "$BASERESULT"/"$domain"/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
+	sed 's#^#https://#g' "$BASERESULT"/"$domain"/domains.txt > "$BASERESULT"/"$domain"/domains-https.txt
+	cat "$BASERESULT"/"$domain"/all-subdomains.txt | getJS | tojson >> $BASERESULT/$domain/$domain-JS-files.txt
 	echo -e "[$GREEN+$RESET] Done, output has been saved to: $domain-JS-files.txt"
 }
 
@@ -183,10 +187,10 @@ runGetJS()
 portMasscan()
 {
   echo -e "[$GREEN+$RESET] Starting masscan portscan"
-  "$HOME"/tools/masscan/bin/masscan $(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1) -p0-10001 --rate 1000 --wait 3 2> /dev/null | grep -o -P '(?<=port ).*(?=/)' >> $RESULTDIR/$domain-ports.txt
+  "$HOME"/tools/masscan/bin/masscan "$(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)" -p0-10001 --rate 1000 --wait 3 2> /dev/null | grep -o -P '(?<=port ).*(?=/)' >> $RESULTDIR/$domain-ports.txt
 
   echo -e "[$GREEN+$RESET] Starting nmap scan"
-  nmap -p $(cat "$RESULTDIR"/"$domain"-ports.txt | paste -sd "," -) $(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)
+  nmap -p "$(cat "$RESULTDIR"/"$domain"-ports.txt | paste -sd "," -) $(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)"
 }
 
 : 'check online'
@@ -245,6 +249,7 @@ resultsOverview()
   echo -e $(cat "$RESULTDIR"/amass.txt | wc -l) "- amass"
   echo -e $(cat "$RESULTDIR"/subfinder-online.txt | wc -l) "- subfinder"
   echo -e $(cat "$RESULTDIR"/altdns-wordlist.txt | wc -l) "- altdns"
+  echo -e $(cat "$RESULTDIR"/sublert-output.txt | wc -l) "- sublert"
   echo -e $(cat "$RESULTDIR"/subdomains.txt | wc -l) "- total"
   echo -e $(cat "$RESULTDIR"/subs-filtered.txt | wc -l) "- filtered/online"
   echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
@@ -273,12 +278,46 @@ startDashboard()
 	echo -e "[$GREEN+$RESET] $domain scan results available on http://recon.pi.ip.address:4000"	
 }
 
+: 'Check all bugbounty targets'
+checkAll()
+{
+  #check && todo
+  echo -e "Would you like to check all bug bounty targets?"
+  # To view the wildcard domains simply run:
+  cat ./bounty-targets-data/data/wildcards.txt
+}
+
+: 'Enumarate subdomains from all the wildcard targets'
+enumerateAll()
+{ 
+  # needs testing n shit
+  cd "$BASERESULT"/subdomain_takeover/bounty-targets-data/ || return; 
+  git pull; 
+  cd "$RESULTDIR" || return; 
+  cp "$BASERESULT"/subdomain_takeover/bounty-targets-data/data/wildcards.txt ./; cat wildcards.txt | sed 's/^*.//g' | grep -v '*' > wildcards_without_stars.txt; 
+  while read host;  # -r ?
+    do file=$host && file+="_subfinder.out"; 
+    "$HOME"/go/bin/subfinder -o $file -d "$host"; 
+  done < ./wildcards_without_stars.txt
+
+  #cd ~/subdomain_takeover/bounty-targets-data/; 
+  #git pull; 
+  #cd ~/subdomain_takeover; 
+  #cp ~/subdomain_takeover/bounty-targets-data/data/wildcards.txt ./; cat wildcards.txt | sed 's/^*.//g' | grep -v '*' > wildcards_without_stars.txt; 
+  #while read host; 
+  #   do file=$host && file+="_subfinder.out"; 
+  #  ~/go/bin/subfinder -o $file -d $host; 
+  #done < ./wildcards_without_stars.txt;
+  #cat ./*.out > all_subdomains.lst; 
+  #~/go/bin/SubOver -l ./all_subdomains.lst -timeout 5 -o subover.out;
+}
+
 : 'Clean up'
 cleanup()
 {
 	# TODO: Check if there are more useless files
-	echo -e "[$GREEN+$RESET] Cleaning up.."
-	#rm $ROOT/$1/$1.txt
+	echo -e "[$GREEN+$RESET] Would you like to set a cronjob for $domain?"
+	rm "$RESULTDIR"/*-*.txt # remove unnecessary files
 	#rm $ROOT/$1/domains-striped.txt
 	sleep 1
 	echo -e "[$GREEN+$RESET] Done, ready for the next scan!"
@@ -290,15 +329,17 @@ checkArguments
 checkDirectory    
 checkDirectory2
 bruteForce			
-runSubfinder
-runAmass
-runAltdns 
-checkWildcards
-runGetJS
-portMasscan
-checkOnline
-sortBruteResults
-resultsOverview
-convertDomainsFile
-startDashboard
+#runSubfinder
+#runAmass
+#runAltdns 
+#checkWildcards
+#runGetJS
+#portMasscan
+#checkOnline
+#sortBruteResults
+#resultsOverview
+#convertDomainsFile
+#startDashboard
+#checkAll
+#enumerateAll
 cleanup				
