@@ -46,6 +46,7 @@ basicRequirements()
        gnupg2 \
        software-properties-common
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+    #fucking docker
     #sudo apt-get upgrade -y; #uit voor test
     #sudo apt-get install -y gcc; # installed by default re4sonpi
     #sudo apt-get install -y build-essential; # installed by default re4sonpi
