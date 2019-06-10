@@ -10,7 +10,6 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-BASERESULT="$HOME/bugbounty"
 VERSION="2.0"
 
 
@@ -33,7 +32,7 @@ basicRequirements()
 {
     echo -e "[$GREEN+$RESET] This is the install script that will install the required dependencies to run recon.sh, please stand by..";
     echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
-    cd $HOME  || return;
+    cd "$HOME"  || return;
     sleep 1;
     echo -e "[$GREEN+$RESET] Getting the basics..";
     mkdir -p $BASERESULT;
@@ -59,31 +58,29 @@ golangInstall()
 {
     echo -e "[$GREEN+$RESET] Installing and setting up Go..";
     cd "$HOME" || return;
-    # wget https://dl.google.com/go/go1.12.4.linux-armv6l.tar.gz;
-    # sudo tar -C /usr/local -xvf go1.12.4.linux-armv6l.tar.gz;
-    sudo apt install -y golang;
     echo -e "[$GREEN+$RESET] Creating directories..";
+    mkdir -p "$HOME"/tools;
+    mkdir -p "$HOME"/go;
+    mkdir -p "$HOME"/go/src;
+    mkdir -p "$HOME"/go/bin;
+    mkdir -p "$HOME"/go/pkg;
     sleep 1;
-    mkdir -p $HOME/tools;
-    mkdir -p $HOME/go;
-    mkdir -p $HOME/go/src;
-    mkdir -p $HOME/go/bin;
-    mkdir -p $HOME/go/pkg;
-    # git clone https://github.com/x1mdev/ReconPi.git;
     sudo chmod u+w .;
+    sudo apt install -y golang;
+    # git clone https://github.com/x1mdev/ReconPi.git;
     echo -e "[$GREEN+$RESET] Done.";
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to ~/.bashrc..";
     sleep 1;
     #echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
     #echo -e 'export GOROOT=/usr/local/go' >> $HOME/.bashrc;
-    echo -e 'export PATH=$PATH:$HOME/go/bin/' >> $HOME/.bashrc;
+    echo -e "export PATH=$PATH:$HOME/go/bin/" >> "$HOME"/.bashrc;
     #echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
     #echo -e 'export PATH=$PATH:$HOME/.local/bin' >> $HOME/.bashrc;
-    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> $HOME/.bashrc;
+    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> "$HOME"/.bashrc;
     alias recon='bash $HOME/ReconPi/recon.sh'
     sleep 1;
-    source $HOME/.bashrc;
-    cd $HOME  || return;
+    source "$HOME"/.bashrc;
+    cd "$HOME" || return;
     echo -e "[$GREEN+$RESET] Golang has been configured, checking go env..";
     go version;
     go env;
@@ -106,19 +103,19 @@ golangTools()
     echo -e "[$GREEN+$RESET] Done.";
 
     echo -e "[$GREEN+$RESET] Installing gobuster..";
-    cd $HOME/go/src  || return;
+    cd "$HOME"/go/src  || return;
     mkdir -p OJ;
-    cd $HOME/go/src/OJ  || return;
+    cd "$HOME"/go/src/OJ  || return;
     git clone https://github.com/OJ/gobuster.git;
-    cd $HOME/go/src/OJ/gobuster  || return;
+    cd "$HOME"/go/src/OJ/gobuster  || return;
     go get && go build;
     go install;
     echo -e "[$GREEN+$RESET] Done.";
-    cd $HOME/tools/  || return;
+    cd "$HOME"/tools/  || return;
 
     echo -e "[$GREEN+$RESET] Installing Amass.."
     go get -u github.com/OWASP/Amass/...;
-    cd $HOME/go/src/github.com/OWASP/Amass;
+    cd "$HOME"/go/src/github.com/OWASP/Amass || return;
     go install ./...;
     #cp $HOME/go/src/github.com/OWASP/Amass/wordlists/* $HOME/wordlists/ # placed by default in wordlist dir
     echo -e "[$GREEN+$RESET] Done.";
@@ -137,13 +134,13 @@ golangTools()
 additionalTools()
 {
     echo -e "[$GREEN+$RESET] Installing massdns..";
-    cd $HOME/tools/ || return;
+    cd "$HOME"/tools/ || return;
     git clone https://github.com/blechschmidt/massdns.git && cd massdns;
     echo -e "[$GREEN+$RESET] Running make command for massdns..";
     make;
-    sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
+    sudo cp "$HOME"/tools/massdns/bin/massdns /usr/local/bin/;
     sudo apt-get install -y jq;
-    cd $HOME/tools/ || return;
+    cd "$HOME"/tools/ || return;
     echo -e "[$GREEN+$RESET] Done.";
 
     echo -e "[$GREEN+$RESET] Installing sublert..";
@@ -163,19 +160,18 @@ additionalTools()
     # cd $HOME/tools/ || return;
     # echo -e "[$GREEN+$RESET] Done.";
 
-    # echo -e "[$GREEN+$RESET] Installing nmap..";
-    # sudo apt-get install -y nmap;
-    # cd $HOME/tools/ || return;
-    # echo -e "[$GREEN+$RESET] Done.";
+    echo -e "[$GREEN+$RESET] Installing nmap..";
+    sudo apt-get install -y nmap;
+    echo -e "[$GREEN+$RESET] Done.";
 }
 
 : 'Subdomain takeover setup'
 subdomainTOcheck()
 {
     echo -e "[$GREEN]+$RESET] Setting up subdomain takeover checks.."
-    cd $HOME  || return;
-    mkdir subdomain_takeover;
-    cd $BASERESULT/subdomain_takeover;
+    cd "$HOME" || return;
+    mkdir "$HOME"/subdomain_takeover;
+    cd "$HOME"/subdomain_takeover || return;
     git clone https://github.com/arkadiyt/bounty-targets-data;
 }
 
@@ -185,7 +181,7 @@ setupDashboard()
     echo -e "[$GREEN+$RESET] Installing Nginx..";
     sudo apt-get install -y nginx;
     sudo nginx -t;
-    cd $HOME/tools/  || return;
+    cd "$HOME"/tools/  || return;
     echo -e "[$GREEN+$RESET] Done.";
 
     echo -e "[$GREEN+$RESET] Installing Docker.."
@@ -196,11 +192,11 @@ setupDashboard()
     echo -e "[$GREEN+$RESET] Done."
 
     echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up..";
-    cd $HOME/tools/  || return;
+    cd "$HOME"/tools/  || return;
     git clone https://github.com/smiegles/subdomainDB.git;
-    cd subdomainDB;
+    cd subdomainDB || return;
     docker build --rm -t subdomaindb .;
-    cd $HOME/tools/ || return;
+    cd "$HOME"/tools/ || return;
 }
 
 : 'Finalize'
@@ -211,8 +207,8 @@ finalizeSetup()
     cd "$HOME" || return;
     touch motd
     displayLogo >> motd;
-    sudo mv $HOME/motd /etc/motd;
-    cd $HOME || return;
+    sudo mv "$HOME"/motd /etc/motd;
+    cd "$HOME" || return;
     #rm go1.11.1.linux-armv6l.tar.gz;
     #rm install.sh; 
     echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation.";

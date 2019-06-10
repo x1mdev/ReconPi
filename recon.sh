@@ -155,6 +155,7 @@ runAmass()
 : 'run altdns'
 runAltdns()
 {
+  # check , geeft foutmelding
   echo -e "[$GREEN+$RESET] ALTDNS"
   python "$HOME"/tools/altdns/altdns.py -i "$RESULTDIR/subdomains.txt"  -o "$RESULTDIR/altdns-wordlist.txt" -w "$HOME"/tools/altdns/words.txt
   echo -e "[$GREEN+$RESET] COMBINE & SORT ALTDNS"
