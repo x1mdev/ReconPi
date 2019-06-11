@@ -30,13 +30,11 @@ __________                          __________.__
 : 'Basic requirements'
 basicRequirements()
 {
-    echo -e "[$GREEN+$RESET] This is the install script that will install the required dependencies to run recon.sh, please stand by..";
+    echo -e "[$GREEN+$RESET] This script will install the required dependencies to run recon.sh, please stand by..";
     echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
     cd "$HOME"  || return;
     sleep 1;
     echo -e "[$GREEN+$RESET] Getting the basics..";
-    #mkdir -p $BASERESULT;
-    #sudo apt-get install git -y; # installed by default re4sonpi
     sudo apt-get update -y;
     sudo apt-get install -y \
        apt-transport-https \
@@ -46,9 +44,7 @@ basicRequirements()
        software-properties-common
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
     #fucking docker
-    #sudo apt-get upgrade -y; #uit voor test
-    #sudo apt-get install -y gcc; # installed by default re4sonpi
-    #sudo apt-get install -y build-essential; # installed by default re4sonpi
+    # sudo apt-get upgrade -y;
     sudo apt install -y lua5.1 alsa-utils; # still needed
     echo -e "[$GREEN+$RESET] Done."
 }
@@ -67,15 +63,10 @@ golangInstall()
     sleep 1;
     sudo chmod u+w .;
     sudo apt install -y golang;
-    # git clone https://github.com/x1mdev/ReconPi.git;
     echo -e "[$GREEN+$RESET] Done.";
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to ~/.bashrc..";
     sleep 1;
-    #echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
-    #echo -e 'export GOROOT=/usr/local/go' >> $HOME/.bashrc;
     echo -e "export PATH=$PATH:$HOME/go/bin/" >> "$HOME"/.bashrc;
-    #echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
-    #echo -e 'export PATH=$PATH:$HOME/.local/bin' >> $HOME/.bashrc;
     echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> "$HOME"/.bashrc;
     alias recon='bash $HOME/ReconPi/recon.sh'
     sleep 1;
@@ -117,7 +108,6 @@ golangTools()
     go get -u github.com/OWASP/Amass/...;
     cd "$HOME"/go/src/github.com/OWASP/Amass || return;
     go install ./...;
-    #cp $HOME/go/src/github.com/OWASP/Amass/wordlists/* $HOME/wordlists/ # placed by default in wordlist dir
     echo -e "[$GREEN+$RESET] Done.";
 
     echo -e "[$GREEN+$RESET] Installing GetJS..";
@@ -140,6 +130,19 @@ additionalTools()
     make;
     sudo cp "$HOME"/tools/massdns/bin/massdns /usr/local/bin/;
     sudo apt-get install -y jq;
+    echo -e "[$GREEN+$RESET] Done.";
+
+    echo -e "[$GREEN+$RESET] Installing altdns..";
+    cd "$HOME"/tools/ || return;
+    git clone https://github.com/infosec-au/altdns.git;
+    pip install py-altdns;
+    echo -e "[$GREEN+$RESET] Done.";
+
+
+    echo -e "[$GREEN+$RESET] Installing masscan..";
+    cd "$HOME"/tools/ || return;
+    git clone https://github.com/robertdavidgraham/masscan && cd masscan;
+    make -j;
     cd "$HOME"/tools/ || return;
     echo -e "[$GREEN+$RESET] Done.";
 
@@ -150,15 +153,10 @@ additionalTools()
     pip3 install -r requirements.txt;
     echo -e "[$GREEN+$RESET] Done.";
 
-    # echo -e "[$GREEN+$RESET] Installing teh_s3_bucketeers..";
-    # git clone https://github.com/tomdev/teh_s3_bucketeers.git;
-    # cd $HOME/tools/ || return;
-    # echo -e "[$GREEN+$RESET] Done.";
-
-    # echo -e "[$GREEN+$RESET] Installing virtual host discovery..";
-    # git clone https://github.com/jobertabma/virtual-host-discovery.git;
-    # cd $HOME/tools/ || return;
-    # echo -e "[$GREEN+$RESET] Done.";
+    echo -e "[$GREEN+$RESET] Installing virtual host discovery..";
+    git clone https://github.com/jobertabma/virtual-host-discovery.git;
+    cd "$HOME"/tools/ || return;
+    echo -e "[$GREEN+$RESET] Done.";
 
     echo -e "[$GREEN+$RESET] Installing nmap..";
     sudo apt-get install -y nmap;
@@ -209,8 +207,6 @@ finalizeSetup()
     displayLogo >> motd;
     sudo mv "$HOME"/motd /etc/motd;
     cd "$HOME" || return;
-    #rm go1.11.1.linux-armv6l.tar.gz;
-    #rm install.sh; 
     echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation.";
     sleep 1;
     sudo reboot;
@@ -222,5 +218,6 @@ basicRequirements
 golangInstall
 golangTools
 additionalTools
-setupDashboard
+subdomainTOcheck
+#setupDashboard
 finalizeSetup

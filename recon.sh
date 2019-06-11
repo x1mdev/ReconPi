@@ -157,7 +157,7 @@ runAltdns()
 {
   # check , geeft foutmelding
   echo -e "[$GREEN+$RESET] ALTDNS"
-  python "$HOME"/tools/altdns/altdns.py -i "$RESULTDIR/subdomains.txt"  -o "$RESULTDIR/altdns-wordlist.txt" -w "$HOME"/tools/altdns/words.txt
+  altdns -i "$RESULTDIR/subdomains.txt"  -o "$RESULTDIR/altdns-wordlist.txt" -w "$HOME"/tools/altdns/words.txt
   echo -e "[$GREEN+$RESET] COMBINE & SORT ALTDNS"
   cat "$RESULTDIR"/altdns-wordlist.txt >> "$RESULTDIR"/subdomains.txt
   sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
@@ -184,7 +184,7 @@ runGetJS()
 	echo -e "[$GREEN+$RESET] Done, output has been saved to: $domain-JS-files.txt"
 }
 
-: 'portscan masscan'
+: 'portscan massdns'
 portMasscan()
 {
   echo -e "[$GREEN+$RESET] Starting masscan portscan"
@@ -192,6 +192,18 @@ portMasscan()
 
   echo -e "[$GREEN+$RESET] Starting nmap scan"
   nmap -p "$(cat "$RESULTDIR"/"$domain"-ports.txt | paste -sd "," -) $(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)"
+}
+
+: 'sublert'
+sublertScan()
+{
+  echo -e "[$GREEN+$RESET] Adding $domain to sublert."
+  read -p "Are you sure? " -n 1 -r
+  echo    # (optional) move to a new line
+  if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+    python3 "$HOME"/tools/sublert/sublert.py -u "$domain";
+  fi
 }
 
 : 'check online'
@@ -232,7 +244,7 @@ checkOnline()
 }
 
 : 'sort results from bruteforce'
-sortBRUTEResults()
+sortBruteResults()
 {
   echo -e "[$GREEN+$RESET] Sorting last results.."
   touch subs-filtered.txt
@@ -303,17 +315,6 @@ enumerateAll()
   at ./*.out > all_subdomains.lst; 
   SubOver -l ./all_subdomains.lst -timeout 5 -o subover.out;
   echo -e "[$GREEN+$RESET] Done."
-
-  #cd ~/subdomain_takeover/bounty-targets-data/; 
-  #git pull; 
-  #cd ~/subdomain_takeover; 
-  #cp ~/subdomain_takeover/bounty-targets-data/data/wildcards.txt ./; cat wildcards.txt | sed 's/^*.//g' | grep -v '*' > wildcards_without_stars.txt; 
-  #while read host; 
-  #   do file=$host && file+="_subfinder.out"; 
-  #  ~/go/bin/subfinder -o $file -d $host; 
-  #done < ./wildcards_without_stars.txt;
-  #cat ./*.out > all_subdomains.lst; 
-  #~/go/bin/SubOver -l ./all_subdomains.lst -timeout 5 -o subover.out;
 }
 
 : 'Clean up'
@@ -334,11 +335,11 @@ checkDirectory
 checkDirectory2
 bruteForce			
 runSubfinder
-runAmass
-#runAltdns 
+#runAmass
+runAltdns 
 checkWildcards
-#runGetJS
-#portMasscan
+runGetJS
+portMasscan
 checkOnline
 sortBruteResults
 resultsOverview
@@ -346,4 +347,5 @@ convertDomainsFile
 #startDashboard
 #checkAll
 #enumerateAll
+sublertScan
 cleanup				
