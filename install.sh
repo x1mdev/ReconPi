@@ -35,7 +35,7 @@ basicRequirements()
     cd "$HOME"  || return;
     sleep 1;
     echo -e "[$GREEN+$RESET] Getting the basics..";
-    mkdir -p $BASERESULT;
+    #mkdir -p $BASERESULT;
     #sudo apt-get install git -y; # installed by default re4sonpi
     sudo apt-get update -y;
     sudo apt-get install -y \
