@@ -146,7 +146,7 @@ additionalTools()
     echo -e "[$GREEN+$RESET] Installing sublert..";
     # needs check
     git clone https://github.com/yassineaboukir/sublert.git && cd sublert;
-    apt install libpq-dev;
+    sudo apt-get install -y libpq-dev;
     pip3 install -r requirements.txt;
     echo -e "[$GREEN+$RESET] Done.";
 

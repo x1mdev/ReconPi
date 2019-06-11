@@ -301,7 +301,7 @@ enumerateAll()
     "$HOME"/go/bin/subfinder -o $file -d "$host"; 
   done < ./wildcards_without_stars.txt
   at ./*.out > all_subdomains.lst; 
-  "$HOME"/go/bin/SubOver -l ./all_subdomains.lst -timeout 5 -o subover.out;
+  SubOver -l ./all_subdomains.lst -timeout 5 -o subover.out;
   echo -e "[$GREEN+$RESET] Done."
 
   #cd ~/subdomain_takeover/bounty-targets-data/; 
@@ -333,16 +333,16 @@ checkArguments
 checkDirectory    
 checkDirectory2
 bruteForce			
-#runSubfinder
-#runAmass
+runSubfinder
+runAmass
 #runAltdns 
-#checkWildcards
+checkWildcards
 #runGetJS
 #portMasscan
-#checkOnline
-#sortBruteResults
-#resultsOverview
-#convertDomainsFile
+checkOnline
+sortBruteResults
+resultsOverview
+convertDomainsFile
 #startDashboard
 #checkAll
 #enumerateAll
