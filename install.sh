@@ -35,6 +35,10 @@ basicRequirements()
     cd "$HOME"  || return;
     sleep 1;
     echo -e "[$GREEN+$RESET] Getting the basics..";
+    export LANGUAGE=en_US.UTF-8;
+    export LANG=en_US.UTF-8;
+    export LC_ALL=en_US.UTF-8;
+    locale-gen en_US.UTF-8;
     sudo apt-get update -y;
     sudo apt-get install -y \
        apt-transport-https \
@@ -43,7 +47,6 @@ basicRequirements()
        gnupg2 \
        software-properties-common
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-    #fucking docker
     # sudo apt-get upgrade -y;
     sudo apt install -y lua5.1 alsa-utils; # still needed
     echo -e "[$GREEN+$RESET] Done."
@@ -184,6 +187,10 @@ setupDashboard()
 
     echo -e "[$GREEN+$RESET] Installing Docker.."
     sudo apt install -y docker.io;
+    mv /usr/sbin/iptables /root/scripts/;
+    ln -s /usr/sbin/iptables-legacy /usr/sbin/;
+    iptables;
+    systemctl start docker;
     service docker start;
     sudo systemctl enable docker;
     sleep 1;
@@ -219,5 +226,5 @@ golangInstall
 golangTools
 additionalTools
 subdomainTOcheck
-#setupDashboard
+setupDashboard
 finalizeSetup

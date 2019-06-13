@@ -41,10 +41,31 @@ checkArguments()
 	fi
 }
 
+: 'Display help text when no arguments are given or do a big scan'
+# need to do some work on this 
+checkArguments2()
+{
+	while getopts ":a:" opt; do
+  case $opt in
+    a)
+      echo "-a was triggered, Parameter: $OPTARG" >&2
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+}
+
 : 'Check if the current domain has a directory, if not create it'
 checkDirectory()
 {
-	if [ ! -d $BASERESULT ]; then
+	if [ ! -d "$BASERESULT" ]; then
 		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$BASERESULT$RESET"
 		mkdir "$BASERESULT"
 		#cd $RESULTDIR
@@ -95,7 +116,7 @@ bruteForce()
 runSubfinder()
 {
   echo -e "[$GREEN+$RESET] SUBFINDER GO"
-  ~/go/bin/subfinder -d "$domain" -o "$RESULTDIR/subfinder-online.txt" -rL "$BASE"/wordlists/resolvers.txt
+  subfinder -d "$domain" -o "$RESULTDIR/subfinder-online.txt" -rL "$BASE"/wordlists/resolvers.txt
   echo -e "[$GREEN+$RESET] COMBINE & SORT SUBFINDER"
   cat "$RESULTDIR"/bruteforce-online.txt "$RESULTDIR"/subfinder-online.txt >> "$RESULTDIR"/subdomains.txt
   sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
@@ -203,6 +224,7 @@ sublertScan()
   if [[ $REPLY =~ ^[Yy]$ ]]
     then
     python3 "$HOME"/tools/sublert/sublert.py -u "$domain";
+    cp "$HOME"/sublert/output/"$domain".txt "RESULTDIR"/sublert-output.txt;
   fi
 }
 
@@ -287,7 +309,7 @@ startDashboard()
   	http://0.0.0.0:4000//api/domain/%20$domain \
   	-H 'cache-control: no-cache' \
   	-H 'content-type: application/json' \
-  	-d @$BASERESULT/$domain/domains.json # fix (done?)
+  	-d @"$BASERESULT"/"$domain"/domains.json # fix (done?)
 	echo -e "[$GREEN+$RESET] $domain scan results available on http://recon.pi.ip.address:4000"	
 }
 
@@ -322,7 +344,7 @@ cleanup()
 {
 	# TODO: Check if there are more useless files
 	echo -e "[$GREEN+$RESET] Would you like to set a cronjob for $domain?"
-	rm "$RESULTDIR"/*-*.txt # remove unnecessary files
+	#rm "$RESULTDIR"/*-*.txt # remove unnecessary files
 	#rm $ROOT/$1/domains-striped.txt
 	sleep 1
 	echo -e "[$GREEN+$RESET] Done, ready for the next scan!"
@@ -344,7 +366,7 @@ checkOnline
 sortBruteResults
 resultsOverview
 convertDomainsFile
-#startDashboard
+startDashboard
 #checkAll
 #enumerateAll
 sublertScan
