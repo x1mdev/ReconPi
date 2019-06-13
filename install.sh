@@ -188,7 +188,7 @@ setupDashboard()
     echo -e "[$GREEN+$RESET] Installing Docker.."
     sudo apt install -y docker.io;
     mv /usr/sbin/iptables /root/scripts/;
-    ln -s /usr/sbin/iptables-legacy /usr/sbin/;
+    ln -s /usr/sbin/iptables-legacy /usr/sbin/iptables;
     iptables;
     systemctl start docker;
     service docker start;
