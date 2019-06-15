@@ -16,6 +16,7 @@ VERSION="2.0"
 : 'Display the logo'
 displayLogo()
 {
+    clear;
 	echo -e "
 __________                          __________.__
 \______   \ ____   ____  ____   ____\______   \__|
@@ -40,14 +41,16 @@ basicRequirements()
     export LC_ALL=en_US.UTF-8;
     locale-gen en_US.UTF-8;
     sudo apt-get update -y;
-    sudo apt-get install -y \
-       apt-transport-https \
-       ca-certificates \
-       curl \
-       gnupg2 \
-       software-properties-common
-    curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+    # sudo apt-get install -y \
+    #    apt-transport-https \
+    #    ca-certificates \
+    #    curl \
+    #    gnupg2 \
+    #    software-properties-common
+    # curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | sudo apt-key add -
     # sudo apt-get upgrade -y;
+    sudo apt-get install -y --reinstall build-essential;
+    sudo apt install -y python3-pip;
     sudo apt install -y lua5.1 alsa-utils; # still needed
     echo -e "[$GREEN+$RESET] Done."
 }
@@ -57,6 +60,8 @@ golangInstall()
 {
     echo -e "[$GREEN+$RESET] Installing and setting up Go..";
     cd "$HOME" || return;
+    wget https://dl.google.com/go/go1.11.1.linux-armv6l.tar.gz;
+    sudo tar -C /usr/local -xvf go1.11.1.linux-armv6l.tar.gz;
     echo -e "[$GREEN+$RESET] Creating directories..";
     mkdir -p "$HOME"/tools;
     mkdir -p "$HOME"/go;
@@ -65,12 +70,18 @@ golangInstall()
     mkdir -p "$HOME"/go/pkg;
     sleep 1;
     sudo chmod u+w .;
-    sudo apt install -y golang;
+    #sudo apt install -y golang;
     echo -e "[$GREEN+$RESET] Done.";
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to ~/.bashrc..";
     sleep 1;
+    sudo rm -rf /usr/bin/go;
+    sudo ln -s /usr/local/go/bin/go /usr/bin/go
+    echo -e "export GOPATH=$HOME/go" >> "$HOME"/.bashrc;
+    echo -e 'export GOROOT=/usr/local/go' >> "$HOME"/.bashrc;
     echo -e "export PATH=$PATH:$HOME/go/bin/" >> "$HOME"/.bashrc;
-    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> "$HOME"/.bashrc;
+    echo -e "export PATH=$PATH:$GOROOT/bin" >> "$HOME"/.bashrc;
+    echo -e "export PATH=$PATH:$HOME/.local/bin" >> "$HOME"/.bashrc;
+    echo -e alias recon="bash $HOME/ReconPi/recon.sh" >> "$HOME"/.bashrc;
     alias recon='bash $HOME/ReconPi/recon.sh'
     sleep 1;
     source "$HOME"/.bashrc;
@@ -186,14 +197,15 @@ setupDashboard()
     echo -e "[$GREEN+$RESET] Done.";
 
     echo -e "[$GREEN+$RESET] Installing Docker.."
-    sudo apt install -y docker.io;
-    mv /usr/sbin/iptables /root/scripts/;
-    ln -s /usr/sbin/iptables-legacy /usr/sbin/iptables;
-    iptables;
-    systemctl start docker;
-    service docker start;
-    sudo systemctl enable docker;
-    sleep 1;
+    echo -e "so fast"
+    # sudo apt install -y docker.io;
+    # mv /usr/sbin/iptables /root/scripts/;
+    # ln -s /usr/sbin/iptables-legacy /usr/sbin/iptables;
+    # iptables;
+    # systemctl start docker;
+    # service docker start;
+    # sudo systemctl enable docker;
+    # sleep 1;
     echo -e "[$GREEN+$RESET] Done."
 
     echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up..";
