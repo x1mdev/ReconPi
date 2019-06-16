@@ -82,8 +82,8 @@ golangInstall()
     echo -e "export PATH=$PATH:$HOME/go/bin/" >> "$HOME"/.bashrc;
     echo -e "export PATH=$PATH:$GOROOT/bin" >> "$HOME"/.bashrc;
     echo -e "export PATH=$PATH:$HOME/.local/bin" >> "$HOME"/.bashrc;
-    echo -e alias recon="bash $HOME/ReconPi/recon.sh" >> "$HOME"/.bashrc;
-    alias recon='bash $HOME/ReconPi/recon.sh'
+    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> "$HOME"/.bashrc;
+    #alias recon='bash $HOME/ReconPi/recon.sh'
     sleep 1;
     source "$HOME"/.bashrc;
     cd "$HOME" || return;

@@ -290,7 +290,7 @@ resultsOverview()
 convertDomainsFile()
 {
 	echo -e "[$GREEN+$RESET] Converting $GREEN$BASERESULT/$domain/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
-	cat $BASERESULT/$domain/domains.txt | grep -P "([A-Za-z0-9]).*$domain" >> $BASERESULT/$domain/domains-striped.txt
+	cat $BASERESULT/$domain/subs-filtered.txt | grep -P "([A-Za-z0-9]).*$domain" >> $BASERESULT/$domain/domains-striped.txt
 	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $BASERESULT/$domain/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $BASERESULT/$domain/domains.json
 }
 
