@@ -116,7 +116,7 @@ bruteForce()
 runSubfinder()
 {
   echo -e "[$GREEN+$RESET] SUBFINDER GO"
-  subfinder -d "$domain" -o "$RESULTDIR/subfinder-online.txt" -rL "$BASE"/wordlists/resolvers.txt
+  "$HOME"/go/bin/subfinder -d "$domain" -o "$RESULTDIR/subfinder-online.txt" -rL "$BASE"/wordlists/resolvers.txt
   echo -e "[$GREEN+$RESET] COMBINE & SORT SUBFINDER"
   cat "$RESULTDIR"/bruteforce-online.txt "$RESULTDIR"/subfinder-online.txt >> "$RESULTDIR"/subdomains.txt
   sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
@@ -152,7 +152,7 @@ runAmass()
 
   ## -rf "$BASE"/wordlists/resolvers.txt
   ## werkt niet, to many output error
-  amass -d "$domain" -o "$RESULTDIR/amass.txt"
+  "$HOME"/go/bin/amass -d "$domain" -o "$RESULTDIR/amass.txt"
   echo -e "[$GREEN+$RESET] CHECK AMASS"
   #touch "$RESULTDIR"/amass-online.txt
   #"$HOME"/tools/massdns/bin/massdns -r "$BASE"/wordlists/resolvers.txt -q -t A -o S -w "$RESULTDIR/amass-domains.txt" "$RESULTDIR/amass.txt"
@@ -199,9 +199,9 @@ checkWildcards()
 runGetJS()
 {
 	echo -e "[$GREEN+$RESET] Running $GREEN GetJS$RESET on scan results.."
-	sed 's#^#http://#g' "$BASERESULT"/$"domain"/domains.txt > "$BASERESULT"/"$domain"/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
+	sed 's#^#http://#g' "$BASERESULT"/"$domain"/domains.txt > "$BASERESULT"/"$domain"/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
 	sed 's#^#https://#g' "$BASERESULT"/"$domain"/domains.txt > "$BASERESULT"/"$domain"/domains-https.txt
-	cat "$BASERESULT"/"$domain"/all-subdomains.txt | getJS | tojson >> $BASERESULT/$domain/$domain-JS-files.txt
+	cat "$BASERESULT"/"$domain"/all-subdomains.txt | "$HOME"/go/bin/getJS | "$HOME"/go/bin/tojson >> $BASERESULT/$domain/$domain-JS-files.txt
 	echo -e "[$GREEN+$RESET] Done, output has been saved to: $domain-JS-files.txt"
 }
 
@@ -209,7 +209,7 @@ runGetJS()
 portMasscan()
 {
   echo -e "[$GREEN+$RESET] Starting masscan portscan"
-  "$HOME"/tools/masscan/bin/masscan "$(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)" -p0-10001 --rate 1000 --wait 3 2> /dev/null | grep -o -P '(?<=port ).*(?=/)' >> $RESULTDIR/$domain-ports.txt
+  "$HOME"/tools/masscan/bin/masscan "$(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)" -p0-10000 --rate 1000 --wait 3 2> /dev/null | grep -o -P '(?<=port ).*(?=/)' >> $RESULTDIR/$domain-ports.txt
 
   echo -e "[$GREEN+$RESET] Starting nmap scan"
   nmap -p "$(cat "$RESULTDIR"/"$domain"-ports.txt | paste -sd "," -) $(dig +short "$domain" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)"
@@ -219,13 +219,9 @@ portMasscan()
 sublertScan()
 {
   echo -e "[$GREEN+$RESET] Adding $domain to sublert."
-  read -p "Are you sure? " -n 1 -r
-  echo    # (optional) move to a new line
-  if [[ $REPLY =~ ^[Yy]$ ]]
-    then
-    python3 "$HOME"/tools/sublert/sublert.py -u "$domain";
-    cp "$HOME"/sublert/output/"$domain".txt "RESULTDIR"/sublert-output.txt;
-  fi
+  python3 "$HOME"/tools/sublert/sublert.py -u "$domain";
+  cp "$HOME"/sublert/output/"$domain".txt "RESULTDIR"/sublert-output.txt;
+  
 }
 
 : 'check online'
@@ -241,8 +237,8 @@ checkOnline()
     https=false
     protocol=""
 
-    if [[ $(echo "http://$url" | online) ]]; then http=true; else http=false; fi
-    if [[ $(echo "https://$url" | online) ]]; then https=true; else https=false; fi
+    if [[ $(echo "http://$url" | "$HOME"/go/bin/online) ]]; then http=true; else http=false; fi
+    if [[ $(echo "https://$url" | "$HOME"/go/bin/online) ]]; then https=true; else https=false; fi
 
     if [[ "$http" = true ]]; then protocol="http"; fi
     if [[ "$https" = true ]]; then protocol="https"; fi
@@ -269,7 +265,7 @@ checkOnline()
 sortBruteResults()
 {
   echo -e "[$GREEN+$RESET] Sorting last results.."
-  touch subs-filtered.txt
+  touch "$RESULTDIR"/subs-filtered.txt
   cat "$RESULTDIR"/amass.txt "$RESULTDIR"/subfinder-online.txt >> "$RESULTDIR"/subs-filtered.txt
   sort -u "$RESULTDIR/subs-filtered.txt" -o "$RESULTDIR/subs-filtered.txt"
   echo -e "[$GREEN+$RESET] Done"

@@ -51,6 +51,7 @@ basicRequirements()
     # sudo apt-get upgrade -y;
     sudo apt-get install -y --reinstall build-essential;
     sudo apt install -y python3-pip;
+    sudo apt-get install -y dnsutils;
     sudo apt install -y lua5.1 alsa-utils; # still needed
     echo -e "[$GREEN+$RESET] Done."
 }
@@ -149,7 +150,7 @@ additionalTools()
     echo -e "[$GREEN+$RESET] Installing altdns..";
     cd "$HOME"/tools/ || return;
     git clone https://github.com/infosec-au/altdns.git;
-    pip install py-altdns;
+    pip install py-altdns --user;
     echo -e "[$GREEN+$RESET] Done.";
 
 
