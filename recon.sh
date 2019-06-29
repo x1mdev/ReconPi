@@ -100,48 +100,39 @@ bruteForce()
   echo -e "[$GREEN+$RESET] resolving subdomains.."
   "$HOME"/tools/massdns/bin/massdns -r "$BASE"/wordlists/resolvers.txt -q -t A -o S -w "$RESULTDIR/wordlist-online.txt" "$RESULTDIR/wordlist.txt"
   awk -F ". " '{print $domain}' "$RESULTDIR/wordlist-online.txt" > "$RESULTDIR/wordlist-filtered.txt" && mv "$RESULTDIR/wordlist-filtered.txt" "$RESULTDIR/wordlist-online.txt"
-  echo -e "[$GREEN+$RESET] DUURT LANG!1!!"
-  touch "$RESULTDIR"/bruteforce-online.txt
+  echo -e "[$GREEN+$RESET] checking http & https"
+  # touch "$RESULTDIR"/bruteforce-online.txt
 
-  while IFS='' read -r line || [[ -n "$line" ]]; do
-	  if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
-	  then
-		  IP=$(getent hosts "$domain" | cut -d' ' -f1 | head -n 1)
-		  echo "$(echo "$line" | tr -d '[:space:]'),$IP" # misschien $ip eruit
-	  fi
-  done < "$RESULTDIR"/wordlist-online.txt > "$RESULTDIR"/bruteforce-online.txt
+  # while IFS='' read -r line || [[ -n "$line" ]]; do
+	#   if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
+	#   then
+	# 	  IP=$(getent hosts "$domain" | cut -d' ' -f1 | head -n 1)
+	# 	  echo "$(echo "$line" | tr -d '[:space:]'),$IP" # misschien $ip eruit
+	#   fi
+  # done < "$RESULTDIR"/wordlist-online.txt > "$RESULTDIR"/bruteforce-online.txt
+
+  cat "$RESULTDIR"/wordlist-online.txt | httprobe | tee "$RESULTDIR"/bruteforce-online.txt;
 }
 
 : 'subfinder'
 runSubfinder()
 {
-  echo -e "[$GREEN+$RESET] SUBFINDER GO"
+  echo -e "[$GREEN+$RESET] Running Subfinder"
   "$HOME"/go/bin/subfinder -d "$domain" -o "$RESULTDIR/subfinder-online.txt" -rL "$BASE"/wordlists/resolvers.txt
   echo -e "[$GREEN+$RESET] COMBINE & SORT SUBFINDER"
   cat "$RESULTDIR"/bruteforce-online.txt "$RESULTDIR"/subfinder-online.txt >> "$RESULTDIR"/subdomains.txt
   sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
 }
 
-#### functie tijdelijk niet gebruiken
-# : 'Check if host is online, then print it'
-# checkDomainStatus()
-# {
-# 	echo -e "[$GREEN+$RESET] Checking which domains are online..."
-
-# 	touch "$ROOT"/"$1"/resolved-domains.txt
-
-# 	while IFS='' read -r line || [[ -n "$line" ]]; do
-# 		if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
-# 		then
-# 			IP=`getent hosts "$1" | cut -d' ' -f1 | head -n 1`
-# 			echo "$(echo "$line" | tr -d '[:space:]'),$IP"
-# 		fi
-# 	done < "$ROOT"/"$1"/domains.txt > "$ROOT"/"$1"/resolved-domains.txt
-
-# 	echo -e "[$GREEN+$RESET] Online domains written to $GREEN$ROOT/$1/resolved-domains.txt$RESET!"
-# 	echo -e "[$GREEN+$RESET] Displaying $GREEN$ROOT/$1/resolved-domains.txt$RESET:"
-# 	cat "$ROOT"/"$1"/resolved-domains.txt
-# }
+: 'assetfinder'
+runAssetfinder()
+{
+  echo -e "[$GREEN+$RESET] Running assetfinder"
+  "$HOME"/go/bin/assetfinder --subs-only "$domain" | tee "$RESULTDIR/assetfinder-online.txt"
+  echo -e "[$GREEN+$RESET] COMBINE & SORT assetfinder RESULTS"
+  cat "$RESULTDIR"/assetfinder-online.txt >> "$RESULTDIR"/subdomains.txt
+  sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
+}
 
 : 'amass'
 runAmass()
@@ -224,6 +215,8 @@ sublertScan()
   
 }
 
+
+
 : 'check online'
 checkOnline()
 {
@@ -279,6 +272,7 @@ resultsOverview()
   echo -e $(cat "$RESULTDIR"/bruteforce-online.txt | wc -l) "- bruteforce"
   echo -e $(cat "$RESULTDIR"/amass.txt | wc -l) "- amass"
   echo -e $(cat "$RESULTDIR"/subfinder-online.txt | wc -l) "- subfinder"
+  echo -e $(cat "$RESULTDIR"/assetfinder-online.txt | wc -l) "- assetfinder"
   echo -e $(cat "$RESULTDIR"/altdns-wordlist.txt | wc -l) "- altdns"
   echo -e $(cat "$RESULTDIR"/sublert-output.txt | wc -l) "- sublert"
   echo -e $(cat "$RESULTDIR"/subdomains.txt | wc -l) "- total"
@@ -335,6 +329,16 @@ enumerateAll()
   echo -e "[$GREEN+$RESET] Done."
 }
 
+## TODO
+### - fix juiste werkflow
+### - replace "online" with "httprobe"
+### - implement assetfinder
+### - implement meg
+### - implement gf, gron etc (optional)
+### - replace current functions with new above tooling
+### - implement webscreenshot.py?
+### - improve directory structure: main domain.tld -> subs.domain.tld (all own dir)
+
 : 'Clean up'
 cleanup()
 {
@@ -353,13 +357,17 @@ checkDirectory
 checkDirectory2
 bruteForce			
 runSubfinder
-#runAmass
-runAltdns 
-checkWildcards
-runGetJS
-portMasscan
-checkOnline
+runAssetfinder
 sortBruteResults
+# assetfinder?
+#runAmass
+runAltdns
+# 
+checkWildcards
+#runGetJS # 
+portMasscan # fix nmap
+#checkOnline # httprobe?
+#sortBruteResults # meer naar boven?
 resultsOverview
 convertDomainsFile
 startDashboard

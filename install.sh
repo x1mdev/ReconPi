@@ -100,13 +100,29 @@ golangTools()
     go get github.com/subfinder/subfinder;
     echo -e "[$GREEN+$RESET] Done.";
 
+    echo -e "[$GREEN+$RESET] Installing httprobe..";
+    go get -u github.com/tomnomnom/httprobe;
+    echo -e "[$GREEN+$RESET] Done.";
+
+    echo -e "[$GREEN+$RESET] Installing assetfinder..";
+    go get -u github.com/tomnomnom/assetfinder;
+    echo -e "[$GREEN+$RESET] Done.";
+
+    echo -e "[$GREEN+$RESET] Installing meg..";
+    go get -u github.com/tomnomnom/meg;
+    echo -e "[$GREEN+$RESET] Done.";
+
+    echo -e "[$GREEN+$RESET] Installing tojson..";
+    go get -u github.com/tomnomnom/hacks/tojson;
+    echo -e "[$GREEN+$RESET] Done.";
+
     echo -e "[$GREEN+$RESET] Installing SubOver"
     go get github.com/Ice3man543/SubOver;
     echo -e "[$GREEN+$RESET] Done."
 
-    echo -e "[$GREEN+$RESET] Installing online..";
-    go get -u github.com/003random/online;
-    echo -e "[$GREEN+$RESET] Done.";
+    # echo -e "[$GREEN+$RESET] Installing online..";
+    # go get -u github.com/003random/online;
+    # echo -e "[$GREEN+$RESET] Done.";
 
     echo -e "[$GREEN+$RESET] Installing gobuster..";
     cd "$HOME"/go/src  || return;
@@ -127,10 +143,6 @@ golangTools()
 
     echo -e "[$GREEN+$RESET] Installing GetJS..";
     go get -u github.com/003random/getJS;
-    echo -e "[$GREEN+$RESET] Done.";
-
-    echo -e "[$GREEN+$RESET] Installing tojson..";
-    go get -u github.com/tomnomnom/hacks/tojson;
     echo -e "[$GREEN+$RESET] Done.";
     
 }
@@ -197,17 +209,17 @@ setupDashboard()
     cd "$HOME"/tools/  || return;
     echo -e "[$GREEN+$RESET] Done.";
 
-    echo -e "[$GREEN+$RESET] Installing Docker.."
-    echo -e "so fast"
-    # sudo apt install -y docker.io;
-    # mv /usr/sbin/iptables /root/scripts/;
-    # ln -s /usr/sbin/iptables-legacy /usr/sbin/iptables;
-    # iptables;
-    # systemctl start docker;
-    # service docker start;
-    # sudo systemctl enable docker;
-    # sleep 1;
-    echo -e "[$GREEN+$RESET] Done."
+    # echo -e "[$GREEN+$RESET] Installing Docker.."
+    # echo -e "so fast"
+    # # sudo apt install -y docker.io;
+    # # mv /usr/sbin/iptables /root/scripts/;
+    # # ln -s /usr/sbin/iptables-legacy /usr/sbin/iptables;
+    # # iptables;
+    # # systemctl start docker;
+    # # service docker start;
+    # # sudo systemctl enable docker;
+    # # sleep 1;
+    # echo -e "[$GREEN+$RESET] Done."
 
     echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up..";
     cd "$HOME"/tools/  || return;
