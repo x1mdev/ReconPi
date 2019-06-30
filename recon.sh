@@ -111,7 +111,8 @@ bruteForce()
 	#   fi
   # done < "$RESULTDIR"/wordlist-online.txt > "$RESULTDIR"/bruteforce-online.txt
 
-  cat "$RESULTDIR"/wordlist-online.txt | httprobe | tee "$RESULTDIR"/bruteforce-online.txt;
+  cat "$RESULTDIR"/wordlist-online.txt | httprobe | tee "$RESULTDIR"/bruteforce-results.txt;
+  cat "$RESULTDIR"/bruteforce-results.txt | grep -P "([A-Za-z0-9]).*$domain" >> "$RESULTDIR"/bruteforce-online.txt
 }
 
 : 'subfinder'
@@ -128,7 +129,7 @@ runSubfinder()
 runAssetfinder()
 {
   echo -e "[$GREEN+$RESET] Running assetfinder"
-  "$HOME"/go/bin/assetfinder --subs-only "$domain" | tee "$RESULTDIR/assetfinder-online.txt"
+  "$HOME"/go/bin/assetfinder --subs-only "$domain" > "$RESULTDIR/assetfinder-online.txt"
   echo -e "[$GREEN+$RESET] COMBINE & SORT assetfinder RESULTS"
   cat "$RESULTDIR"/assetfinder-online.txt >> "$RESULTDIR"/subdomains.txt
   sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
@@ -171,7 +172,7 @@ runAltdns()
   echo -e "[$GREEN+$RESET] ALTDNS"
   altdns -i "$RESULTDIR/subdomains.txt"  -o "$RESULTDIR/altdns-wordlist.txt" -w "$HOME"/tools/altdns/words.txt
   echo -e "[$GREEN+$RESET] COMBINE & SORT ALTDNS"
-  cat "$RESULTDIR"/altdns-wordlist.txt >> "$RESULTDIR"/subdomains.txt
+  #cat "$RESULTDIR"/altdns-wordlist.txt >> "$RESULTDIR"/subdomains.txt
   sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
 }
 
@@ -187,13 +188,14 @@ checkWildcards()
 }
 
 : 'Run GetJS on scanresults and store output in file'
-runGetJS()
+runMeg()
 {
-	echo -e "[$GREEN+$RESET] Running $GREEN GetJS$RESET on scan results.."
-	sed 's#^#http://#g' "$BASERESULT"/"$domain"/domains.txt > "$BASERESULT"/"$domain"/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
-	sed 's#^#https://#g' "$BASERESULT"/"$domain"/domains.txt > "$BASERESULT"/"$domain"/domains-https.txt
-	cat "$BASERESULT"/"$domain"/all-subdomains.txt | "$HOME"/go/bin/getJS | "$HOME"/go/bin/tojson >> $BASERESULT/$domain/$domain-JS-files.txt
-	echo -e "[$GREEN+$RESET] Done, output has been saved to: $domain-JS-files.txt"
+	echo -e "[$GREEN+$RESET] Running $GREEN meg$RESET on scan results.."
+	#sed 's#^#http://#g' "$RESULTDIR"/domains.txt > "$RESULTDIR"/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
+	#sed 's#^#https://#g' "$RESULTDIR"/domains.txt > "$RESULTDIR"/domains-https.txt
+	#cat "$RESULTDIR"/subdomains.txt | "$HOME"/go/bin/getJS | "$HOME"/go/bin/tojson >> "$RESULTDIR"/$domain-JS-files.txt
+	
+  echo -e "[$GREEN+$RESET] Done, output has been saved to: $domain-JS-files.txt"
 }
 
 : 'portscan massdns'
@@ -283,9 +285,9 @@ resultsOverview()
 : 'Convert domains.txt to json (subdomainDB format)'
 convertDomainsFile()
 {
-	echo -e "[$GREEN+$RESET] Converting $GREEN$BASERESULT/$domain/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
-	cat $BASERESULT/$domain/subs-filtered.txt | grep -P "([A-Za-z0-9]).*$domain" >> $BASERESULT/$domain/domains-striped.txt
-	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $BASERESULT/$domain/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $BASERESULT/$domain/domains.json
+	echo -e "[$GREEN+$RESET] Converting $GREEN"$RESULTDIR"/subdomains.txt$RESET to an acceptable $GREEN.json$RESET file.."
+	cat "$RESULTDIR"/subdomains.txt | grep -P "([A-Za-z0-9]).*$domain" >> "$RESULTDIR"/domains-striped.txt
+	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < "$RESULTDIR"/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> "$RESULTDIR"/domains.json
 }
 
 : 'Start up the dashboard server'
@@ -299,7 +301,7 @@ startDashboard()
   	http://0.0.0.0:4000//api/domain/%20$domain \
   	-H 'cache-control: no-cache' \
   	-H 'content-type: application/json' \
-  	-d @"$BASERESULT"/"$domain"/domains.json # fix (done?)
+  	-d @"$RESULTDIR"/domains.json # fix (done?)
 	echo -e "[$GREEN+$RESET] $domain scan results available on http://recon.pi.ip.address:4000"	
 }
 
