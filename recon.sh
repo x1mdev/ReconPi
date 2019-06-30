@@ -331,15 +331,6 @@ enumerateAll()
   echo -e "[$GREEN+$RESET] Done."
 }
 
-## TODO
-### - fix juiste werkflow
-### - replace "online" with "httprobe"
-### - implement assetfinder
-### - implement meg
-### - implement gf, gron etc (optional)
-### - replace current functions with new above tooling
-### - implement webscreenshot.py?
-### - improve directory structure: main domain.tld -> subs.domain.tld (all own dir)
 
 : 'Clean up'
 cleanup()
