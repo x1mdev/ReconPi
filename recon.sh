@@ -41,27 +41,6 @@ checkArguments()
 	fi
 }
 
-: 'Display help text when no arguments are given or do a big scan'
-# need to do some work on this 
-checkArguments2()
-{
-	while getopts ":a:" opt; do
-  case $opt in
-    a)
-      echo "-a was triggered, Parameter: $OPTARG" >&2
-      ;;
-    \?)
-      echo "Invalid option: -$OPTARG" >&2
-      exit 1
-      ;;
-    :)
-      echo "Option -$OPTARG requires an argument." >&2
-      exit 1
-      ;;
-  esac
-done
-}
-
 : 'Check if the current domain has a directory, if not create it'
 checkDirectory()
 {
@@ -85,7 +64,6 @@ if [ ! -d "$RESULTDIR" ]; then
 bruteForce()
 {
   echo -e "[$GREEN+$RESET] Creating wordlists"
-  ## Maybe set flag for more curated list options, depending on target
   bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/commonspeak2-subdomains.txt "$domain" "$RESULTDIR/commonspeak-wordlist.txt"
   bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/stackoverflow-subdomains.txt "$domain" "$RESULTDIR/stackoverflow-wordlist.txt"
   bash "$BASE"/scripts/app_subs.sh "$BASE"/wordlists/bitquark_subdomains_top100K.txt "$domain" "$RESULTDIR/bitquark-wordlist.txt"
@@ -101,18 +79,9 @@ bruteForce()
   "$HOME"/tools/massdns/bin/massdns -r "$BASE"/wordlists/resolvers.txt -q -t A -o S -w "$RESULTDIR/wordlist-online.txt" "$RESULTDIR/wordlist.txt"
   awk -F ". " '{print $domain}' "$RESULTDIR/wordlist-online.txt" > "$RESULTDIR/wordlist-filtered.txt" && mv "$RESULTDIR/wordlist-filtered.txt" "$RESULTDIR/wordlist-online.txt"
   echo -e "[$GREEN+$RESET] checking http & https"
-  # touch "$RESULTDIR"/bruteforce-online.txt
 
-  # while IFS='' read -r line || [[ -n "$line" ]]; do
-	#   if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
-	#   then
-	# 	  IP=$(getent hosts "$domain" | cut -d' ' -f1 | head -n 1)
-	# 	  echo "$(echo "$line" | tr -d '[:space:]'),$IP" # misschien $ip eruit
-	#   fi
-  # done < "$RESULTDIR"/wordlist-online.txt > "$RESULTDIR"/bruteforce-online.txt
-
-  cat "$RESULTDIR"/wordlist-online.txt | httprobe | tee "$RESULTDIR"/bruteforce-results.txt;
-  cat "$RESULTDIR"/bruteforce-results.txt | grep -P "([A-Za-z0-9]).*$domain" >> "$RESULTDIR"/bruteforce-online.txt
+  cat "$RESULTDIR"/wordlist-online.txt | grep -P "([A-Za-z0-9]).*$domain" >> "$RESULTDIR"/bruteforce-online.txt;
+  cat "$RESULTDIR"/bruteforce-online.txt | "$HOME"/go/bin/httprobe | tee "$RESULTDIR"/bruteforce-results.txt;
 }
 
 : 'subfinder'
@@ -139,28 +108,11 @@ runAssetfinder()
 runAmass()
 {
 
-  echo -e "[$GREEN+$RESET] AMASS"
-  #touch "$RESULTDIR"/amass.txt
-
-  ## -rf "$BASE"/wordlists/resolvers.txt
-  ## werkt niet, to many output error
+  echo -e "[$GREEN+$RESET] amass"
   "$HOME"/go/bin/amass -d "$domain" -o "$RESULTDIR/amass.txt"
-  echo -e "[$GREEN+$RESET] CHECK AMASS"
-  #touch "$RESULTDIR"/amass-online.txt
-  #"$HOME"/tools/massdns/bin/massdns -r "$BASE"/wordlists/resolvers.txt -q -t A -o S -w "$RESULTDIR/amass-domains.txt" "$RESULTDIR/amass.txt"
-  #sed 's#^#http://#g' $ROOT/$1/domains.txt > $ROOT/$1/domains-http.txt # puts the http protocol in front of the list with domains - thanks @EdOverflow :)
-	#sed 's#^#https://#g' $ROOT/$1/domains.txt > $ROOT/$1/domains-https.txt
-  #cat "$RESULTDIR"/amass-domains.txt | online >> "$RESULTDIR"/amass-online.txt
-  # TODO CHECKEN
-
-  # while IFS='' read -r line || [[ -n "$line" ]]; do
-	#   if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
-	#   then
-	# 	  IP=$(getent hosts "$domain" | cut -d' ' -f1 | head -n 1)
-	# 	  echo "$(echo "$line" | tr -d '[:space:]'),$IP"
-	#   fi
-  # done < "$RESULTDIR"/amass-domains.txt > "$RESULTDIR"/amass-online.txt
-  echo "COMBINE & SORT AMASS"
+  #echo -e "[$GREEN+$RESET] CHECK AMASS"
+  # todo
+  echo "Combine & sort amass results"
   cat "$RESULTDIR"/amass.txt >> "$RESULTDIR"/subdomains.txt # voor nu raw amass results
   sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
 }
@@ -169,10 +121,11 @@ runAmass()
 runAltdns()
 {
   # check , geeft foutmelding
-  echo -e "[$GREEN+$RESET] ALTDNS"
+  echo -e "[$GREEN+$RESET] altdns"
   altdns -i "$RESULTDIR/subdomains.txt"  -o "$RESULTDIR/altdns-wordlist.txt" -w "$HOME"/tools/altdns/words.txt
-  echo -e "[$GREEN+$RESET] COMBINE & SORT ALTDNS"
-  #cat "$RESULTDIR"/altdns-wordlist.txt >> "$RESULTDIR"/subdomains.txt
+  echo -e "[$GREEN+$RESET] Combine & sort altdns"
+  #cat "$RESULTDIR"/altdns-wordlist.txt | "$HOME"/go/bin/httprobe | tee "$RESULTDIR"/altdns-online.txt
+  cat "$RESULTDIR"/altdns-online.txt >> "$RESULTDIR"/subdomains.txt
   sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
 }
 
@@ -213,48 +166,46 @@ sublertScan()
 {
   echo -e "[$GREEN+$RESET] Adding $domain to sublert."
   python3 "$HOME"/tools/sublert/sublert.py -u "$domain";
-  cp "$HOME"/sublert/output/"$domain".txt "RESULTDIR"/sublert-output.txt;
+  cp "$HOME"/tools/sublert/output/"$domain".txt "RESULTDIR"/sublert-output.txt;
   
 }
 
+# : 'check online'
+# checkOnline()
+# {
+#   echo -e "[$GREEN+$RESET] Check online targets"
+#   #printf "https://poc-server.com\nhttps://example.com\nhttps://notexisting003.com\nhttp://google.com" | online
+#   # use cat subdomains.txt | online?
 
+#   for port in `sed '/^$/d' "$RESULTDIR/$domain-ports.txt"`; do
+#     url="$domain:$port"
+#     http=false
+#     https=false
+#     protocol=""
 
-: 'check online'
-checkOnline()
-{
-  echo -e "[$GREEN+$RESET] Check online targets"
-  #printf "https://poc-server.com\nhttps://example.com\nhttps://notexisting003.com\nhttp://google.com" | online
-  # use cat subdomains.txt | online?
+#     if [[ $(echo "http://$url" | "$HOME"/go/bin/online) ]]; then http=true; else http=false; fi
+#     if [[ $(echo "https://$url" | "$HOME"/go/bin/online) ]]; then https=true; else https=false; fi
 
-  for port in `sed '/^$/d' "$RESULTDIR/$domain-ports.txt"`; do
-    url="$domain:$port"
-    http=false
-    https=false
-    protocol=""
+#     if [[ "$http" = true ]]; then protocol="http"; fi
+#     if [[ "$https" = true ]]; then protocol="https"; fi
 
-    if [[ $(echo "http://$url" | "$HOME"/go/bin/online) ]]; then http=true; else http=false; fi
-    if [[ $(echo "https://$url" | "$HOME"/go/bin/online) ]]; then https=true; else https=false; fi
+#     if [[ "$http" = true && "$https" = true ]]; then
+#       # If the content length of http is greater than the content length of https, then we choose http, otherwise we go with https
+#       contentLengthHTTP=$(curl -s http://$url | wc -c)
+#       contentLengthHTTPS=$(curl -s https://$url | wc -c)
+#       if [[ "$contentLengthHTTP" -gt "$contentLengthHTTPS" ]]; then protocol="http"; else protocol="https"; fi
 
-    if [[ "$http" = true ]]; then protocol="http"; fi
-    if [[ "$https" = true ]]; then protocol="https"; fi
+#       if [[ "$port" == "80" ]]; then protocol="http"; fi
+#       if [[ "$port" == "443" ]]; then protocol="https"; fi
+#     fi
 
-    if [[ "$http" = true && "$https" = true ]]; then
-      # If the content length of http is greater than the content length of https, then we choose http, otherwise we go with https
-      contentLengthHTTP=$(curl -s http://$url | wc -c)
-      contentLengthHTTPS=$(curl -s https://$url | wc -c)
-      if [[ "$contentLengthHTTP" -gt "$contentLengthHTTPS" ]]; then protocol="http"; else protocol="https"; fi
+#     if [[ ! -z "$protocol" ]]; then
+#       echo "$protocol://$domain:$port"
+#     fi
+#   done >> $RESULTDIR/$domain-urls.txt
 
-      if [[ "$port" == "80" ]]; then protocol="http"; fi
-      if [[ "$port" == "443" ]]; then protocol="https"; fi
-    fi
-
-    if [[ ! -z "$protocol" ]]; then
-      echo "$protocol://$domain:$port"
-    fi
-  done >> $RESULTDIR/$domain-urls.txt
-
-  echo -e "[$GREEN+$RESET] URLs found:" $(cat $RESULTDIR/$domain-urls.txt | wc -l)
-}
+#   echo -e "[$GREEN+$RESET] URLs found:" $(cat $RESULTDIR/$domain-urls.txt | wc -l)
+#}
 
 : 'sort results from bruteforce'
 sortBruteResults()
@@ -366,5 +317,5 @@ convertDomainsFile
 startDashboard
 #checkAll
 #enumerateAll
-sublertScan
+#sublertScan
 cleanup				
