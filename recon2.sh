@@ -5,7 +5,6 @@
 	@link   https://github.com/x1mdev/ReconPi
 '
 
-
 : 'Set the main variables'
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
@@ -28,9 +27,8 @@ TOOLS="$HOME/tools"
 VERSION="2.0"
 
 : 'Display the logo'
-displayLogo()
-{
-	echo -e "
+displayLogo() {
+    echo -e "
 __________                          __________.__
 \______   \ ____   ____  ____   ____\______   \__|
  |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
@@ -42,50 +40,43 @@ __________                          __________.__
 }
 
 : 'Display help text when no arguments are given'
-checkArguments()
-{
-	if [[ -z $domain ]]; then
-		echo -e "[$GREEN+$RESET] Usage: recon <domain.tld>"
-		exit 1
-	fi
+checkArguments() {
+    if [[ -z $domain ]]; then
+        echo -e "[$GREEN+$RESET] Usage: recon <domain.tld>"
+        exit 1
+    fi
 }
 
-checkDirectory()
-{
-if [ ! -d "$RESULTDIR" ]; then
-		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$RESULTDIR$RESET"
-		mkdir -p "$RESULTDIR"
-		#cd $ROOT/$domain
-	fi
+checkDirectory() {
+    if [ ! -d "$RESULTDIR" ]; then
+        echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$RESULTDIR$RESET"
+        mkdir -p "$RESULTDIR"
+        #cd $ROOT/$domain
+    fi
 }
-runMsg(){
+runMsg() {
     tool=$1
     echo -e "[$GREEN+$RESET] Running $tool"
 }
 
-
 ~/go/bin/subfinder -d $TARGET -t 50 -b -w $WORDLIST_PATH/dns_all.txt $TARGET -nW --silent -o $SUB_PATH/subfinder.txt
-
 
 #: 'Gather resolvers'
 # gatherResolvers()
 # {
-    
+
 #}
 
-
 : 'subdomain gathering'
-runSubdomains()
-{
-  runMsg "subfinder"
-  "$HOME"/go/bin/subfinder -d "$domain" -o "$RESULTDIR/subfinder-online.txt" -rL "$BASE"/wordlists/resolvers.txt
-  -t 50 -b -w $WORDLIST_PATH/dns_all.txt $TARGET -nW --silent -o "$RESULTDIR/subfinder-online.txt"
-  echo -e "[$GREEN+$RESET] COMBINE & SORT SUBFINDER"
-  cat "$RESULTDIR"/bruteforce-online.txt "$RESULTDIR"/subfinder-online.txt >> "$RESULTDIR"/subdomains.txt
-  sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
-  runMsg "assetfinder"
-  "$HOME"/go/bin/assetfinder --subs-only "$domain" > "$RESULTDIR/assetfinder-online.txt"
-  echo -e "[$GREEN+$RESET] COMBINE & SORT assetfinder RESULTS"
-  cat "$RESULTDIR"/assetfinder-online.txt >> "$RESULTDIR"/subdomains.txt
-  sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
+runSubdomains() {
+    runMsg "subfinder"
+    "$HOME"/go/bin/subfinder -d "$domain" -t 50 -b -w "$WORDLIST"/dns_all.txt "$domain" -nW --silent -o "$RESULTDIR/subfinder-online.txt" #-rL "$BASE"/wordlists/resolvers.txt
+    echo -e "[$GREEN+$RESET] COMBINE & SORT SUBFINDER"
+    cat "$RESULTDIR"/bruteforce-online.txt "$RESULTDIR"/subfinder-online.txt >>"$RESULTDIR"/subdomains.txt
+    sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
+    runMsg "assetfinder"
+    "$HOME"/go/bin/assetfinder --subs-only "$domain" >"$RESULTDIR/assetfinder-online.txt"
+    echo -e "[$GREEN+$RESET] COMBINE & SORT assetfinder RESULTS"
+    cat "$RESULTDIR"/assetfinder-online.txt >>"$RESULTDIR"/subdomains.txt
+    sort -u "$RESULTDIR/subdomains.txt" -o "$RESULTDIR/subdomains.txt"
 }
