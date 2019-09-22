@@ -71,7 +71,7 @@ golangInstall() {
     echo -e "export PATH=$PATH:$HOME/go/bin/" >>"$HOME"/.bashrc
     echo -e "export PATH=$PATH:$GOROOT/bin" >>"$HOME"/.bashrc
     echo -e "export PATH=$PATH:$HOME/.local/bin" >>"$HOME"/.bashrc
-    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >>"$HOME"/.bashrc
+    echo -e "alias recon='bash $HOME/ReconPi/recon2.sh'" >>"$HOME"/.bashrc
     echo -e "export LANGUAGE=en_US.UTF-8"
     echo -e "export LANG=en_US.UTF-8"
     echo -e "export LC_ALL=en_US.UTF-8"
