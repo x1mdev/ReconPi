@@ -9,19 +9,19 @@
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-BASE="$HOME/ReconPi"
 domain="$1"
-#BASERESULT="$HOME/assets" # check
+BASE="$HOME/ReconPi"
+WORDLIST="$BASE/wordlists"
 RESULTDIR="$HOME/assets/$domain"
 SCREENSHOTS="$RESULTDIR/screenshots"
-WORDLIST="$BASE/wordlists"
 CORS="$RESULTDIR/cors"
 SUBS="$RESULTDIR/subdomains"
+DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
 # check
 # IPS="$RESULTDIR/ip"
 # PORTSCAN="$RESULTDIR/portscan"
-# DIRSCAN="$RESULTDIR/directories"
+#
 
 VERSION="2.0"
 
@@ -53,9 +53,9 @@ checkDirectories() {
         mkdir -p "$SUBS"
         mkdir -p "$CORS"
         mkdir -p "$SCREENSHOTS"
+        mkdir -p "$DIRSCAN"
         # mkdir -p "$IPS"
         # mkdir -p "$PORTSCAN"
-        # mkdir -p "$DIRSCAN"
         #cd $ROOT/$domain
     fi
 }
@@ -72,33 +72,47 @@ startFunction() {
 
 : 'subdomain gathering'
 gatherSubdomains() {
+    startFunction "sublert"
+    echo -e "checking sublert output, otherwise add it."
+    if [ ! -e "$SUBS"/sublert-recon.txt ]; then
+        cd "$HOME"/sublert || return
+        python3 sublert.py -u "$domain"
+        cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
+        cd "$HOME" || return
+    else
+        cp "$HOME"/sublert/output/"$domain".txt "$SUBS"/sublert.txt
+    fi
+    echo -e "Done, next."
+
     startFunction "subfinder"
-    "$HOME"/go/bin/subfinder -d "$domain" -t 50 -b -w "$WORDLIST"/all.txt "$domain" -nW --silent -o "$SUBS/subfinder-online.txt" #-rL "$BASE"/wordlists/resolvers.txt
-    echo -e "[$GREEN+$RESET] Done."
+    "$HOME"/go/bin/subfinder -d "$domain" -t 50 -b -w "$WORDLIST"/all.txt "$domain" -nW --silent -o "$SUBS/subfinder.txt" #-rL "$BASE"/wordlists/resolvers.txt
+    echo -e "[$GREEN+$RESET] Done, next."
 
     startFunction "assetfinder"
-    "$HOME"/go/bin/assetfinder --subs-only "$domain" >"$SUBS/assetfinder-online.txt"
-    echo -e "[$GREEN+$RESET] Done."
+    "$HOME"/go/bin/assetfinder --subs-only "$domain" >"$SUBS/assetfinder.txt"
+    echo -e "[$GREEN+$RESET] Done, next."
 
-    
-    echo -e "[$GREEN+$RESET] COMBINE & SORT SUBFINDER"
-    cat "$SUBS"/*.txt | sort | awk '{print tolower($0)}' | uniq > "$SUBS"/subdomains.txt
+    startFunction "amass"
+    "$HOME"/go/bin/amass enum -d "$domain" -o "$SUBS"/amass.txt
+    echo -e "[$GREEN+$RESET] Done, next."
+
+    echo -e "[$GREEN+$RESET] Combining and sorting results.."
+    cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains.txt
     echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'subdomain takeover check'
 checkTakeovers() {
     startFunction "subjack"
-    "$HOME"/go/bin/subjack -w "$SUBS"/subdomains.txt -a -ssl -t 50 -v -c "$HOME"/go/src/github.com/haccer/subjack/fingerprints.json -o "$SUBS"/takeovers.txt -ssl
-    #cat "$SUBS"/takeovers.tmp | grep -v "Not Vulnerable" > "$SUBS"/takeovers.txt
-    #rm "$SUBS"/takeovers.tmp
-    # check?
+    "$HOME"/go/bin/subjack -w "$SUBS"/subdomains.txt -a -ssl -t 50 -v -c "$HOME"/go/src/github.com/haccer/subjack/fingerprints.json -o "$SUBS"/all-takeover-checks.txt -ssl
+    grep -v "Not Vulnerable" <"$SUBS"/all-takeover-checks.txt >"$SUBS"/takeovers.txt
+    rm "$SUBS"/all-takeover-checks.txt
     echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
-    cat "$SUBS"/subdomains.txt | "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS"/aquatone/
+    "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/subdomains.txt
 }
 
 : 'Use the CORScanner to check for CORS misconfigurations'
@@ -116,39 +130,38 @@ startMeg() {
 : 'Gather endpoints with LinkFinder'
 Startlinkfinder() {
     # todo
-
     grep -rnw "$RESULTDIR/out/" -e '.js'
-    python3 linkfinder.py -i "$SUBS"/subdomains.txt -d -o "$HTML"linkfinder-results.html
+    python3 linkfinder.py -i "$SUBS"/subdomains.txt -d -o "$HTML"/linkfinder.html
     # grep from meg results?
     # needs some efficiency
 }
 
 : 'directory brute-force'
 startBruteForce() {
-    gobuster dir -u "$SCREENSHOTS"/aquatone/aquatone_urls.txt -w "$WORDLIST"/wordlist.txt -q -n -e | tee bruteforce-endpoints.txt
-    # on live target gathered by aquatone
-    # -u prob needs fix
+    for url in $(cat "$SCREENSHOTS"/aquatone/aquatone_urls.txt); do
+        targets=$(echo $url | sed -e 's;https\?://;;' | sed -e 's;/.*$;;')
+        echo "$targets" >>"$SUBS"/"$domain"-live.txt
+        sort -u "$SUBS"/"$domain"-live.txt -o "$SUBS"/"$domain"-live.txt
+    done
+
+    for line in $(cat "$SUBS"/"$domain"-live.txt); do
+        "$HOME"/go/bin/gobuster dir -u https://"$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/"$line".txt
+    done
 }
 
-: 'results overview'
-resultsOverview()
-{
-  echo -e "Finished"
-  echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
-#   echo -e $(cat "$RESULTDIR"/bruteforce-online.txt | wc -l) "- bruteforce"
-#   echo -e $(cat "$RESULTDIR"/amass.txt | wc -l) "- amass"
-#   echo -e $(cat "$RESULTDIR"/subfinder-online.txt | wc -l) "- subfinder"
-#   echo -e $(cat "$RESULTDIR"/assetfinder-online.txt | wc -l) "- assetfinder"
-#   echo -e $(cat "$RESULTDIR"/altdns-wordlist.txt | wc -l) "- altdns"
-#   echo -e $(cat "$RESULTDIR"/sublert-output.txt | wc -l) "- sublert"
-#   echo -e $(cat "$RESULTDIR"/subdomains.txt | wc -l) "- total"
-#   echo -e $(cat "$RESULTDIR"/subs-filtered.txt | wc -l) "- filtered/online"
+: 'Clean up'
+cleanUp() {
+    echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
+    #   echo -e Results:
+    #   echo -e $(cat "$SUBS"/subdomains.txt | wc -l) "- Gathered subdomains."
+    #   echo -e $(cat "$SUBS"/takeovers.txt | wc -l) "- Possible subdomain takeovers."
+    #   echo -e $(cat "$CORS"/cors.txt | wc -l) "- CORS misconfigurations."
 
-#   Change function -> collect all useful files and show them on pi ip address (127.0.0.1/$domain.html <- aquatone results etc)
-  echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
+    #   Change function -> collect all useful files and show them on pi ip address (127.0.0.1/$domain.html <- aquatone results etc)
+    #   rm some no longer needed files
+    echo -e "Finished"
+    echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
 }
-
-
 
 : 'Execute the main functions'
 displayLogo
@@ -157,7 +170,9 @@ checkDirectories
 gatherSubdomains
 checkTakeovers
 gatherScreenshots
+startBruteForce
 ### todo
+#   startCors
 #   startMeg
 #   Startlinkfinder
-#   startBruteForce
+#   cleanUp

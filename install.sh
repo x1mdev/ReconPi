@@ -57,15 +57,15 @@ basicRequirements() {
 : 'Golang initials'
 golangInstall() {
     echo -e "[$GREEN+$RESET] Installing and setting up Go.."
-    cd "$HOME" || return
-    wget https://dl.google.com/go/go1.13.linux-armv6l.tar.gz
-    sudo tar -C /usr/local -xvf go1.13.linux-armv6l.tar.gz
-    #sudo apt install -y golang
+    cd "$HOME"/tools || return
+    git clone https://github.com/udhos/update-golang
+    cd "$HOME"/tools/update-golang || return
+    sudo bash update-golang.sh
     echo -e "[$GREEN+$RESET] Done."
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to ~/.bashrc.."
     sleep 1
-    sudo rm -rf /usr/bin/go
-    sudo ln -s /usr/local/go/bin/go /usr/bin/go
+    # sudo rm -rf /usr/bin/go
+    # sudo ln -s /usr/local/go/bin/go /usr/bin/go
     echo -e "export GOPATH=$HOME/go" >>"$HOME"/.bashrc
     echo -e 'export GOROOT=/usr/local/go' >>"$HOME"/.bashrc
     echo -e "export PATH=$PATH:$HOME/go/bin/" >>"$HOME"/.bashrc
@@ -78,10 +78,7 @@ golangInstall() {
     sleep 1
     source "$HOME"/.bashrc
     cd "$HOME" || return
-    echo -e "[$GREEN+$RESET] Golang has been configured, checking go env.."
-    go version
-    sleep 1
-    go env
+    echo -e "[$GREEN+$RESET] Golang has been configured."
 }
 
 : 'Golang tools'
@@ -146,7 +143,8 @@ golangTools() {
     if [ -e ~/go/bin/amass ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
-        go get -u github.com/OWASP/Amass/...
+        go get github.com/OWASP/Amass
+        export GO111MODULE=on
         cd "$HOME"/go/src/github.com/OWASP/Amass || return
         go install ./...
         echo -e "[$GREEN+$RESET] Done."
@@ -184,7 +182,6 @@ additionalTools() {
     echo -e "[$GREEN+$RESET] Installing altdns.."
     sudo apt install -y chromium-browser
     echo -e "[$GREEN+$RESET] Done."
-    
 
     echo -e "[$GREEN+$RESET] Installing masscan.."
     if [ -e "$HOME"/tools/masscan/bin/masscan ]; then
@@ -214,45 +211,59 @@ additionalTools() {
     echo -e "[$GREEN+$RESET] Installing sublert.."
     # needs check
     if [ -e "$HOME"/tools/sublert/sublert.py ]; then
-    echo -e "[$GREEN+$RESET] Already installed."
+        echo -e "[$GREEN+$RESET] Already installed."
     else
-    git clone https://github.com/yassineaboukir/sublert.git
-    cd "$HOME"/tools/sublert || return
-    sudo apt-get install -y libpq-dev
-    pip3 install -r requirements.txt
-    echo -e "[$GREEN+$RESET] Done."
+        git clone https://github.com/yassineaboukir/sublert.git
+        cd "$HOME"/tools/sublert || return
+        sudo apt-get install -y libpq-dev
+        pip3 install -r requirements.txt
+        echo -e "[$GREEN+$RESET] Done."
     fi
 
     echo -e "[$GREEN+$RESET] Installing LinkFinder.."
     # needs check
     if [ -e "$HOME"/tools/LinkFinder/linkfinder.py ]; then
-    echo -e "[$GREEN+$RESET] Already installed."
+        echo -e "[$GREEN+$RESET] Already installed."
     else
-    git clone https://github.com/GerbenJavado/LinkFinder.git
-    cd "$HOME"/tools/LinkFinder || return
-    pip3 install -r requirements.txt
-    sudo python3 setup.py install
-    echo -e "[$GREEN+$RESET] Done."
+        git clone https://github.com/GerbenJavado/LinkFinder.git
+        cd "$HOME"/tools/LinkFinder || return
+        pip3 install -r requirements.txt
+        sudo python3 setup.py install
+        echo -e "[$GREEN+$RESET] Done."
     fi
 
-    # echo -e "[$GREEN+$RESET] Installing virtual host discovery.."
-    # git clone https://github.com/jobertabma/virtual-host-discovery.git
-    # cd "$HOME"/tools/ || return
-    # echo -e "[$GREEN+$RESET] Done."
-
     echo -e "[$GREEN+$RESET] Installing nmap.."
-    sudo apt-get install -y nmap
+    # used and edited the nmap install script from capt-meelo
+    cd "$HOME"/tools/ || return
+    NMAP_VERSION="$(wget -qO- https://nmap.org/dist/ | grep -oP 'nmap-([0-9\.]+)\.tar\.bz2' | tail -n 1 | grep -oP 'nmap-[0-9\.]+' | grep -oP '[0-9\.]+' | head -c -2)"
+    if [ ! -x "$(command -v nmap)" ]; then
+        echo -e "[$GREEN+$RESET] Starting installation.."
+        wget https://nmap.org/dist/nmap-"$NMAP_VERSION".tar.bz2
+        bzip2 -cd nmap-"$NMAP_VERSION".tar.bz2 | tar xvf -
+        cd "$HOME"/tools/nmap-"$NMAP_VERSION" || return
+        ./configure
+        make -j
+        sudo make -j install
+        cd "$HOME"/tools/ || return
+        rm -rf nmap-"$NMAP_VERSION"*
+    else
+        if [ "$NMAP_VERSION" == "$(nmap -V | grep version | cut -d " " -f 3)" ]; then
+            echo -e "[$GREEN+$RESET] Latest version detected..${RESET}"
+        else
+            echo -e "${BLUE}[!] Upgrading to the latest version of Nmap...${RESET}"
+            cd "$HOME"/tools/ || return
+            wget https://nmap.org/dist/nmap-"$NMAP_VERSION".tar.bz2
+            bzip2 -cd "$HOME"/tools/nmap-"$NMAP_VERSION".tar.bz2 | tar xvf -
+            cd "$HOME"/tools/nmap-"$NMAP_VERSION" || return
+            ./configure
+            make -j
+            sudo make -j install
+            cd "$HOME"/tools/ || return
+            rm -rf cd "$HOME"/tools/nmap-"$NMAP_VERSION"*
+        fi
+    fi
     echo -e "[$GREEN+$RESET] Done."
 }
-
-# : 'Subdomain takeover setup'
-# subdomainTOcheck() {
-#     echo -e "[$GREEN]+$RESET] Setting up subdomain takeover checks.."
-#     cd "$HOME" || return
-#     mkdir "$HOME"/subdomain_takeover
-#     cd "$HOME"/subdomain_takeover || return
-#     git clone https://github.com/arkadiyt/bounty-targets-data
-# }
 
 : 'Dashboard setup'
 setupDashboard() {
@@ -262,24 +273,7 @@ setupDashboard() {
     cd "$HOME"/tools/ || return
     echo -e "[$GREEN+$RESET] Done."
 
-    # echo -e "[$GREEN+$RESET] Installing Docker.."
-    # echo -e "so fast"
-    # # sudo apt install -y docker.io
-    # # mv /usr/sbin/iptables /root/scripts/
-    # # ln -s /usr/sbin/iptables-legacy /usr/sbin/iptables
-    # # iptables
-    # # systemctl start docker
-    # # service docker start
-    # # sudo systemctl enable docker
-    # # sleep 1
-    # echo -e "[$GREEN+$RESET] Done."
-
-    # echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up.."
-    # cd "$HOME"/tools/ || return
-    # git clone https://github.com/smiegles/subdomainDB.git
-    # cd subdomainDB || return
-    # docker build --rm -t subdomaindb .
-    # cd "$HOME"/tools/ || return
+    # setup index.html??
 }
 
 : 'Finalize'
