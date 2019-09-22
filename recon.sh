@@ -256,31 +256,31 @@ startDashboard()
 	echo -e "[$GREEN+$RESET] $domain scan results available on http://recon.pi.ip.address:4000"	
 }
 
-: 'Check all bugbounty targets'
-checkAll()
-{
-  #check && todo
-  echo -e "Would you like to check all bug bounty targets?"
-  # To view the wildcard domains simply run:
-  cat ./bounty-targets-data/data/wildcards.txt
-}
+# : 'Check all bugbounty targets'
+# checkAll()
+# {
+#   #check && todo
+#   echo -e "Would you like to check all bug bounty targets?"
+#   # To view the wildcard domains simply run:
+#   cat ./bounty-targets-data/data/wildcards.txt
+# }
 
-: 'Enumarate subdomains from all the wildcard targets'
-enumerateAll()
-{ 
-  # needs testing n shit
-  cd "$BASERESULT"/subdomain_takeover/bounty-targets-data/ || return; 
-  git pull; 
-  cd "$RESULTDIR" || return; 
-  cp "$BASERESULT"/subdomain_takeover/bounty-targets-data/data/wildcards.txt ./; cat wildcards.txt | sed 's/^*.//g' | grep -v '*' > wildcards_without_stars.txt; 
-  while read host;  # -r ?
-    do file=$host && file+="_subfinder.out"; 
-    "$HOME"/go/bin/subfinder -o $file -d "$host"; 
-  done < ./wildcards_without_stars.txt
-  at ./*.out > all_subdomains.lst; 
-  SubOver -l ./all_subdomains.lst -timeout 5 -o subover.out;
-  echo -e "[$GREEN+$RESET] Done."
-}
+# : 'Enumarate subdomains from all the wildcard targets'
+# enumerateAll()
+# { 
+#   # needs testing n shit
+#   cd "$BASERESULT"/subdomain_takeover/bounty-targets-data/ || return; 
+#   git pull; 
+#   cd "$RESULTDIR" || return; 
+#   cp "$BASERESULT"/subdomain_takeover/bounty-targets-data/data/wildcards.txt ./; cat wildcards.txt | sed 's/^*.//g' | grep -v '*' > wildcards_without_stars.txt; 
+#   while read host;  # -r ?
+#     do file=$host && file+="_subfinder.out"; 
+#     "$HOME"/go/bin/subfinder -o $file -d "$host"; 
+#   done < ./wildcards_without_stars.txt
+#   at ./*.out > all_subdomains.lst; 
+#   SubOver -l ./all_subdomains.lst -timeout 5 -o subover.out;
+#   echo -e "[$GREEN+$RESET] Done."
+# }
 
 
 : 'Clean up'

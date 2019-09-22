@@ -50,6 +50,7 @@ basicRequirements() {
     mkdir -p "$HOME"/go/src
     mkdir -p "$HOME"/go/bin
     mkdir -p "$HOME"/go/pkg
+    sudo chmod u+w .
     echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -59,8 +60,6 @@ golangInstall() {
     cd "$HOME" || return
     wget https://dl.google.com/go/go1.13.linux-armv6l.tar.gz
     sudo tar -C /usr/local -xvf go1.13.linux-armv6l.tar.gz
-    sleep 1
-    sudo chmod u+w .
     #sudo apt install -y golang
     echo -e "[$GREEN+$RESET] Done."
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to ~/.bashrc.."
@@ -76,7 +75,6 @@ golangInstall() {
     echo -e "export LANGUAGE=en_US.UTF-8"
     echo -e "export LANG=en_US.UTF-8"
     echo -e "export LC_ALL=en_US.UTF-8"
-    #alias recon='bash $HOME/ReconPi/recon.sh'
     sleep 1
     source "$HOME"/.bashrc
     cd "$HOME" || return
@@ -93,6 +91,14 @@ golangTools() {
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get github.com/subfinder/subfinder
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing aquatone.."
+    if [ -e ~/go/bin/aquatone ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/michenriksen/aquatone
         echo -e "[$GREEN+$RESET] Done."
     fi
 
@@ -172,15 +178,13 @@ additionalTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing jq.."
-    sudo apt-get install -y jq
+    sudo apt install -y jq
     echo -e "[$GREEN+$RESET] Done."
 
-    # echo -e "[$GREEN+$RESET] Installing altdns.."
-    # cd "$HOME"/tools/ || return
-    # git clone https://github.com/infosec-au/altdns.git
-    # pip install py-altdns --user
-    # echo -e "[$GREEN+$RESET] Done."
+    echo -e "[$GREEN+$RESET] Installing altdns.."
     sudo apt install -y chromium-browser
+    echo -e "[$GREEN+$RESET] Done."
+    
 
     echo -e "[$GREEN+$RESET] Installing masscan.."
     if [ -e "$HOME"/tools/masscan/bin/masscan ]; then
@@ -194,32 +198,61 @@ additionalTools() {
         echo -e "[$GREEN+$RESET] Done."
     fi
 
+    echo -e "[$GREEN+$RESET] Installing CORScanner.."
+    if [ -e "$HOME"/tools/CORScanner/cors_scan.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/chenjj/CORScanner.git
+        cd "$HOME"/tools/CORScanner || return
+        sudo pip3 install -r requirements.txt
+        pip3 install future
+        cd "$HOME"/tools/ || return
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
     echo -e "[$GREEN+$RESET] Installing sublert.."
     # needs check
+    if [ -e "$HOME"/tools/sublert/sublert.py ]; then
+    echo -e "[$GREEN+$RESET] Already installed."
+    else
     git clone https://github.com/yassineaboukir/sublert.git
     cd "$HOME"/tools/sublert || return
     sudo apt-get install -y libpq-dev
     pip3 install -r requirements.txt
     echo -e "[$GREEN+$RESET] Done."
+    fi
 
-    echo -e "[$GREEN+$RESET] Installing virtual host discovery.."
-    git clone https://github.com/jobertabma/virtual-host-discovery.git
-    cd "$HOME"/tools/ || return
+    echo -e "[$GREEN+$RESET] Installing LinkFinder.."
+    # needs check
+    if [ -e "$HOME"/tools/LinkFinder/linkfinder.py ]; then
+    echo -e "[$GREEN+$RESET] Already installed."
+    else
+    git clone https://github.com/GerbenJavado/LinkFinder.git
+    cd "$HOME"/tools/LinkFinder || return
+    pip3 install -r requirements.txt
+    sudo python3 setup.py install
     echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    # echo -e "[$GREEN+$RESET] Installing virtual host discovery.."
+    # git clone https://github.com/jobertabma/virtual-host-discovery.git
+    # cd "$HOME"/tools/ || return
+    # echo -e "[$GREEN+$RESET] Done."
 
     echo -e "[$GREEN+$RESET] Installing nmap.."
     sudo apt-get install -y nmap
     echo -e "[$GREEN+$RESET] Done."
 }
 
-: 'Subdomain takeover setup'
-subdomainTOcheck() {
-    echo -e "[$GREEN]+$RESET] Setting up subdomain takeover checks.."
-    cd "$HOME" || return
-    mkdir "$HOME"/subdomain_takeover
-    cd "$HOME"/subdomain_takeover || return
-    git clone https://github.com/arkadiyt/bounty-targets-data
-}
+# : 'Subdomain takeover setup'
+# subdomainTOcheck() {
+#     echo -e "[$GREEN]+$RESET] Setting up subdomain takeover checks.."
+#     cd "$HOME" || return
+#     mkdir "$HOME"/subdomain_takeover
+#     cd "$HOME"/subdomain_takeover || return
+#     git clone https://github.com/arkadiyt/bounty-targets-data
+# }
 
 : 'Dashboard setup'
 setupDashboard() {
@@ -241,12 +274,12 @@ setupDashboard() {
     # # sleep 1
     # echo -e "[$GREEN+$RESET] Done."
 
-    echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up.."
-    cd "$HOME"/tools/ || return
-    git clone https://github.com/smiegles/subdomainDB.git
-    cd subdomainDB || return
-    docker build --rm -t subdomaindb .
-    cd "$HOME"/tools/ || return
+    # echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up.."
+    # cd "$HOME"/tools/ || return
+    # git clone https://github.com/smiegles/subdomainDB.git
+    # cd subdomainDB || return
+    # docker build --rm -t subdomaindb .
+    # cd "$HOME"/tools/ || return
 }
 
 : 'Finalize'
