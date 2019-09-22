@@ -89,9 +89,10 @@ gatherSubdomains() {
 : 'subdomain takeover check'
 checkTakeovers() {
     startFunction "subjack"
-    "$HOME"/go/bin/subjack -a -ssl -t 50 -v -c "$HOME"/go/src/github.com/haccer/subjack/fingerprints.json -w "$SUBS"/subdomains.txt -o "$SUBS"/takeovers.tmp
-    cat "$SUBS"/takeovers.tmp | grep -v "Not Vulnerable" > "$SUBS"/takeovers.txt
-    rm "$SUBS"/takeovers.tmp
+    "$HOME"/go/bin/subjack -w "$SUBS"/subdomains.txt -a -ssl -t 50 -v -c "$HOME"/go/src/github.com/haccer/subjack/fingerprints.json -o "$SUBS"/takeovers.txt -ssl
+    #cat "$SUBS"/takeovers.tmp | grep -v "Not Vulnerable" > "$SUBS"/takeovers.txt
+    #rm "$SUBS"/takeovers.tmp
+    # check?
     echo -e "[$GREEN+$RESET] Done."
 }
 
