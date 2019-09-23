@@ -138,7 +138,7 @@ Startlinkfinder() {
 
 : 'directory brute-force'
 startBruteForce() {
-  for url in $(cat "$SCREENSHOTS"/aquatone/aquatone_urls.txt); do
+  for url in $(cat "$SCREENSHOTS"/aquatone_urls.txt); do
     targets=$(echo $url | sed -e 's;https\?://;;' | sed -e 's;/.*$;;')
     echo "$targets" >>"$SUBS"/"$domain"-live.txt
     sort -u "$SUBS"/"$domain"-live.txt -o "$SUBS"/"$domain"-live.txt
