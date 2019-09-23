@@ -38,6 +38,7 @@ basicRequirements() {
     # locale-gen en_US.UTF-8 # not working
     sudo apt-get update -y
     # sudo apt-get upgrade -y
+    git clone https://github.com/x1mdev/ReconPi.git
     sudo apt-get install -y --reinstall build-essential
     sudo apt install -y python3-pip
     sudo apt-get install -y dnsutils
@@ -71,7 +72,7 @@ golangInstall() {
     echo -e "export PATH=$PATH:$HOME/go/bin/" >>"$HOME"/.bashrc
     echo -e "export PATH=$PATH:$GOROOT/bin" >>"$HOME"/.bashrc
     echo -e "export PATH=$PATH:$HOME/.local/bin" >>"$HOME"/.bashrc
-    echo -e "alias recon='bash $HOME/ReconPi/recon2.sh'" >>"$HOME"/.bashrc
+    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >>"$HOME"/.bashrc
     echo -e "export LANGUAGE=en_US.UTF-8"
     echo -e "export LANG=en_US.UTF-8"
     echo -e "export LC_ALL=en_US.UTF-8"
@@ -179,7 +180,7 @@ additionalTools() {
     sudo apt install -y jq
     echo -e "[$GREEN+$RESET] Done."
 
-    echo -e "[$GREEN+$RESET] Installing altdns.."
+    echo -e "[$GREEN+$RESET] Installing Chromium browser.."
     sudo apt install -y chromium-browser
     echo -e "[$GREEN+$RESET] Done."
 
@@ -231,41 +232,15 @@ additionalTools() {
         sudo python3 setup.py install
         echo -e "[$GREEN+$RESET] Done."
     fi
-    
-    # might not use this, takes A LOT of time.
 
+    echo -e "[$GREEN+$RESET] Installing nmap.."
+    if [ -e /usr/bin/nmap ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        sudo apt-get install -y nmap
+        echo -e "[$GREEN+$RESET] Done."
+    fi
 
-    # echo -e "[$GREEN+$RESET] Installing nmap.."
-    # # used and edited the nmap install script from capt-meelo
-    # cd "$HOME"/tools/ || return
-    # NMAP_VERSION="$(wget -qO- https://nmap.org/dist/ | grep -oP 'nmap-([0-9\.]+)\.tar\.bz2' | tail -n 1 | grep -oP 'nmap-[0-9\.]+' | grep -oP '[0-9\.]+' | head -c -2)"
-    # if [ ! -x "$(command -v nmap)" ]; then
-    #     echo -e "[$GREEN+$RESET] Starting installation.."
-    #     wget https://nmap.org/dist/nmap-"$NMAP_VERSION".tar.bz2
-    #     bzip2 -cd nmap-"$NMAP_VERSION".tar.bz2 | tar xvf -
-    #     cd "$HOME"/tools/nmap-"$NMAP_VERSION" || return
-    #     ./configure
-    #     make -j
-    #     sudo make -j install
-    #     cd "$HOME"/tools/ || return
-    #     rm -rf nmap-"$NMAP_VERSION"*
-    # else
-    #     if [ "$NMAP_VERSION" == "$(nmap -V | grep version | cut -d " " -f 3)" ]; then
-    #         echo -e "[$GREEN+$RESET] Latest version detected..${RESET}"
-    #     else
-    #         echo -e "${BLUE}[!] Upgrading to the latest version of Nmap...${RESET}"
-    #         cd "$HOME"/tools/ || return
-    #         wget https://nmap.org/dist/nmap-"$NMAP_VERSION".tar.bz2
-    #         bzip2 -cd "$HOME"/tools/nmap-"$NMAP_VERSION".tar.bz2 | tar xvf -
-    #         cd "$HOME"/tools/nmap-"$NMAP_VERSION" || return
-    #         ./configure
-    #         make -j
-    #         sudo make -j install
-    #         cd "$HOME"/tools/ || return
-    #         rm -rf cd "$HOME"/tools/nmap-"$NMAP_VERSION"*
-    #     fi
-    # fi
-    # echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Dashboard setup'
