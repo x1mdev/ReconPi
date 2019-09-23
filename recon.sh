@@ -54,6 +54,7 @@ checkDirectories() {
     mkdir -p "$CORS"
     mkdir -p "$SCREENSHOTS"
     mkdir -p "$DIRSCAN"
+    mkdir -p "$HTML"
     # mkdir -p "$IPS"
     # mkdir -p "$PORTSCAN"
     #cd $ROOT/$domain
@@ -112,23 +113,27 @@ checkTakeovers() {
 
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
+  startFunction "aquatone"
   "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/subdomains.txt
 }
 
 : 'Use the CORScanner to check for CORS misconfigurations'
 checkCORS() {
+  startFunction "CORScanner"
   python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/subdomains.txt | tee "$CORS"/cors.txt
   echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Gather information with meg'
 startMeg() {
+  startFunction "meg"
   # todo
   meg -d 1000 -v /
 }
 
 : 'Gather endpoints with LinkFinder'
 Startlinkfinder() {
+  startFunction "LinkFinder"
   # todo
   grep -rnw "$RESULTDIR/out/" -e '.js'
   python3 linkfinder.py -i "$SUBS"/subdomains.txt -d -o "$HTML"/linkfinder.html
@@ -138,6 +143,7 @@ Startlinkfinder() {
 
 : 'directory brute-force'
 startBruteForce() {
+  startFunction "directory brute-force"
   for url in $(cat "$SCREENSHOTS"/aquatone_urls.txt); do
     targets=$(echo $url | sed -e 's;https\?://;;' | sed -e 's;/.*$;;')
     echo "$targets" >>"$SUBS"/"$domain"-live.txt

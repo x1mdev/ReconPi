@@ -60,22 +60,21 @@ golangInstall() {
     echo -e "[$GREEN+$RESET] Installing and setting up Go.."
     cd "$HOME"/tools || return
     git clone https://github.com/udhos/update-golang
+    # fix with: PROFILED=/etc/profile.d/golang_path.sh ??
     cd "$HOME"/tools/update-golang || return
     sudo bash update-golang.sh
     echo -e "[$GREEN+$RESET] Done."
-    echo -e "[$GREEN+$RESET] Adding recon alias & Golang to ~/.bashrc.."
+    echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
     sleep 1
-    # sudo rm -rf /usr/bin/go
-    # sudo ln -s /usr/local/go/bin/go /usr/bin/go
-    echo -e "export GOPATH=$HOME/go" >>"$HOME"/.bashrc
-    echo -e 'export GOROOT=/usr/local/go' >>"$HOME"/.bashrc
-    echo -e "export PATH=$PATH:$HOME/go/bin/" >>"$HOME"/.bashrc
-    echo -e "export PATH=$PATH:$GOROOT/bin" >>"$HOME"/.bashrc
-    echo -e "export PATH=$PATH:$HOME/.local/bin" >>"$HOME"/.bashrc
-    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >>"$HOME"/.bashrc
-    echo -e "export LANGUAGE=en_US.UTF-8"
-    echo -e "export LANG=en_US.UTF-8"
-    echo -e "export LC_ALL=en_US.UTF-8"
+    echo -e "export GOPATH=$HOME/go" >> "$HOME"/.bashrc
+    echo -e 'export GOROOT=/usr/local/go' >> "$HOME"/.bashrc
+    echo -e "export PATH=$PATH:$HOME/go/bin/" >> "$HOME"/.bashrc
+    echo -e "export PATH=$PATH:$GOROOT/bin" >> "$HOME"/.bashrc
+    echo -e "export PATH=$PATH:$HOME/.local/bin" >> "$HOME"/.bashrc
+    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> "$HOME"/.bashrc
+    echo -e "export LANGUAGE=en_US.UTF-8" >> "$HOME"/.bashrc
+    echo -e "export LANG=en_US.UTF-8" >> "$HOME"/.bashrc
+    echo -e "export LC_ALL=en_US.UTF-8" >> "$HOME"/.bashrc
     sleep 1
     source "$HOME"/.bashrc
     cd "$HOME" || return
@@ -85,7 +84,7 @@ golangInstall() {
 : 'Golang tools'
 golangTools() {
     echo -e "[$GREEN+$RESET] Installing subfinder.."
-    if [ -e ~/go/bin/subfinder ]; then
+    if [ -e "$HOME"/go/bin/subfinder ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get github.com/subfinder/subfinder
@@ -93,7 +92,7 @@ golangTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing subjack.."
-    if [ -e ~/go/bin/subjack ]; then
+    if [ -e "$HOME"/go/bin/subjack ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get github.com/haccer/subjack    
@@ -101,7 +100,7 @@ golangTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing aquatone.."
-    if [ -e ~/go/bin/aquatone ]; then
+    if [ -e "$HOME"/go/bin/aquatone ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get -u github.com/michenriksen/aquatone
@@ -109,7 +108,7 @@ golangTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing httprobe.."
-    if [ -e ~/go/bin/httprobe ]; then
+    if [ -e "$HOME"/go/bin/httprobe ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get -u github.com/tomnomnom/httprobe
@@ -117,7 +116,7 @@ golangTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing assetfinder.."
-    if [ -e ~/go/bin/assetfinder ]; then
+    if [ -e "$HOME"/go/bin/assetfinder ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get -u github.com/tomnomnom/assetfinder
@@ -125,7 +124,7 @@ golangTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing meg.."
-    if [ -e ~/go/bin/meg ]; then
+    if [ -e "$HOME"/go/bin/meg ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get -u github.com/tomnomnom/meg
@@ -133,7 +132,7 @@ golangTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing tojson.."
-    if [ -e ~/go/bin/tojson ]; then
+    if [ -e "$HOME"/go/bin/tojson ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get -u github.com/tomnomnom/hacks/tojson
@@ -141,7 +140,7 @@ golangTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing gobuster.."
-    if [ -e ~/go/bin/gobuster ]; then
+    if [ -e "$HOME"/go/bin/gobuster ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get github.com/OJ/gobuster
@@ -149,7 +148,7 @@ golangTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing Amass.."
-    if [ -e ~/go/bin/amass ]; then
+    if [ -e "$HOME"/go/bin/amass ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get github.com/OWASP/Amass
@@ -160,7 +159,7 @@ golangTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing getJS.."
-    if [ -e ~/go/bin/getJS ]; then
+    if [ -e "$HOME"/go/bin/getJS ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get -u github.com/003random/getJS

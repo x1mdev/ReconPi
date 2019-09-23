@@ -52,7 +52,7 @@ After installing all of the dependencies for the ReconPi you can finally start d
 $ recon <domain.tld>
 ```
 
-`recon.sh` creates a directory named equal to the `domain.tld` provided within it's initial directory `$HOME/bugbounty`. It then starts the recon process.
+`recon.sh` creates a directory named equal to the `domain.tld` provided within it's initial directory `$HOME/bugbounty`. When this is done it will start the recon process.
 
 Tools that are being used at this moment:
 
@@ -78,32 +78,9 @@ Results will be hosted at http://0.0.0.0, which is reachable from the local Rasp
 
 ## Contributors
 
- - [Damian Ebelties](https://github.com/ebelties)
+  - [Damian Ebelties](https://github.com/ebelties)
 
-## Coming soon
-
- - More detailed scan results on the dashboard.
- - Add more tools.
-
-## v1.1.0 Changelog
-
-- Added some more tools: 
- [GetJS](https://github.com/003random/getJS) &
- [tojson](https://github.com/tomnomnom/hacks/tojson)
-- 
-## v1.0.2 Changelog
-
- - Fixed massdns issue; the `cp` command in `install.sh` did not work due to "
- - Fixed write issue to domains.json
- - Implemented [subdomainDB](https://github.com/smiegles/subdomainDB)
- - Switched base OS: [Hypriot OS](https://blog.hypriot.com/downloads/), Docker ships by default.
- - Made a few changes to `install.sh` to get all the requirements needed for `recon.sh`
- - Finished the curl POST request call to show data on the dashboard.
- - Tested the `install.sh` and `recon.sh` scripts on a freshly installed RPi + Hypriot OS.
- - Added cleanup function
- - Moved all of the loose parts in to functions in `install.sh`
-
- ## v2.0 Changelog
+## v2.0 Changelog
 
   - `install.sh` is now more efficient.
   - `recon.sh` has been extended
