@@ -226,6 +226,7 @@ additionalTools() {
     if [ -e "$HOME"/tools/LinkFinder/linkfinder.py ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
+        cd "$HOME"/tools/ || return
         git clone https://github.com/GerbenJavado/LinkFinder.git
         cd "$HOME"/tools/LinkFinder || return
         pip3 install -r requirements.txt

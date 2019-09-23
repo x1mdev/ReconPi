@@ -74,8 +74,8 @@ startFunction() {
 gatherSubdomains() {
   startFunction "sublert"
   echo -e "checking sublert output, otherwise add it."
-  if [ ! -e "$SUBS"/sublert-recon.txt ]; then
-    cd "$HOME"/sublert || return
+  if [ ! -e "$SUBS"/sublert.txt ]; then
+    cd "$HOME"/tools/sublert || return
     python3 sublert.py -u "$domain"
     cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
     cd "$HOME" || return
