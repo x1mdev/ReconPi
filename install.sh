@@ -92,6 +92,14 @@ golangTools() {
         echo -e "[$GREEN+$RESET] Done."
     fi
 
+    echo -e "[$GREEN+$RESET] Installing subjack.."
+    if [ -e ~/go/bin/subjack ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get github.com/haccer/subjack    
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
     echo -e "[$GREEN+$RESET] Installing aquatone.."
     if [ -e ~/go/bin/aquatone ]; then
         echo -e "[$GREEN+$RESET] Already installed."

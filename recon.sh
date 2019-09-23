@@ -85,7 +85,7 @@ gatherSubdomains() {
   echo -e "Done, next."
 
   startFunction "subfinder"
-  "$HOME"/go/bin/subfinder -d "$domain" -t 50 -b -w "$WORDLIST"/all.txt "$domain" -nW --silent -o "$SUBS/subfinder.txt" #-rL "$BASE"/wordlists/resolvers.txt
+  "$HOME"/go/bin/subfinder -d "$domain" -t 50 "$domain" -nW --silent -o "$SUBS/subfinder.txt" #-rL "$BASE"/wordlists/resolvers.txt
   echo -e "[$GREEN+$RESET] Done, next."
 
   startFunction "assetfinder"
