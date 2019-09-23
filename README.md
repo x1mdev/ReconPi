@@ -23,6 +23,10 @@ If you prepared your Raspberry Pi through the guide linked above you should be a
 
 > ReconPi v2.0 needs the [HypriotOS](https://blog.hypriot.com/downloads/) image to work 100%!
 
+### Easy installation
+
+`curl -L https://raw.githubusercontent.com/x1mdev/ReconPi/dev/v2.0/install.sh | bash`
+
 ### Manual installation
 
 Connect to your ReconPi with SSH:
@@ -37,10 +41,6 @@ Now we can set up everything, it's quite simple:
  - `cd ReconPi`
  - `./install.sh`
  - The script gives a `reboot` command at the end of `install.sh`, please login again to start using the ReconPi.
-
-### Easy mode
-
-`wget https://raw.githubusercontent.com/x1mdev/ReconPi/dev/v2.0/install.sh | bash
 
 Grab a cup of coffee since this will take a while.
 
