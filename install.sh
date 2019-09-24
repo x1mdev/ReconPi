@@ -66,16 +66,17 @@ golangInstall() {
     echo -e "[$GREEN+$RESET] Done."
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
     sleep 1
-    echo -e "export GOPATH=$HOME/go" >> "$HOME"/.bashrc
-    echo -e 'export GOROOT=/usr/local/go' >> "$HOME"/.bashrc
-    echo -e "export PATH=$PATH:$HOME/go/bin/" >> "$HOME"/.bashrc
-    echo -e "export PATH=$PATH:$GOROOT/bin" >> "$HOME"/.bashrc
-    echo -e "export PATH=$PATH:$HOME/.local/bin" >> "$HOME"/.bashrc
-    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> "$HOME"/.bashrc
-    echo -e "export LANGUAGE=en_US.UTF-8" >> "$HOME"/.bashrc
-    echo -e "export LANG=en_US.UTF-8" >> "$HOME"/.bashrc
-    echo -e "export LC_ALL=en_US.UTF-8" >> "$HOME"/.bashrc
+    echo export GOPATH='$HOME'/go >> "$HOME"/.bashrc
+    echo export GOROOT=/usr/local/go >> "$HOME"/.bashrc
+    echo export PATH='$PATH:$HOME'/go/bin/ >> "$HOME"/.bashrc
+    echo export PATH='$PATH:$GOROOT'/bin >> "$HOME"/.bashrc
+    echo export PATH='$PATH:$HOME'/.local/bin >> "$HOME"/.bashrc
+    echo alias recon=bash '$HOME'/ReconPi/recon.sh >> "$HOME"/.bashrc
+    echo export LANGUAGE=en_US.UTF-8 >> "$HOME"/.bashrc
+    echo export LANG=en_US.UTF-8 >> "$HOME"/.bashrc
+    echo export LC_ALL=en_US.UTF-8 >> "$HOME"/.bashrc
     sleep 1
+    source . /etc/profile.d/golang_path.sh
     source "$HOME"/.bashrc
     cd "$HOME" || return
     echo -e "[$GREEN+$RESET] Golang has been configured."
@@ -268,7 +269,7 @@ finalizeSetup() {
     displayLogo
     cd "$HOME" || return
     touch motd
-    displayLogo >>motd
+    displayLogo >> motd
     sudo mv "$HOME"/motd /etc/motd
     cd "$HOME" || return
     echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation."
