@@ -60,23 +60,23 @@ golangInstall() {
     echo -e "[$GREEN+$RESET] Installing and setting up Go.."
     cd "$HOME"/tools || return
     git clone https://github.com/udhos/update-golang
-    # fix with: PROFILED=/etc/profile.d/golang_path.sh ??
     cd "$HOME"/tools/update-golang || return
     sudo bash update-golang.sh
     echo -e "[$GREEN+$RESET] Done."
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
     sleep 1
-    echo export GOPATH='$HOME'/go >> "$HOME"/.bashrc
-    echo export GOROOT=/usr/local/go >> "$HOME"/.bashrc
-    echo export PATH='$PATH:$HOME'/go/bin/ >> "$HOME"/.bashrc
-    echo export PATH='$PATH:$GOROOT'/bin >> "$HOME"/.bashrc
-    echo export PATH='$PATH:$HOME'/.local/bin >> "$HOME"/.bashrc
-    echo alias recon=bash '$HOME'/ReconPi/recon.sh >> "$HOME"/.bashrc
-    echo export LANGUAGE=en_US.UTF-8 >> "$HOME"/.bashrc
-    echo export LANG=en_US.UTF-8 >> "$HOME"/.bashrc
-    echo export LC_ALL=en_US.UTF-8 >> "$HOME"/.bashrc
-    sleep 1
-    source . /etc/profile.d/golang_path.sh
+    # echo export GOPATH='$HOME'/go >> "$HOME"/.bashrc
+    # echo export GOROOT=/usr/local/go >> "$HOME"/.bashrc
+    # echo export PATH='$PATH:$HOME'/go/bin/ >> "$HOME"/.bashrc
+    # echo export PATH='$PATH:$GOROOT'/bin >> "$HOME"/.bashrc
+    # echo export PATH='$PATH:$HOME'/.local/bin >> "$HOME"/.bashrc
+    # echo "alias recon=bash $HOME/ReconPi/recon.sh" >> "$HOME"/.bashrc
+    # echo export LANGUAGE=en_US.UTF-8 >> "$HOME"/.bashrc
+    # echo export LANG=en_US.UTF-8 >> "$HOME"/.bashrc
+    # echo export LC_ALL=en_US.UTF-8 >> "$HOME"/.bashrc
+    { echo export GOPATH='$HOME'/go; echo export GOROOT=/usr/local/go; echo export PATH='$PATH:$HOME'/go/bin/; echo export PATH='$PATH:$GOROOT'/bin; echo export PATH='$PATH:$HOME'/.local/bin; echo "alias recon=bash $HOME/ReconPi/recon.sh"; echo export LANGUAGE=en_US.UTF-8; echo export LANG=en_US.UTF-8; echo export LC_ALL=en_US.UTF-8; } >> "$HOME"/.bashrc
+    # if lines exist in .bashrc, do not write again?
+    bash /etc/profile.d/golang_path.sh
     source "$HOME"/.bashrc
     cd "$HOME" || return
     echo -e "[$GREEN+$RESET] Golang has been configured."
