@@ -118,9 +118,9 @@ gatherResolvers()
 : 'Gather IPs with massdns'
 gatherIPs(){
     startFunction "massdns"
-    /usr/local/bin/massdns -r "$WORDLIST"/"$domain"-resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains.txt
-    cat "$IPS"/massdns.raw | grep -e ' A ' |  cut -d 'A' -f 2 | tr -d ' ' > "$IPS"/massdns.txt
-    cat "$IPS"/*.txt | sort -u > "$IPS"/"$domain"-ips.txt
+    sudo /usr/local/bin/massdns -r "$WORDLIST"/"$domain"-resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains.txt
+    sudo cat "$IPS"/massdns.raw | grep -e ' A ' |  cut -d 'A' -f 2 | tr -d ' ' > "$IPS"/massdns.txt
+    sudo cat "$IPS"/*.txt | sort -u > "$IPS"/"$domain"-ips.txt
     echo -e "[$GREEN+$RESET] Done."
 }
 
