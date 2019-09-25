@@ -47,20 +47,18 @@ checkArguments() {
 checkDirectories() {
   if [ ! -d "$RESULTDIR" ]; then
     echo -e "[$GREEN+$RESET] Creating new directories and grabbing wordlists for $GREEN$domain$RESET.."
-    {
       mkdir -p "$RESULTDIR"
-      \n mkdir -p "$SUBS"
-      \n mkdir -p "$CORS"
-      \n mkdir -p "$SCREENSHOTS"
-      \n mkdir -p "$DIRSCAN"
-      \n mkdir -p "$HTML"
-      \n mkdir -p "$WORDLIST"
-      \n sudo mkdir -p /var/www/html/"$domain"
-    }
+      mkdir -p "$SUBS"
+      mkdir -p "$CORS"
+      mkdir -p "$SCREENSHOTS"
+      mkdir -p "$DIRSCAN"
+      mkdir -p "$HTML"
+      mkdir -p "$WORDLIST"
+      mkdir -p "$IPS"
+      sudo mkdir -p /var/www/html/"$domain"
     cp "$BASE"/wordlists/*.txt "$WORDLIST"
-    # mkdir -p "$IPS"
     # mkdir -p "$PORTSCAN"
-    #cd $ROOT/$domain
+    # cd $ROOT/$domain
   fi
 }
 
@@ -84,7 +82,7 @@ gatherSubdomains() {
   echo -e "[$GREEN+$RESET] Done, next."
 
   startFunction "subfinder"
-  "$HOME"/go/bin/subfinder -d "$domain" -t 50 "$domain" -nW --silent -o "$SUBS/subfinder.txt" #-rL "$BASE"/wordlists/resolvers.txt
+  "$HOME"/go/bin/subfinder -d "$domain" -t 50 "$domain" -nW --silent -o "$SUBS/subfinder.txt" 
   echo -e "[$GREEN+$RESET] Done, next."
 
   startFunction "assetfinder"
@@ -219,12 +217,12 @@ cleanUp() {
 displayLogo
 checkArguments
 checkDirectories
-gatherSubdomains
-checkTakeovers
+#gatherSubdomains
+#checkTakeovers
 gatherResolvers
 gatherIPs
-gatherScreenshots
-startBruteForce
+#gatherScreenshots
+#startBruteForce
 ### todo
 #   startCors
 #   startMeg
