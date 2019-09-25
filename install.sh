@@ -57,7 +57,7 @@ basicRequirements() {
 golangInstall() {
     echo -e "[$GREEN+$RESET] Installing and setting up Go.."
     if [[ $(go version | grep -o '1.13') = 1.13 ]]; then
-  echo "[$GREEN+$RESET] Go is already installed, skipping installation"
+  echo -e "[$GREEN+$RESET] Go is already installed, skipping installation"
   else
     cd "$HOME"/tools || return
     git clone https://github.com/udhos/update-golang
