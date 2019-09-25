@@ -248,6 +248,17 @@ additionalTools() {
         echo -e "[$GREEN+$RESET] Done."
     fi
 
+     echo -e "[$GREEN+$RESET] Installing bass.."
+    # needs check
+    if [ -e "$HOME"/tools/bass/bass.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        git clone https://github.com/Abss0x7tbh/bass.git
+        cd "$HOME"/tools/bass || return
+        pip3 install -r requirements.txt
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
     echo -e "[$GREEN+$RESET] Installing nmap.."
     if [ -e /usr/bin/nmap ]; then
         echo -e "[$GREEN+$RESET] Already installed."

@@ -11,8 +11,8 @@ GREEN="\033[0;32m"
 RESET="\033[0m"
 domain="$1"
 BASE="$HOME/ReconPi"
-WORDLIST="$BASE/wordlists"
 RESULTDIR="$HOME/assets/$domain"
+WORDLIST="$RESULTDIR/wordlists"
 SCREENSHOTS="$RESULTDIR/screenshots"
 CORS="$RESULTDIR/cors"
 SUBS="$RESULTDIR/subdomains"
@@ -46,7 +46,7 @@ checkArguments() {
 
 checkDirectories() {
   if [ ! -d "$RESULTDIR" ]; then
-    echo -e "[$GREEN+$RESET] Creating new directories for $GREEN$domain$RESET"
+    echo -e "[$GREEN+$RESET] Creating new directories and grabbing wordlists for $GREEN$domain$RESET.."
     {
       mkdir -p "$RESULTDIR"
       \n mkdir -p "$SUBS"
@@ -54,9 +54,10 @@ checkDirectories() {
       \n mkdir -p "$SCREENSHOTS"
       \n mkdir -p "$DIRSCAN"
       \n mkdir -p "$HTML"
+      \n mkdir -p "$WORDLIST"
       \n sudo mkdir -p /var/www/html/"$domain"
     }
-
+    cp "$BASE"/wordlists/*.txt "$WORDLIST"
     # mkdir -p "$IPS"
     # mkdir -p "$PORTSCAN"
     #cd $ROOT/$domain
@@ -67,12 +68,6 @@ startFunction() {
   tool=$1
   echo -e "[$GREEN+$RESET] Starting $tool"
 }
-
-#: 'Gather resolvers'
-# gatherResolvers()
-# {
-
-#}
 
 : 'subdomain gathering'
 gatherSubdomains() {
@@ -101,7 +96,7 @@ gatherSubdomains() {
   echo -e "[$GREEN+$RESET] Done, next."
 
   echo -e "[$GREEN+$RESET] Combining and sorting results.."
-  cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains.txt
+  cat "$SUBS"/*.txt | sort -u > "$SUBS"/subdomains.txt
   echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -112,6 +107,23 @@ checkTakeovers() {
   grep -v "Not Vulnerable" <"$SUBS"/all-takeover-checks.txt >"$SUBS"/takeovers.txt
   rm "$SUBS"/all-takeover-checks.txt
   echo -e "[$GREEN+$RESET] Done."
+}
+
+: 'Gather resolvers with bass'
+gatherResolvers()
+{
+  startFunction "bass (resolvers)"
+  cd "$HOME"/tools/bass || return
+  python3 bass.py -d "$domain" -o "$WORDLIST"/"$domain"-resolvers.txt
+}
+
+: 'Gather IPs with massdns'
+gatherIPs(){
+    startFunction "massdns"
+    /usr/local/bin/massdns -r "$WORDLIST"/"$domain"-resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains.txt
+    cat "$IPS"/massdns.raw | grep -e ' A ' |  cut -d 'A' -f 2 | tr -d ' ' > "$IPS"/massdns.txt
+    cat "$IPS"/*.txt | sort -u > "$IPS"/"$domain"-ips.txt
+    echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Use aquatone+chromium-browser to gather screenshots'
@@ -209,6 +221,8 @@ checkArguments
 checkDirectories
 gatherSubdomains
 checkTakeovers
+gatherResolvers
+gatherIPs
 gatherScreenshots
 startBruteForce
 ### todo
