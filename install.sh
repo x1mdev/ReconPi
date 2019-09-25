@@ -69,7 +69,7 @@ golangInstall() {
     sleep 1
     configfile="$HOME"/.bashrc
     if grep -q /go/bin/ "$configfile"; then
-    echo "[$GREEN+$RESET] .bashrc contains the correct lines."
+    echo -e "[$GREEN+$RESET] .bashrc contains the correct lines."
     else
     echo export GOPATH='$HOME'/go >> "$HOME"/.bashrc
     echo export GOROOT=/usr/local/go >> "$HOME"/.bashrc
@@ -266,7 +266,7 @@ setupDashboard() {
     cd "$HOME"/tools/ || return
     echo -e "[$GREEN+$RESET] Done."
     sudo rm /var/www/html/index.nginx-debian.html
-    touch /var/www/html/index.html
+    sudo touch /var/www/html/index.html
     # setup index.html??
 }
 
@@ -290,6 +290,5 @@ basicRequirements
 golangInstall
 golangTools
 additionalTools
-subdomainTOcheck
 setupDashboard
 finalizeSetup
