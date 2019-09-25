@@ -18,6 +18,7 @@ CORS="$RESULTDIR/cors"
 SUBS="$RESULTDIR/subdomains"
 DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
+IPS="$RESULTDIR/ips"
 VERSION="2.0"
 # check
 # IPS="$RESULTDIR/ip"
@@ -120,6 +121,7 @@ gatherIPs(){
     startFunction "massdns"
     sudo /usr/local/bin/massdns -r "$WORDLIST"/"$domain"-resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains.txt
     sudo cat "$IPS"/massdns.raw | grep -e ' A ' |  cut -d 'A' -f 2 | tr -d ' ' > "$IPS"/massdns.txt
+    sudo touch "$IPS"/"$domain"-ips.txt
     sudo cat "$IPS"/*.txt | sort -u > "$IPS"/"$domain"-ips.txt
     echo -e "[$GREEN+$RESET] Done."
 }
@@ -217,15 +219,16 @@ cleanUp() {
 displayLogo
 checkArguments
 checkDirectories
-#gatherSubdomains
-#checkTakeovers
+gatherSubdomains
+checkTakeovers
 gatherResolvers
 gatherIPs
-#gatherScreenshots
-#startBruteForce
+gatherScreenshots
+startBruteForce
+makeHtml
 ### todo
 #   startCors
 #   startMeg
 #   Startlinkfinder
-#   makeHtml
+#   
 #   cleanUp
