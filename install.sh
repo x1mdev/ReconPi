@@ -35,14 +35,12 @@ basicRequirements() {
     export LANGUAGE=en_US.UTF-8
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
-    # locale-gen en_US.UTF-8 # not working
     sudo apt-get update -y
-    # sudo apt-get upgrade -y
     git clone https://github.com/x1mdev/ReconPi.git
     sudo apt-get install -y --reinstall build-essential
     sudo apt install -y python3-pip
     sudo apt-get install -y dnsutils
-    sudo apt install -y lua5.1 alsa-utils # still needed
+    sudo apt install -y lua5.1 alsa-utils
     sudo apt-get autoremove -y
     sudo apt clean
     echo -e "[$GREEN+$RESET] Creating directories.."
@@ -65,16 +63,16 @@ golangInstall() {
     echo -e "[$GREEN+$RESET] Done."
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
     sleep 1
-    # echo export GOPATH='$HOME'/go >> "$HOME"/.bashrc
-    # echo export GOROOT=/usr/local/go >> "$HOME"/.bashrc
-    # echo export PATH='$PATH:$HOME'/go/bin/ >> "$HOME"/.bashrc
-    # echo export PATH='$PATH:$GOROOT'/bin >> "$HOME"/.bashrc
-    # echo export PATH='$PATH:$HOME'/.local/bin >> "$HOME"/.bashrc
-    # echo "alias recon=bash $HOME/ReconPi/recon.sh" >> "$HOME"/.bashrc
-    # echo export LANGUAGE=en_US.UTF-8 >> "$HOME"/.bashrc
-    # echo export LANG=en_US.UTF-8 >> "$HOME"/.bashrc
-    # echo export LC_ALL=en_US.UTF-8 >> "$HOME"/.bashrc
-    { echo export GOPATH='$HOME'/go; echo export GOROOT=/usr/local/go; echo export PATH='$PATH:$HOME'/go/bin/; echo export PATH='$PATH:$GOROOT'/bin; echo export PATH='$PATH:$HOME'/.local/bin; echo "alias recon=bash $HOME/ReconPi/recon.sh"; echo export LANGUAGE=en_US.UTF-8; echo export LANG=en_US.UTF-8; echo export LC_ALL=en_US.UTF-8; } >> "$HOME"/.bashrc
+    echo export GOPATH='$HOME'/go >> "$HOME"/.bashrc
+    echo export GOROOT=/usr/local/go >> "$HOME"/.bashrc
+    echo export PATH='$PATH:$HOME'/go/bin/ >> "$HOME"/.bashrc
+    echo export PATH='$PATH:$GOROOT'/bin >> "$HOME"/.bashrc
+    echo export PATH='$PATH:$HOME'/.local/bin >> "$HOME"/.bashrc
+    echo "alias recon=bash $HOME/ReconPi/recon.sh" >> "$HOME"/.bashrc
+    echo export LANGUAGE=en_US.UTF-8 >> "$HOME"/.bashrc
+    echo export LANG=en_US.UTF-8 >> "$HOME"/.bashrc
+    echo export LC_ALL=en_US.UTF-8 >> "$HOME"/.bashrc
+    # { echo export GOPATH='$HOME'/go; echo export GOROOT=/usr/local/go; echo export PATH='$PATH:$HOME'/go/bin/; echo export PATH='$PATH:$GOROOT'/bin; echo export PATH='$PATH:$HOME'/.local/bin; echo "alias recon=bash $HOME/ReconPi/recon.sh"; echo export LANGUAGE=en_US.UTF-8; echo export LANG=en_US.UTF-8; echo export LC_ALL=en_US.UTF-8; } >> "$HOME"/.bashrc
     # if lines exist in .bashrc, do not write again?
     bash /etc/profile.d/golang_path.sh
     source "$HOME"/.bashrc
@@ -259,7 +257,8 @@ setupDashboard() {
     sudo nginx -t
     cd "$HOME"/tools/ || return
     echo -e "[$GREEN+$RESET] Done."
-
+    sudo rm /var/www/html/index.nginx-debian.html
+    touch /var/www/html/index.html
     # setup index.html??
 }
 

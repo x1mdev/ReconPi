@@ -18,12 +18,10 @@ CORS="$RESULTDIR/cors"
 SUBS="$RESULTDIR/subdomains"
 DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
+VERSION="2.0"
 # check
 # IPS="$RESULTDIR/ip"
 # PORTSCAN="$RESULTDIR/portscan"
-#
-
-VERSION="2.0"
 
 : 'Display the logo'
 displayLogo() {
@@ -49,17 +47,22 @@ checkArguments() {
 checkDirectories() {
   if [ ! -d "$RESULTDIR" ]; then
     echo -e "[$GREEN+$RESET] Creating new directories for $GREEN$domain$RESET"
-    mkdir -p "$RESULTDIR"
-    mkdir -p "$SUBS"
-    mkdir -p "$CORS"
-    mkdir -p "$SCREENSHOTS"
-    mkdir -p "$DIRSCAN"
-    mkdir -p "$HTML"
+    {
+      mkdir -p "$RESULTDIR"
+      \n mkdir -p "$SUBS"
+      \n mkdir -p "$CORS"
+      \n mkdir -p "$SCREENSHOTS"
+      \n mkdir -p "$DIRSCAN"
+      \n mkdir -p "$HTML"
+      \n sudo mkdir -p /var/www/html/"$domain"
+    }
+
     # mkdir -p "$IPS"
     # mkdir -p "$PORTSCAN"
     #cd $ROOT/$domain
   fi
 }
+
 startFunction() {
   tool=$1
   echo -e "[$GREEN+$RESET] Starting $tool"
@@ -74,7 +77,7 @@ startFunction() {
 : 'subdomain gathering'
 gatherSubdomains() {
   startFunction "sublert"
-  echo -e "checking sublert output, otherwise add it."
+  echo -e "[$GREEN+$RESET] Checking for existing sublert output, otherwise add it."
   if [ ! -e "$SUBS"/sublert.txt ]; then
     cd "$HOME"/tools/sublert || return
     python3 sublert.py -u "$domain"
@@ -83,7 +86,7 @@ gatherSubdomains() {
   else
     cp "$HOME"/sublert/output/"$domain".txt "$SUBS"/sublert.txt
   fi
-  echo -e "Done, next."
+  echo -e "[$GREEN+$RESET] Done, next."
 
   startFunction "subfinder"
   "$HOME"/go/bin/subfinder -d "$domain" -t 50 "$domain" -nW --silent -o "$SUBS/subfinder.txt" #-rL "$BASE"/wordlists/resolvers.txt
@@ -150,9 +153,39 @@ startBruteForce() {
     sort -u "$SUBS"/"$domain"-live.txt -o "$SUBS"/"$domain"-live.txt
   done
 
+  # maybe run with interlace?
+  # needs finetuning
   for line in $(cat "$SUBS"/"$domain"-live.txt); do
     "$HOME"/go/bin/gobuster dir -u https://"$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/"$line".txt
   done
+}
+
+: 'Create HTML page for results'
+makeHtml() {
+  startFunction "HTML webpage"
+  # some simple testing
+  # { echo "<html><head></head><body>"; echo "<table border=1>"; echo "<h1>$domain</h1>"; } >>"$HTML"/index.html
+
+  # echo "<tr><td>Target</td><td>Subdomains</td><td>Ports</td><td>CORS</td><td>Screenshots</td><td>Takeovers</td></tr>" >>"$HTML"/index.html
+  # echo "<a href=$SCREENSHOTS/aquatone_report.html>Screenshots</a><br>" >>"$HTML"/index.html
+  # echo "<a href=$CORS/cors.txt>CORS misconfigurations</a><br>" >>"$HTML"/index.html
+  # echo "<a href=$DIRSCAN/$line.txt>dirscan results</a><br>" >>"$HTML"/index.html
+  # echo "</table>" >>"$HTML"/index.html
+  # echo "</body></html>" >>"$HTML"/index.html
+
+  echo "<html><head></head><body>" >> "$HTML"/index.html
+  echo "<table border=1>" >> "$HTML"/index.html
+  echo "<h1>$domain</h1>" >> "$HTML"/index.html
+  echo "<tr><td>Target</td><td>Subdomains</td><td>Ports</td><td>CORS</td><td>Screenshots</td><td>Takeovers</td></tr>" >> "$HTML"/index.html
+  echo "<a href=$SCREENSHOTS/aquatone_report.html>Screenshots</a><br>" >> "$HTML"/index.html
+  echo "<a href=$CORS/cors.txt>CORS misconfigurations</a><br>" >> "$HTML"/index.html
+  echo "<a href=$DIRSCAN/$line.txt>dirscan results</a><br>" >> "$HTML"/index.html
+  echo "</table>" >> "$HTML"/index.html
+  echo "</body></html>" >> "$HTML"/index.html
+  
+  sudo cp "$HTML"/index.html /var/www/html/$domain/index.html
+  echo -e "[$GREEN+$RESET] Scan finished"
+  echo -e "[$GREEN+$RESET] Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/"
 }
 
 : 'Clean up'
@@ -166,6 +199,7 @@ cleanUp() {
   #   Change function -> collect all useful files and show them on pi ip address (127.0.0.1/$domain.html <- aquatone results etc)
   #   rm some no longer needed files
   echo -e "Finished"
+  echo -e "Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/"
   echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
 }
 
@@ -181,4 +215,5 @@ startBruteForce
 #   startCors
 #   startMeg
 #   Startlinkfinder
+#   makeHtml
 #   cleanUp
