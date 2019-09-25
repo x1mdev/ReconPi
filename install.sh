@@ -63,17 +63,20 @@ golangInstall() {
     echo -e "[$GREEN+$RESET] Done."
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
     sleep 1
+    configfile="$HOME"/.bashrc
+    if grep -q /go/bin/ "$configfile"; then
+    echo "[$GREEN+$RESET] .bashrc contains the correct lines."
+    else
     echo export GOPATH='$HOME'/go >> "$HOME"/.bashrc
     echo export GOROOT=/usr/local/go >> "$HOME"/.bashrc
     echo export PATH='$PATH:$HOME'/go/bin/ >> "$HOME"/.bashrc
     echo export PATH='$PATH:$GOROOT'/bin >> "$HOME"/.bashrc
     echo export PATH='$PATH:$HOME'/.local/bin >> "$HOME"/.bashrc
-    echo "alias recon=bash $HOME/ReconPi/recon.sh" >> "$HOME"/.bashrc
+    echo "alias recon=/home/pirate/ReconPi/recon.sh" >> "$HOME"/.bashrc
     echo export LANGUAGE=en_US.UTF-8 >> "$HOME"/.bashrc
     echo export LANG=en_US.UTF-8 >> "$HOME"/.bashrc
     echo export LC_ALL=en_US.UTF-8 >> "$HOME"/.bashrc
-    # { echo export GOPATH='$HOME'/go; echo export GOROOT=/usr/local/go; echo export PATH='$PATH:$HOME'/go/bin/; echo export PATH='$PATH:$GOROOT'/bin; echo export PATH='$PATH:$HOME'/.local/bin; echo "alias recon=bash $HOME/ReconPi/recon.sh"; echo export LANGUAGE=en_US.UTF-8; echo export LANG=en_US.UTF-8; echo export LC_ALL=en_US.UTF-8; } >> "$HOME"/.bashrc
-    # if lines exist in .bashrc, do not write again?
+    fi  
     bash /etc/profile.d/golang_path.sh
     source "$HOME"/.bashrc
     cd "$HOME" || return
