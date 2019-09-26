@@ -180,7 +180,7 @@ makeHtml() {
   echo "<table border=1>" >> "$HTML"/index.html
   echo "<h1>$domain</h1>" >> "$HTML"/index.html
   echo "<tr><td>Target</td><td>Subdomains</td><td>Ports</td><td>CORS</td><td>Screenshots</td><td>Takeovers</td></tr>" >> "$HTML"/index.html
-  echo "<a href=/screenshots/aquatone_report.html>Screenshots</a><br>" >> "$HTML"/index.html
+  echo "<a href=http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/screenshots/aquatone_report.html>Screenshots</a><br>" >> "$HTML"/index.html
   echo "<a href=$CORS/cors.txt>CORS misconfigurations</a><br>" >> "$HTML"/index.html
   echo "<a href=$DIRSCAN/$line.txt>dirscan results</a><br>" >> "$HTML"/index.html
   echo "</table>" >> "$HTML"/index.html
