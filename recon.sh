@@ -194,9 +194,11 @@ makeHtml() {
   echo "</table>" >> "$HTML"/index.html
   echo "</body></html>" >> "$HTML"/index.html
   
+  sudo cp -r "$SCREENSHOTS" /var/www/html/$domain/screenshots
   sudo cp "$HTML"/index.html /var/www/html/$domain/index.html
   echo -e "[$GREEN+$RESET] Scan finished"
   echo -e "[$GREEN+$RESET] Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/"
+  echo -e "[$GREEN+$RESET] Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html"
 }
 
 : 'Clean up'
