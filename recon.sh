@@ -175,45 +175,25 @@ startBruteForce() {
 makeHtml() {
   startFunction "HTML webpage"
   # some simple testing
-  # { echo "<html><head></head><body>"; echo "<table border=1>"; echo "<h1>$domain</h1>"; } >>"$HTML"/index.html
-
-  # echo "<tr><td>Target</td><td>Subdomains</td><td>Ports</td><td>CORS</td><td>Screenshots</td><td>Takeovers</td></tr>" >>"$HTML"/index.html
-  # echo "<a href=$SCREENSHOTS/aquatone_report.html>Screenshots</a><br>" >>"$HTML"/index.html
-  # echo "<a href=$CORS/cors.txt>CORS misconfigurations</a><br>" >>"$HTML"/index.html
-  # echo "<a href=$DIRSCAN/$line.txt>dirscan results</a><br>" >>"$HTML"/index.html
-  # echo "</table>" >>"$HTML"/index.html
-  # echo "</body></html>" >>"$HTML"/index.html
 
   echo "<html><head></head><body>" >> "$HTML"/index.html
   echo "<table border=1>" >> "$HTML"/index.html
   echo "<h1>$domain</h1>" >> "$HTML"/index.html
   echo "<tr><td>Target</td><td>Subdomains</td><td>Ports</td><td>CORS</td><td>Screenshots</td><td>Takeovers</td></tr>" >> "$HTML"/index.html
-  echo "<a href=$SCREENSHOTS/aquatone_report.html>Screenshots</a><br>" >> "$HTML"/index.html
+  echo "<a href=/screenshots/aquatone_report.html>Screenshots</a><br>" >> "$HTML"/index.html
   echo "<a href=$CORS/cors.txt>CORS misconfigurations</a><br>" >> "$HTML"/index.html
   echo "<a href=$DIRSCAN/$line.txt>dirscan results</a><br>" >> "$HTML"/index.html
   echo "</table>" >> "$HTML"/index.html
   echo "</body></html>" >> "$HTML"/index.html
   
+  cd /var/www/html/ || return
+  sudo chmod -R 755 .
   sudo cp -r "$SCREENSHOTS" /var/www/html/$domain/screenshots
   sudo cp "$HTML"/index.html /var/www/html/$domain/index.html
+  cd "$HOME" || return
   echo -e "[$GREEN+$RESET] Scan finished"
   echo -e "[$GREEN+$RESET] Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/"
   echo -e "[$GREEN+$RESET] Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html"
-}
-
-: 'Clean up'
-cleanUp() {
-  echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
-  #   echo -e Results:
-  #   echo -e $(cat "$SUBS"/subdomains.txt | wc -l) "- Gathered subdomains."
-  #   echo -e $(cat "$SUBS"/takeovers.txt | wc -l) "- Possible subdomain takeovers."
-  #   echo -e $(cat "$CORS"/cors.txt | wc -l) "- CORS misconfigurations."
-
-  #   Change function -> collect all useful files and show them on pi ip address (127.0.0.1/$domain.html <- aquatone results etc)
-  #   rm some no longer needed files
-  echo -e "Finished"
-  echo -e "Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/"
-  echo -e "[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]-[$GREEN+$RESET]"
 }
 
 : 'Execute the main functions'
@@ -231,5 +211,3 @@ makeHtml
 #   startCors
 #   startMeg
 #   Startlinkfinder
-#   
-#   cleanUp
