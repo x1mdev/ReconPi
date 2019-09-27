@@ -43,6 +43,9 @@ basicRequirements() {
     sudo apt install -y lua5.1 alsa-utils
     sudo apt-get autoremove -y
     sudo apt clean
+    echo -e "[$GREEN+$RESET] Stopping Docker service.."
+    sudo systemctl disable docker.service
+    sudo systemctl disable docker.socket
     echo -e "[$GREEN+$RESET] Creating directories.."
     mkdir -p "$HOME"/tools
     mkdir -p "$HOME"/go
@@ -256,6 +259,17 @@ additionalTools() {
         git clone https://github.com/Abss0x7tbh/bass.git
         cd "$HOME"/tools/bass || return
         pip3 install -r requirements.txt
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing interlace.."
+    # needs check
+    if [ -e /usr/local/bin/interlace ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        git clone https://github.com/codingo/Interlace.git
+        cd "$HOME"/tools/Interlace || return
+        sudo python3 setup.py install
         echo -e "[$GREEN+$RESET] Done."
     fi
 

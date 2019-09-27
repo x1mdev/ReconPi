@@ -125,6 +125,11 @@ gatherIPs(){
     echo -e "[$GREEN+$RESET] Done."
 }
 
+: 'Portscan on found IP addresses'
+portScan() {
+  masscan
+}
+
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
   startFunction "aquatone"
