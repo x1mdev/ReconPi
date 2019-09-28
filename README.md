@@ -21,9 +21,11 @@ Check the updated blogpost here for a complete guide on how to set up your own R
 
 If you prepared your Raspberry Pi through the guide linked above you should be able to continue below.
 
-> ReconPi v2.0 needs the [HypriotOS](https://blog.hypriot.com/downloads/) image to work 100%!
+> ReconPi v2.0 needs the [HypriotOS](https://blog.hypriot.com/downloads/) (V1.10.0) image to work 100%!
 
 ### Easy installation
+
+`ssh pirate@192.168.2.16 [Change IP to ReconPi IP]`
 
 `curl -L https://raw.githubusercontent.com/x1mdev/ReconPi/dev/v2.0/install.sh | bash`
 
@@ -31,9 +33,8 @@ If you prepared your Raspberry Pi through the guide linked above you should be a
 
 Connect to your ReconPi with SSH:
 
-```
-$ ssh root@192.168.2.16 [Change IP to ReconPi IP]
-```
+
+`$ ssh pirate@192.168.2.16 [Change IP to ReconPi IP]`
 
 Now we can set up everything, it's quite simple:
 
@@ -52,7 +53,14 @@ After installing all of the dependencies for the ReconPi you can finally start d
 $ recon <domain.tld>
 ```
 
-`recon.sh` creates a directory named equal to the `domain.tld` provided within it's initial directory `$HOME/bugbounty`. When this is done it will start the recon process.
+`recon.sh` starts with gathering resolvers for the given target, followed by subdomain enumeration and checking those assets for potential subdomain takeover. When this is done the IP addresses of the target are enumerated. Open ports will be discovered accompanied by a service scan provided by Nmap.
+
+Finally the live targets will be screenshotted and brute-forced to discover endpoints.
+
+Results will be hosted at http://0.0.0.0, which is reachable from the local Raspberry Pi IP address.
+
+
+## Tools
 
 Tools that are being used at this moment:
 
@@ -63,18 +71,16 @@ Tools that are being used at this moment:
  - [httprobe](https://github.com/tomnomnom/httprobe)
  - [assetfinder](https://github.com/tomnomnom/assetfinder)
  - [meg](https://github.com/tomnomnom/meg)
- - [tojson](https://github.com/tomnomnom/hacks/tojson)
  - [gobuster](https://github.com/OJ/gobuster)
  - [Amass](https://github.com/OWASP/Amass)
  - [MassDNS](https://github.com/blechschmidt/massdns)
  - [masscan](https://github.com/robertdavidgraham/masscan)
  - [CORScanner](https://github.com/chenjj/CORScanner)
  - [sublert](https://github.com/yassineaboukir/sublert)
+ - [bass](https://github.com/Abss0x7tbh/bass)
  - [LinkFinder](https://github.com/GerbenJavado/LinkFinder)
 
 More tools will be added in the future, feel free to make a pull request!
-
-Results will be hosted at http://0.0.0.0, which is reachable from the local Raspberry Pi IP address.
 
 ## Contributors
 
