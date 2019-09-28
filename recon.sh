@@ -130,7 +130,7 @@ checkTakeovers() {
 : 'Gather IPs with massdns'
 gatherIPs() {
   startFunction "massdns"
-  sudo /usr/local/bin/massdns -r "$IPS"/"$domain"-resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains.txt
+  sudo /usr/local/bin/massdns -r "$IPS"/resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains
   sudo cat "$IPS"/massdns.raw | grep -e ' A ' | cut -d 'A' -f 2 | tr -d ' ' >"$IPS"/massdns.txt
   sort -u <"$IPS"/massdns.txt >"$IPS"/"$domain"-ips.txt
   rm "$IPS"/massdns.raw
@@ -140,21 +140,20 @@ gatherIPs() {
 : 'Portscan on found IP addresses'
 portScan() {
   sudo /usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
-  # grab ports to check services with mmap?
-  ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u)
-  sudo nmap -p $ports
+  ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
+  sudo nmap -sCV -p "$ports" --open -Pn -T4 -iL "$SUBS"/hosts -oA "$PORTSCAN"/nmap.xml --max-retries 3
 }
 
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
   startFunction "aquatone"
-  "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/subdomains.txt
+  "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/subdomains
 }
 
 : 'Use the CORScanner to check for CORS misconfigurations'
 checkCORS() {
   startFunction "CORScanner"
-  python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/subdomains.txt | tee "$CORS"/cors.txt
+  python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/subdomains | tee "$CORS"/cors.txt
   echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -170,7 +169,7 @@ Startlinkfinder() {
   startFunction "LinkFinder"
   # todo
   grep -rnw "$RESULTDIR/out/" -e '.js'
-  python3 linkfinder.py -i "$SUBS"/subdomains.txt -d -o "$HTML"/linkfinder.html
+  python3 linkfinder.py -i "$SUBS"/hosts -d -o "$HTML"/linkfinder.html
   # grep from meg results?
   # needs some efficiency
 }
@@ -178,16 +177,16 @@ Startlinkfinder() {
 : 'directory brute-force'
 startBruteForce() {
   startFunction "directory brute-force"
-  for url in $(cat "$SCREENSHOTS"/aquatone_urls.txt); do
-    targets=$(echo $url | sed -e 's;https\?://;;' | sed -e 's;/.*$;;')
-    echo "$targets" >>"$SUBS"/"$domain"-live.txt
-    sort -u "$SUBS"/"$domain"-live.txt -o "$SUBS"/"$domain"-live.txt
-  done
+  # for url in $(cat "$SCREENSHOTS"/aquatone_urls.txt); do
+  #   targets=$(echo $url | sed -e 's;https\?://;;' | sed -e 's;/.*$;;')
+  #   echo "$targets" >>"$SUBS"/"$domain"-live.txt
+  #   sort -u "$SUBS"/"$domain"-live.txt -o "$SUBS"/"$domain"-live.txt
+  # done
 
   # maybe run with interlace?
   # needs finetuning
-  for line in $(cat "$SUBS"/"$domain"-live.txt); do
-    "$HOME"/go/bin/gobuster dir -u https://"$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/"$line".txt
+  for line in $(cat "$SUBS"/hosts); do
+    "$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/"$line".txt
   done
 }
 
@@ -195,6 +194,7 @@ startBruteForce() {
 makeHtml() {
   startFunction "HTML webpage"
   # some simple testing
+  # needs work
 
   echo "<html><head></head><body>" >>"$HTML"/index.html
   echo "<table border=1>" >>"$HTML"/index.html
@@ -224,6 +224,7 @@ gatherResolvers
 gatherSubdomains
 checkTakeovers
 gatherIPs
+portScan
 gatherScreenshots
 startBruteForce
 makeHtml
