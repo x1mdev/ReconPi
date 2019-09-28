@@ -202,13 +202,15 @@ additionalTools() {
     echo -e "[$GREEN+$RESET] Done."
 
     echo -e "[$GREEN+$RESET] Installing masscan.."
-    if [ -e "$HOME"/tools/masscan/bin/masscan ]; then
+    if [ -e /usr/local/bin/masscan ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         cd "$HOME"/tools/ || return
         git clone https://github.com/robertdavidgraham/masscan
         cd "$HOME"/tools/masscan || return
         make -j
+        sudo cp bin/masscan /usr/local/bin/masscan
+        sudo apt install libpcap-dev -y
         cd "$HOME"/tools/ || return
         echo -e "[$GREEN+$RESET] Done."
     fi
@@ -233,7 +235,7 @@ additionalTools() {
     else
         git clone https://github.com/yassineaboukir/sublert.git
         cd "$HOME"/tools/sublert || return
-        sudo apt-get install -y libpq-dev
+        sudo apt-get install -y libpq-dev dnspython psycopg2 tld termcolor
         pip3 install -r requirements.txt
         echo -e "[$GREEN+$RESET] Done."
     fi
@@ -256,8 +258,10 @@ additionalTools() {
     if [ -e "$HOME"/tools/bass/bass.py ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
+        cd "$HOME"/tools/ || return
         git clone https://github.com/Abss0x7tbh/bass.git
         cd "$HOME"/tools/bass || return
+        pip3 install tldextract
         pip3 install -r requirements.txt
         echo -e "[$GREEN+$RESET] Done."
     fi
@@ -288,10 +292,11 @@ setupDashboard() {
     echo -e "[$GREEN+$RESET] Installing Nginx.."
     sudo apt-get install -y nginx
     sudo nginx -t
-    cd "$HOME"/tools/ || return
     echo -e "[$GREEN+$RESET] Done."
     sudo rm /var/www/html/index.nginx-debian.html
     sudo touch /var/www/html/index.html
+    cd /var/www/html/ || return
+    sudo chmod -R 755 .
     # setup index.html??
 }
 

@@ -19,10 +19,8 @@ SUBS="$RESULTDIR/subdomains"
 DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
 IPS="$RESULTDIR/ips"
+PORTSCAN="$RESULTDIR/portscan"
 VERSION="2.0"
-# check
-# IPS="$RESULTDIR/ip"
-# PORTSCAN="$RESULTDIR/portscan"
 
 : 'Display the logo'
 displayLogo() {
@@ -58,14 +56,21 @@ checkDirectories() {
       mkdir -p "$IPS"
       sudo mkdir -p /var/www/html/"$domain"
     cp "$BASE"/wordlists/*.txt "$WORDLIST"
-    # mkdir -p "$PORTSCAN"
-    # cd $ROOT/$domain
+    mkdir -p "$PORTSCAN"
   fi
 }
 
 startFunction() {
   tool=$1
   echo -e "[$GREEN+$RESET] Starting $tool"
+}
+
+: 'Gather resolvers with bass'
+gatherResolvers()
+{
+  startFunction "bass (resolvers)"
+  cd "$HOME"/tools/bass || return
+  python3 bass.py -d "$domain" -o "$IPS"/resolvers.txt
 }
 
 : 'subdomain gathering'
@@ -83,11 +88,11 @@ gatherSubdomains() {
   echo -e "[$GREEN+$RESET] Done, next."
 
   startFunction "subfinder"
-  "$HOME"/go/bin/subfinder -d "$domain" -t 50 "$domain" -nW --silent -o "$SUBS/subfinder.txt" 
+  "$HOME"/go/bin/subfinder -d "$domain" --silent -t 50 "$domain" -nW -o "$SUBS"/subfinder.txt -rL "$IPS/"resolvers.txt
   echo -e "[$GREEN+$RESET] Done, next."
 
   startFunction "assetfinder"
-  "$HOME"/go/bin/assetfinder --subs-only "$domain" >"$SUBS/assetfinder.txt"
+  "$HOME"/go/bin/assetfinder --subs-only "$domain" >"$SUBS"/assetfinder.txt
   echo -e "[$GREEN+$RESET] Done, next."
 
   startFunction "amass"
@@ -95,39 +100,50 @@ gatherSubdomains() {
   echo -e "[$GREEN+$RESET] Done, next."
 
   echo -e "[$GREEN+$RESET] Combining and sorting results.."
-  cat "$SUBS"/*.txt | sort -u > "$SUBS"/subdomains.txt
+  cat "$SUBS"/*.txt | sort -u > "$SUBS"/subdomains
+  # gather online hosts with protocol
+  "$HOME"/go/bin/httprobe < "$SUBS"/subdomains | tee "$SUBS"/hosts
   echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'subdomain takeover check'
 checkTakeovers() {
   startFunction "subjack"
-  "$HOME"/go/bin/subjack -w "$SUBS"/subdomains.txt -a -ssl -t 50 -v -c "$HOME"/go/src/github.com/haccer/subjack/fingerprints.json -o "$SUBS"/all-takeover-checks.txt -ssl
-  grep -v "Not Vulnerable" <"$SUBS"/all-takeover-checks.txt >"$SUBS"/takeovers.txt
+  "$HOME"/go/bin/subjack -w "$SUBS"/hosts -a -ssl -t 50 -v -c "$HOME"/go/src/github.com/haccer/subjack/fingerprints.json -o "$SUBS"/all-takeover-checks.txt -ssl
+  grep -v "Not Vulnerable" <"$SUBS"/all-takeover-checks.txt >"$SUBS"/takeovers
   rm "$SUBS"/all-takeover-checks.txt
-  echo -e "[$GREEN+$RESET] Done."
-}
 
-: 'Gather resolvers with bass'
-gatherResolvers()
-{
-  startFunction "bass (resolvers)"
-  cd "$HOME"/tools/bass || return
-  python3 bass.py -d "$domain" -o "$WORDLIST"/"$domain"-resolvers.txt
+  echo -e "[$GREEN+$RESET] No takeovers found."
+  echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
+  vulnto=$(cat "$SUBS"/takeovers)
+  if [[ $vulnto == *i* ]]; then
+  for line in "$SUBS"/takeovers; do
+  echo -e "[$GREEN+$RESET] --> $vulnto "
+  done
+  fi
+  
+  #[ -s "$SUBS"/takeovers ]; done
+  
+  # for file in *.txt; do if [[ ! -s $file ]]; then echo $file; fi; done
+  #if $(cat "$SUBS"/takeovers); do
 }
 
 : 'Gather IPs with massdns'
 gatherIPs(){
     startFunction "massdns"
-    sudo /usr/local/bin/massdns -r "$WORDLIST"/"$domain"-resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains.txt
+    sudo /usr/local/bin/massdns -r "$IPS"/"$domain"-resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains.txt
     sudo cat "$IPS"/massdns.raw | grep -e ' A ' |  cut -d 'A' -f 2 | tr -d ' ' > "$IPS"/massdns.txt
     sort -u < "$IPS"/massdns.txt > "$IPS"/"$domain"-ips.txt
+    rm "$IPS"/massdns.raw
     echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Portscan on found IP addresses'
 portScan() {
-  masscan
+  sudo /usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
+  # grab ports to check services with mmap?
+  ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u)
+  sudo nmap -p $ports 
 }
 
 : 'Use aquatone+chromium-browser to gather screenshots'
@@ -205,9 +221,9 @@ makeHtml() {
 displayLogo
 checkArguments
 checkDirectories
+gatherResolvers
 gatherSubdomains
 checkTakeovers
-gatherResolvers
 gatherIPs
 gatherScreenshots
 startBruteForce
