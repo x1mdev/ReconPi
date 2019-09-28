@@ -185,8 +185,8 @@ startBruteForce() {
 
   # maybe run with interlace?
   # needs finetuning
-  for line in $(cat "$SUBS"/hosts); do
-    "$HOME"/go/bin/gobuster dir -u $line -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/$line.txt
+  for line in $(cat "$SUBS"/subdomains); do
+    "$HOME"/go/bin/gobuster dir -u https://"$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/"$line".txt
   done
 }
 
