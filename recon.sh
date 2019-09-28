@@ -46,15 +46,15 @@ checkArguments() {
 checkDirectories() {
   if [ ! -d "$RESULTDIR" ]; then
     echo -e "[$GREEN+$RESET] Creating new directories and grabbing wordlists for $GREEN$domain$RESET.."
-      mkdir -p "$RESULTDIR"
-      mkdir -p "$SUBS"
-      mkdir -p "$CORS"
-      mkdir -p "$SCREENSHOTS"
-      mkdir -p "$DIRSCAN"
-      mkdir -p "$HTML"
-      mkdir -p "$WORDLIST"
-      mkdir -p "$IPS"
-      sudo mkdir -p /var/www/html/"$domain"
+    mkdir -p "$RESULTDIR"
+    mkdir -p "$SUBS"
+    mkdir -p "$CORS"
+    mkdir -p "$SCREENSHOTS"
+    mkdir -p "$DIRSCAN"
+    mkdir -p "$HTML"
+    mkdir -p "$WORDLIST"
+    mkdir -p "$IPS"
+    sudo mkdir -p /var/www/html/"$domain"
     cp "$BASE"/wordlists/*.txt "$WORDLIST"
     mkdir -p "$PORTSCAN"
   fi
@@ -66,8 +66,7 @@ startFunction() {
 }
 
 : 'Gather resolvers with bass'
-gatherResolvers()
-{
+gatherResolvers() {
   startFunction "bass (resolvers)"
   cd "$HOME"/tools/bass || return
   python3 bass.py -d "$domain" -o "$IPS"/resolvers.txt
@@ -100,9 +99,9 @@ gatherSubdomains() {
   echo -e "[$GREEN+$RESET] Done, next."
 
   echo -e "[$GREEN+$RESET] Combining and sorting results.."
-  cat "$SUBS"/*.txt | sort -u > "$SUBS"/subdomains
+  cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
   # gather online hosts with protocol
-  "$HOME"/go/bin/httprobe < "$SUBS"/subdomains | tee "$SUBS"/hosts
+  "$HOME"/go/bin/httprobe <"$SUBS"/subdomains | tee "$SUBS"/hosts
   echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -117,25 +116,25 @@ checkTakeovers() {
   echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
   vulnto=$(cat "$SUBS"/takeovers)
   if [[ $vulnto == *i* ]]; then
-  for line in "$SUBS"/takeovers; do
-  echo -e "[$GREEN+$RESET] --> $vulnto "
-  done
+    for line in "$SUBS"/takeovers; do
+      echo -e "[$GREEN+$RESET] --> $vulnto "
+    done
   fi
-  
+
   #[ -s "$SUBS"/takeovers ]; done
-  
+
   # for file in *.txt; do if [[ ! -s $file ]]; then echo $file; fi; done
   #if $(cat "$SUBS"/takeovers); do
 }
 
 : 'Gather IPs with massdns'
-gatherIPs(){
-    startFunction "massdns"
-    sudo /usr/local/bin/massdns -r "$IPS"/"$domain"-resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains.txt
-    sudo cat "$IPS"/massdns.raw | grep -e ' A ' |  cut -d 'A' -f 2 | tr -d ' ' > "$IPS"/massdns.txt
-    sort -u < "$IPS"/massdns.txt > "$IPS"/"$domain"-ips.txt
-    rm "$IPS"/massdns.raw
-    echo -e "[$GREEN+$RESET] Done."
+gatherIPs() {
+  startFunction "massdns"
+  sudo /usr/local/bin/massdns -r "$IPS"/"$domain"-resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains.txt
+  sudo cat "$IPS"/massdns.raw | grep -e ' A ' | cut -d 'A' -f 2 | tr -d ' ' >"$IPS"/massdns.txt
+  sort -u <"$IPS"/massdns.txt >"$IPS"/"$domain"-ips.txt
+  rm "$IPS"/massdns.raw
+  echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Portscan on found IP addresses'
@@ -143,7 +142,7 @@ portScan() {
   sudo /usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
   # grab ports to check services with mmap?
   ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u)
-  sudo nmap -p $ports 
+  sudo nmap -p $ports
 }
 
 : 'Use aquatone+chromium-browser to gather screenshots'
@@ -197,16 +196,16 @@ makeHtml() {
   startFunction "HTML webpage"
   # some simple testing
 
-  echo "<html><head></head><body>" >> "$HTML"/index.html
-  echo "<table border=1>" >> "$HTML"/index.html
-  echo "<h1>$domain</h1>" >> "$HTML"/index.html
-  echo "<tr><td>Target</td><td>Subdomains</td><td>Ports</td><td>CORS</td><td>Screenshots</td><td>Takeovers</td></tr>" >> "$HTML"/index.html
-  echo "<a href="http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html">Screenshots</a><br>" >> "$HTML"/index.html
-  echo "<a href=$CORS/cors.txt>CORS misconfigurations</a><br>" >> "$HTML"/index.html
-  echo "<a href=$DIRSCAN/$line.txt>dirscan results</a><br>" >> "$HTML"/index.html
-  echo "</table>" >> "$HTML"/index.html
-  echo "</body></html>" >> "$HTML"/index.html
-  
+  echo "<html><head></head><body>" >>"$HTML"/index.html
+  echo "<table border=1>" >>"$HTML"/index.html
+  echo "<h1>$domain</h1>" >>"$HTML"/index.html
+  echo "<tr><td>Target</td><td>Subdomains</td><td>Ports</td><td>CORS</td><td>Screenshots</td><td>Takeovers</td></tr>" >>"$HTML"/index.html
+  echo "<a href="http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html">Screenshots</a><br>" >>"$HTML"/index.html
+  echo "<a href=$CORS/cors.txt>CORS misconfigurations</a><br>" >>"$HTML"/index.html
+  echo "<a href=$DIRSCAN/$line.txt>dirscan results</a><br>" >>"$HTML"/index.html
+  echo "</table>" >>"$HTML"/index.html
+  echo "</body></html>" >>"$HTML"/index.html
+
   cd /var/www/html/ || return
   sudo chmod -R 755 .
   sudo cp -r "$SCREENSHOTS" /var/www/html/$domain/screenshots

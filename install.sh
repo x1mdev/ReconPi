@@ -59,31 +59,31 @@ basicRequirements() {
 : 'Golang initials'
 golangInstall() {
     echo -e "[$GREEN+$RESET] Installing and setting up Go.."
-    if [[ $(go version | grep -o '1.13') = 1.13 ]]; then
-  echo -e "[$GREEN+$RESET] Go is already installed, skipping installation"
-  else
-    cd "$HOME"/tools || return
-    git clone https://github.com/udhos/update-golang
-    cd "$HOME"/tools/update-golang || return
-    sudo bash update-golang.sh
-    echo -e "[$GREEN+$RESET] Done."
+    if [[ $(go version | grep -o '1.13') == 1.13 ]]; then
+        echo -e "[$GREEN+$RESET] Go is already installed, skipping installation"
+    else
+        cd "$HOME"/tools || return
+        git clone https://github.com/udhos/update-golang
+        cd "$HOME"/tools/update-golang || return
+        sudo bash update-golang.sh
+        echo -e "[$GREEN+$RESET] Done."
     fi
     echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
     sleep 1
     configfile="$HOME"/.bashrc
     if grep -q /go/bin/ "$configfile"; then
-    echo -e "[$GREEN+$RESET] .bashrc contains the correct lines."
+        echo -e "[$GREEN+$RESET] .bashrc contains the correct lines."
     else
-    echo export GOPATH='$HOME'/go >> "$HOME"/.bashrc
-    echo export GOROOT=/usr/local/go >> "$HOME"/.bashrc
-    echo export PATH='$PATH:$HOME'/go/bin/ >> "$HOME"/.bashrc
-    echo export PATH='$PATH:$GOROOT'/bin >> "$HOME"/.bashrc
-    echo export PATH='$PATH:$HOME'/.local/bin >> "$HOME"/.bashrc
-    echo "alias recon=/home/pirate/ReconPi/recon.sh" >> "$HOME"/.bashrc
-    echo export LANGUAGE=en_US.UTF-8 >> "$HOME"/.bashrc
-    echo export LANG=en_US.UTF-8 >> "$HOME"/.bashrc
-    echo export LC_ALL=en_US.UTF-8 >> "$HOME"/.bashrc
-    fi  
+        echo export GOPATH='$HOME'/go >>"$HOME"/.bashrc
+        echo export GOROOT=/usr/local/go >>"$HOME"/.bashrc
+        echo export PATH='$PATH:$HOME'/go/bin/ >>"$HOME"/.bashrc
+        echo export PATH='$PATH:$GOROOT'/bin >>"$HOME"/.bashrc
+        echo export PATH='$PATH:$HOME'/.local/bin >>"$HOME"/.bashrc
+        echo "alias recon=/home/pirate/ReconPi/recon.sh" >>"$HOME"/.bashrc
+        echo export LANGUAGE=en_US.UTF-8 >>"$HOME"/.bashrc
+        echo export LANG=en_US.UTF-8 >>"$HOME"/.bashrc
+        echo export LC_ALL=en_US.UTF-8 >>"$HOME"/.bashrc
+    fi
     bash /etc/profile.d/golang_path.sh
     source "$HOME"/.bashrc
     cd "$HOME" || return
@@ -104,7 +104,7 @@ golangTools() {
     if [ -e "$HOME"/go/bin/subjack ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
-        go get github.com/haccer/subjack    
+        go get github.com/haccer/subjack
         echo -e "[$GREEN+$RESET] Done."
     fi
 
@@ -253,7 +253,7 @@ additionalTools() {
         echo -e "[$GREEN+$RESET] Done."
     fi
 
-     echo -e "[$GREEN+$RESET] Installing bass.."
+    echo -e "[$GREEN+$RESET] Installing bass.."
     # needs check
     if [ -e "$HOME"/tools/bass/bass.py ]; then
         echo -e "[$GREEN+$RESET] Already installed."
@@ -267,10 +267,10 @@ additionalTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing interlace.."
-    # needs check
     if [ -e /usr/local/bin/interlace ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
+        cd "$HOME"/tools/ || return
         git clone https://github.com/codingo/Interlace.git
         cd "$HOME"/tools/Interlace || return
         sudo python3 setup.py install
@@ -306,7 +306,7 @@ finalizeSetup() {
     displayLogo
     cd "$HOME" || return
     touch motd
-    displayLogo >> motd
+    displayLogo >>motd
     sudo mv "$HOME"/motd /etc/motd
     cd "$HOME" || return
     echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation."
