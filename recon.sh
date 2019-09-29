@@ -45,18 +45,11 @@ checkArguments() {
 
 checkDirectories() {
   if [ ! -d "$RESULTDIR" ]; then
-    echo -e "[$GREEN+$RESET] Creating new directories and grabbing wordlists for $GREEN$domain$RESET.."
+    echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
     mkdir -p "$RESULTDIR"
-    mkdir -p "$SUBS"
-    mkdir -p "$CORS"
-    mkdir -p "$SCREENSHOTS"
-    mkdir -p "$DIRSCAN"
-    mkdir -p "$HTML"
-    mkdir -p "$WORDLIST"
-    mkdir -p "$IPS"
+    mkdir -p "$SUBS" "$CORS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN"
     sudo mkdir -p /var/www/html/"$domain"
     cp "$BASE"/wordlists/*.txt "$WORDLIST"
-    mkdir -p "$PORTSCAN"
   fi
 }
 
@@ -100,7 +93,6 @@ gatherSubdomains() {
 
   echo -e "[$GREEN+$RESET] Combining and sorting results.."
   cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
-  # gather online hosts with protocol
   "$HOME"/go/bin/httprobe <"$SUBS"/subdomains | tee "$SUBS"/hosts
   echo -e "[$GREEN+$RESET] Done."
 }
@@ -114,13 +106,12 @@ checkTakeovers() {
 
   vulnto=$(cat "$SUBS"/takeovers)
   if [[ $vulnto == *i* ]]; then
-  echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
+    echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
     for line in "$SUBS"/takeovers; do
-      echo -e "[$GREEN+$RESET] --> $vulnto "; 
-      done
+      echo -e "[$GREEN+$RESET] --> $vulnto "
+    done
   else
-      echo -e "[$GREEN+$RESET] No takeovers found."
-    
+    echo -e "[$GREEN+$RESET] No takeovers found."
   fi
 }
 
@@ -138,8 +129,8 @@ gatherIPs() {
 portScan() {
   sudo /usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
   for line in $(cat "$SUBS"/hosts | sed -e 's;https\?://;;' | sort -u); do
-  ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
-  sudo nmap -sCV -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/nmap.xml --max-retries 3
+    ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
+    sudo nmap -sCV -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/nmap --max-retries 3
   done
 }
 
@@ -152,23 +143,27 @@ gatherScreenshots() {
 : 'Use the CORScanner to check for CORS misconfigurations'
 checkCORS() {
   startFunction "CORScanner"
-  python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/subdomains | tee "$CORS"/cors.txt
+  python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/hosts | tee "$CORS"/cors.txt
   echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Gather information with meg'
 startMeg() {
   startFunction "meg"
-  # todo
+  cd "$SUBS" || return
   meg -d 1000 -v /
+  mv out meg
+  cd "$HOME" || return
 }
 
 : 'Gather endpoints with LinkFinder'
 Startlinkfinder() {
   startFunction "LinkFinder"
   # todo
-  grep -rnw "$RESULTDIR/out/" -e '.js'
-  python3 linkfinder.py -i "$SUBS"/hosts -d -o "$HTML"/linkfinder.html
+  #grep -rnw "$SUBS/meg/" -e '.js'
+  for url in $("$SUBS"/hosts); do
+  python3 linkfinder.py -i $url -d -o "$HTML"/linkfinder.html
+  done
   # grep from meg results?
   # needs some efficiency
 }
@@ -176,14 +171,7 @@ Startlinkfinder() {
 : 'directory brute-force'
 startBruteForce() {
   startFunction "directory brute-force"
-  # for url in $(cat "$SCREENSHOTS"/aquatone_urls.txt); do
-  #   targets=$(echo $url | sed -e 's;https\?://;;' | sed -e 's;/.*$;;')
-  #   echo "$targets" >>"$SUBS"/"$domain"-live.txt
-  #   sort -u "$SUBS"/"$domain"-live.txt -o "$SUBS"/"$domain"-live.txt
-  # done
-
   # maybe run with interlace?
-  # needs finetuning 
   for line in $(cat "$SUBS"/hosts); do
     sub=$(echo $line | grep -oP '.*?(?=\.)' | sed -e 's;https\?://;;')
     "$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/"$sub".txt
@@ -211,7 +199,7 @@ makeHtml() {
   sudo cp -r "$SCREENSHOTS" /var/www/html/$domain/screenshots
   sudo cp "$HTML"/index.html /var/www/html/$domain/index.html
   cd "$HOME" || return
-  echo -e "[$GREEN+$RESET] Scan finished"
+  echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
   echo -e "[$GREEN+$RESET] Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/"
   echo -e "[$GREEN+$RESET] Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html"
 }
@@ -226,9 +214,9 @@ checkTakeovers
 gatherIPs
 portScan
 gatherScreenshots
+startMeg
 startBruteForce
 makeHtml
 ### todo
-#   startCors
-#   startMeg
-#   Startlinkfinder
+#   checkCors
+#   Startlinkfinder - gives some strange results sometimes?idk

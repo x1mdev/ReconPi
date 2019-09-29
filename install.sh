@@ -248,7 +248,7 @@ additionalTools() {
         cd "$HOME"/tools/ || return
         git clone https://github.com/GerbenJavado/LinkFinder.git
         cd "$HOME"/tools/LinkFinder || return
-        pip3 install -r requirements.txt
+        pip3 install -r requirements.txt --user
         sudo python3 setup.py install
         echo -e "[$GREEN+$RESET] Done."
     fi
