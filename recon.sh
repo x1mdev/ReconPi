@@ -78,7 +78,7 @@ gatherSubdomains() {
   echo -e "[$GREEN+$RESET] Checking for existing sublert output, otherwise add it."
   if [ ! -e "$SUBS"/sublert.txt ]; then
     cd "$HOME"/tools/sublert || return
-    python3 sublert.py -u "$domain"
+    yes | python3 sublert.py -u "$domain"
     cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
     cd "$HOME" || return
   else
