@@ -114,17 +114,14 @@ checkTakeovers() {
 
   vulnto=$(cat "$SUBS"/takeovers)
   if [[ $vulnto == *i* ]]; then
-  echo -e "[$GREEN+$RESET] No takeovers found."; else
   echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
     for line in "$SUBS"/takeovers; do
-      echo -e "[$GREEN+$RESET] --> $vulnto "
-    done
+      echo -e "[$GREEN+$RESET] --> $vulnto "; 
+      done
+  else
+      echo -e "[$GREEN+$RESET] No takeovers found."
+    
   fi
-
-  #[ -s "$SUBS"/takeovers ]; done
-
-  # for file in *.txt; do if [[ ! -s $file ]]; then echo $file; fi; done
-  #if $(cat "$SUBS"/takeovers); do
 }
 
 : 'Gather IPs with massdns'
@@ -140,8 +137,10 @@ gatherIPs() {
 : 'Portscan on found IP addresses'
 portScan() {
   sudo /usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
+  for line in $(cat "$SUBS"/hosts | sed -e 's;https\?://;;' | sort -u); do
   ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
-  sudo nmap -sCV -p $ports --open -Pn -T4 -iL "$SUBS"/hosts -oA "$PORTSCAN"/nmap.xml --max-retries 3
+  sudo nmap -sCV -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/nmap.xml --max-retries 3
+  done
 }
 
 : 'Use aquatone+chromium-browser to gather screenshots'
