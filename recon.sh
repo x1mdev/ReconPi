@@ -112,10 +112,10 @@ checkTakeovers() {
   grep -v "Not Vulnerable" <"$SUBS"/all-takeover-checks.txt >"$SUBS"/takeovers
   rm "$SUBS"/all-takeover-checks.txt
 
-  echo -e "[$GREEN+$RESET] No takeovers found."
-  echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
   vulnto=$(cat "$SUBS"/takeovers)
   if [[ $vulnto == *i* ]]; then
+  echo -e "[$GREEN+$RESET] No takeovers found."; else
+  echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
     for line in "$SUBS"/takeovers; do
       echo -e "[$GREEN+$RESET] --> $vulnto "
     done
@@ -184,10 +184,9 @@ startBruteForce() {
   # done
 
   # maybe run with interlace?
-  # needs finetuning
-  
+  # needs finetuning 
   for line in $(cat "$SUBS"/hosts); do
-    sub=$(echo $line | grep -oP '.*?(?=\.)')
+    sub=$(echo $line | grep -oP '.*?(?=\.)' | sed -e 's;https\?://;;')
     "$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/"$sub".txt
   done
 }
