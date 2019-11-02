@@ -1,23 +1,30 @@
 #!/bin/bash
 : '
 	@name   ReconPi recon.sh
-	@author Martijn Baalman <@x1m_martijn>
+	@author Martijn B <Twitter: @x1m_martijn>
 	@link   https://github.com/x1mdev/ReconPi
 '
-
 
 : 'Set the main variables'
 YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
-ROOT="$HOME/bugbounty"
-VERSION="1.1.0"
-
+domain="$1"
+BASE="$HOME/ReconPi"
+RESULTDIR="$HOME/assets/$domain"
+WORDLIST="$RESULTDIR/wordlists"
+SCREENSHOTS="$RESULTDIR/screenshots"
+CORS="$RESULTDIR/cors"
+SUBS="$RESULTDIR/subdomains"
+DIRSCAN="$RESULTDIR/directories"
+HTML="$RESULTDIR/html"
+IPS="$RESULTDIR/ips"
+PORTSCAN="$RESULTDIR/portscan"
+VERSION="2.0"
 
 : 'Display the logo'
-displayLogo()
-{
-	echo -e "
+displayLogo() {
+  echo -e "
 __________                          __________.__
 \______   \ ____   ____  ____   ____\______   \__|
  |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
@@ -29,118 +36,173 @@ __________                          __________.__
 }
 
 : 'Display help text when no arguments are given'
-checkArguments()
-{
-	if [[ -z $1 ]]; then
-		echo -e "[$GREEN+$RESET] Usage: recon <domain.tld>"
-		exit 1
-	fi
+checkArguments() {
+  if [[ -z $domain ]]; then
+    echo -e "[$GREEN+$RESET] Usage: recon <domain.tld>"
+    exit 1
+  fi
 }
 
-: 'Check if the current domain has a directory, else make it'
-checkDirectory()
-{
-	if [ ! -d $ROOT ]; then
-		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$ROOT$RESET"
-		mkdir "$ROOT"
-		cd $ROOT
-	fi
-	if [ ! -d $ROOT/$1 ]; then
-		echo -e "[$GREEN+$RESET] Creating new directory: $GREEN$ROOT/$1$RESET"
-		mkdir -p "$ROOT/$1"
-		cd $ROOT/$1
-	fi
+checkDirectories() {
+  if [ ! -d "$RESULTDIR" ]; then
+    echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
+    mkdir -p "$RESULTDIR"
+    mkdir -p "$SUBS" "$CORS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN"
+    sudo mkdir -p /var/www/html/"$domain"
+    cp "$BASE"/wordlists/*.txt "$WORDLIST"
+  fi
 }
 
-: 'Run Subfinder on the given domain'
-runSubfinder()
-{
-	echo -e "[$GREEN+$RESET] Running Subfinder on $GREEN$1$RESET..."
-	subfinder -d $1 -nW --silent > $ROOT/$1/$1.txt
-
-	echo -e "[$GREEN+$RESET] Subfinder finished! Writing (sub)domains to $GREEN$ROOT/$1/domains.txt$RESET."
-	touch $ROOT/$1/domains.txt
-	cat $ROOT/$1/$1.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains.txt
+startFunction() {
+  tool=$1
+  echo -e "[$GREEN+$RESET] Starting $tool"
 }
 
-: 'Check if host is online, then print it'
-checkDomainStatus()
-{
-	echo -e "[$GREEN+$RESET] Checking which domains are online..."
-
-	touch "$ROOT"/"$1"/resolved-domains.txt
-
-	while IFS='' read -r line || [[ -n "$line" ]]; do
-		if ping -c 1 "$(echo "$line" | tr -d '[:space:]')" &> /dev/null
-		then
-			IP=`getent hosts "$1" | cut -d' ' -f1 | head -n 1`
-			echo "$(echo "$line" | tr -d '[:space:]'),$IP"
-		fi
-	done < "$ROOT"/"$1"/domains.txt > "$ROOT"/"$1"/resolved-domains.txt
-
-	echo -e "[$GREEN+$RESET] Online domains written to $GREEN$ROOT/$1/resolved-domains.txt$RESET!"
-	echo -e "[$GREEN+$RESET] Displaying $GREEN$ROOT/$1/resolved-domains.txt$RESET:"
-	cat "$ROOT"/"$1"/resolved-domains.txt
+: 'Gather resolvers with bass'
+gatherResolvers() {
+  startFunction "bass (resolvers)"
+  cd "$HOME"/tools/bass || return
+  python3 bass.py -d "$domain" -o "$IPS"/resolvers.txt
 }
 
-: 'Run MassDNS on the given domains'
-runMassDNS()
-{
-	echo -e "[$GREEN+$RESET] Starting MassDNS now!"
-	massdns -r $HOME/tools/massdns/lists/resolvers.txt -t A -o S -w $ROOT/$1/massdns.txt $ROOT/$1/resolved-domains.txt
-	echo -e "[$GREEN+$RESET] Done!"
+: 'subdomain gathering'
+gatherSubdomains() {
+  startFunction "sublert"
+  echo -e "[$GREEN+$RESET] Checking for existing sublert output, otherwise add it."
+  if [ ! -e "$SUBS"/sublert.txt ]; then
+    cd "$HOME"/tools/sublert || return
+    yes | python3 sublert.py -u "$domain"
+    cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
+    cd "$HOME" || return
+  else
+    cp "$HOME"/sublert/output/"$domain".txt "$SUBS"/sublert.txt
+  fi
+  echo -e "[$GREEN+$RESET] Done, next."
+
+  startFunction "subfinder"
+  "$HOME"/go/bin/subfinder -d "$domain" --silent -t 50 "$domain" -nW -o "$SUBS"/subfinder.txt -rL "$IPS/"resolvers.txt
+  echo -e "[$GREEN+$RESET] Done, next."
+
+  startFunction "assetfinder"
+  "$HOME"/go/bin/assetfinder --subs-only "$domain" >"$SUBS"/assetfinder.txt
+  echo -e "[$GREEN+$RESET] Done, next."
+
+  startFunction "amass"
+  "$HOME"/go/bin/amass enum -d "$domain" -o "$SUBS"/amass.txt
+  echo -e "[$GREEN+$RESET] Done, next."
+
+  echo -e "[$GREEN+$RESET] Combining and sorting results.."
+  cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
+  "$HOME"/go/bin/httprobe <"$SUBS"/subdomains | tee "$SUBS"/hosts
+  echo -e "[$GREEN+$RESET] Done."
 }
 
-: 'Convert domains.txt to json (subdomainDB format)'
-convertDomainsFile()
-{
-	echo -e "[$GREEN+$RESET] Converting $GREEN$ROOT/$1/domains.txt$RESET to an acceptable $GREEN.json$RESET file.."
-	cat $ROOT/$1/domains.txt | grep -P "([A-Za-z0-9]).*$1" >> $ROOT/$1/domains-striped.txt
-	( echo -e "{\\n\"domains\":"; jq -MRs 'split("\n")' < $ROOT/$1/domains-striped.txt | sed -z 's/,\n  ""//g'; echo -e "}" ) &> $ROOT/$1/domains.json
+: 'subdomain takeover check'
+checkTakeovers() {
+  startFunction "subjack"
+  "$HOME"/go/bin/subjack -w "$SUBS"/hosts -a -ssl -t 50 -v -c "$HOME"/go/src/github.com/haccer/subjack/fingerprints.json -o "$SUBS"/all-takeover-checks.txt -ssl
+  grep -v "Not Vulnerable" <"$SUBS"/all-takeover-checks.txt >"$SUBS"/takeovers
+  rm "$SUBS"/all-takeover-checks.txt
+
+  vulnto=$(cat "$SUBS"/takeovers)
+  if [[ $vulnto == *i* ]]; then
+    echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
+    for line in "$SUBS"/takeovers; do
+      echo -e "[$GREEN+$RESET] --> $vulnto "
+    done
+  else
+    echo -e "[$GREEN+$RESET] No takeovers found."
+  fi
 }
 
-: 'Run GetJS on scanresults and store output in file'
-runGetJS()
-{
-	echo -e "[$GREEN+$RESET] Running $GREEN GetJS$RESET on scan results.."
-	cat $ROOT/$1/domains.txt | getJS | tojson >> $ROOT/$1/$1-JS-files.txt
-	echo -e "[$GREEN+$RESET] Done, output has been saved to: $1-JS-files.txt"
+: 'Gather IPs with massdns'
+gatherIPs() {
+  startFunction "massdns"
+  sudo /usr/local/bin/massdns -r "$IPS"/resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/subdomains
+  sudo cat "$IPS"/massdns.raw | grep -e ' A ' | cut -d 'A' -f 2 | tr -d ' ' >"$IPS"/massdns.txt
+  sort -u <"$IPS"/massdns.txt >"$IPS"/"$domain"-ips.txt
+  sudo rm "$IPS"/massdns.raw
+  echo -e "[$GREEN+$RESET] Done."
 }
 
-: 'Start up the dashboard server'
-startDashboard()
-{
-	echo -e "[$GREEN+$RESET] Starting dashboard and adding results for $GREEN$1$RESET:"
-	# make some sort of check to see if the docker is already running and if so, don't run the docker command.
-	docker run -d -v subdomainDB:/subdomainDB -p 0.0.0.0:4000:4000 subdomaindb
-	sleep 10 # Required for the first run only, otherwise the POST request will be rejected.
-	curl -X POST \
-  	http://0.0.0.0:4000//api/domain/%20$1 \
-  	-H 'cache-control: no-cache' \
-  	-H 'content-type: application/json' \
-  	-d @$ROOT/$1/domains.json
-	echo -e "[$GREEN+$RESET] $1 scan results available on http://recon.pi.ip.address:4000"	
-	
+: 'Portscan on found IP addresses'
+portScan() {
+  sudo /usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
+  for line in $(cat "$SUBS"/hosts | sed -e 's;https\?://;;' | sort -u); do
+    ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
+    sudo nmap -sCV -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/nmap --max-retries 3
+  done
 }
 
-: 'Clean up'
-cleanup()
-{
-	# TODO: Check if there are more useless files
-	echo -e "[$GREEN+$RESET] Cleaning up.."
-	rm $ROOT/$1/$1.txt
-	rm $ROOT/$1/domains-striped.txt
-	sleep 1
-	echo -e "[$GREEN+$RESET] Done, ready for the next scan!"
+: 'Use aquatone+chromium-browser to gather screenshots'
+gatherScreenshots() {
+  startFunction "aquatone"
+  "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/subdomains
+}
+
+: 'Gather information with meg'
+startMeg() {
+  startFunction "meg"
+  cd "$SUBS" || return
+  meg -d 1000 -v /
+  mv out meg
+  cd "$HOME" || return
+}
+
+: 'Use the CORScanner to check for CORS misconfigurations'
+checkCORS() {
+  startFunction "CORScanner"
+  python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/hosts | tee "$CORS"/cors.txt
+  echo -e "[$GREEN+$RESET] Done."
+}
+
+: 'Gather endpoints with LinkFinder'
+Startlinkfinder() {
+  startFunction "LinkFinder"
+  # todo
+  #grep -rnw "$SUBS/meg/" -e '.js'
+  for url in $("$SUBS"/hosts); do
+    python3 linkfinder.py -i $url -d -o "$HTML"/linkfinder.html
+  done
+  # grep from meg results?
+  # needs some efficiency
+}
+
+: 'directory brute-force'
+startBruteForce() {
+  startFunction "directory brute-force"
+  # maybe run with interlace? Might remove
+  for line in $(cat "$SUBS"/hosts); do
+    sub=$(echo $line | grep -oP '.*?(?=\.)' | sed -e 's;https\?://;;')
+    "$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/"$sub".txt
+  done
+}
+
+: 'Setup aquatone results one the ReconPi IP address'
+makePage() {
+  startFunction "HTML webpage"
+  cd /var/www/html/ || return
+  sudo chmod -R 755 .
+  sudo cp -r "$SCREENSHOTS" /var/www/html/$domain/screenshots
+  cd "$HOME" || return
+  echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
+  echo -e "[$GREEN+$RESET] The aquatone results page and the meg results directory are great starting points!"
+  echo -e "[$GREEN+$RESET] Aquatone results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html"
 }
 
 : 'Execute the main functions'
 displayLogo
-checkArguments    		"$1"
-checkDirectory    		"$1"
-runSubfinder      		"$1"
-checkDomainStatus 		"$1"
-runMassDNS        		"$1" # something is up with massdns -> fixed with Re4son Kali Pi image :)
-convertDomainsFile 		"$1"
-startDashboard 	   		"$1"
-cleanup					"$1"
+checkArguments
+checkDirectories
+gatherResolvers
+gatherSubdomains
+checkTakeovers
+gatherIPs
+portScan
+gatherScreenshots
+startMeg
+makePage
+#startBruteForce either needs finetune or disable
+### todo
+#   checkCors
+#   Startlinkfinder - gives some strange results sometimes?idk

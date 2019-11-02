@@ -7,14 +7,14 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
-                          v1.1.0 - by @x1m_martijn
+                            v2.0 - by @x1m_martijn
 ```
 
-ReconPi - A lightweight recon tool that performs extensive domain scanning with the latest tools using a Raspberry Pi and GO. After the installation the ReconPi only needs an internet connection and some power, easy does it.
+<p align="center"><a href="https://twitter.com/x1m_martijn" target="_blank"><img src="https://img.shields.io/twitter/follow/x1m_martijn.svg?logo=twitter"></a></p>
+
+ReconPi - A lightweight recon tool that performs extensive reconnaissance with the latest tools using a Raspberry Pi.
 
 Start using that Raspberry Pi -- I know you all have one laying around somewhere ;)
-
-This project is in development. Pull requests are welcome!
 
 ## Installation
 
@@ -23,13 +23,24 @@ Check the updated blogpost here for a complete guide on how to set up your own R
 
 If you prepared your Raspberry Pi through the guide linked above you should be able to continue below.
 
-> ReconPi v1.1.0 needs the Kali Pi image to work 100%!
+> ReconPi v2.0 needs the [HypriotOS](https://blog.hypriot.com/downloads/) (V1.10.0) image to work 100%!
+
+### Easy installation
 
 Connect to your ReconPi with SSH:
 
-```
-$ ssh root@192.168.2.16 [Change IP to ReconPi IP]
-```
+`ssh pirate@192.168.2.16 [Change IP to ReconPi IP]`
+
+Curl the `install.sh` script and run it:
+
+`curl -L https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh | bash`
+
+### Manual installation
+
+Connect to your ReconPi with SSH:
+
+
+`$ ssh pirate@192.168.2.16 [Change IP to ReconPi IP]`
 
 Now we can set up everything, it's quite simple:
 
@@ -48,46 +59,40 @@ After installing all of the dependencies for the ReconPi you can finally start d
 $ recon <domain.tld>
 ```
 
-`recon.sh` creates a directory named equal to the `domain.tld` provided within it's initial directory `$HOME/bugbounty`. It then starts the recon process.
+`recon.sh` will first gather resolvers for the given target, followed by subdomain enumeration and checking those assets for potential subdomain takeover. When this is done the IP addresses of the target are enumerated. Open ports will be discovered accompanied by a service scan provided by Nmap.
+
+Finally the live targets will be screenshotted and evaluated to discover endpoints.
+
+Results will be stored on the Recon Pi and can be viewed by running `python -m SimpleHTTPServer 1337" in your results directory. Your results will be accessible from any system with a browser that exists in the same network. 
+
+
+## Tools
 
 Tools that are being used at this moment:
 
- - [Hypriot OS](https://blog.hypriot.com/downloads/)
+ - [HypriotOS](https://blog.hypriot.com/downloads/)
  - [GO](https://github.com/golang)
- - [Docker](https://www.docker.com/)
- - [subdomainDB](https://github.com/smiegles/subdomainDB)
  - [Subfinder](https://github.com/Ice3man543/subfinder) (now running on native Go)
+ - [aquatone](https://github.com/michenriksen/aquatone)
+ - [httprobe](https://github.com/tomnomnom/httprobe)
+ - [assetfinder](https://github.com/tomnomnom/assetfinder)
+ - [meg](https://github.com/tomnomnom/meg)
+ - [gobuster](https://github.com/OJ/gobuster)
+ - [Amass](https://github.com/OWASP/Amass)
  - [MassDNS](https://github.com/blechschmidt/massdns)
- - [GetJS](https://github.com/003random/getJS)
- - [tojson](https://github.com/tomnomnom/hacks/tojson)
+ - [masscan](https://github.com/robertdavidgraham/masscan)
+ - [nmap](https://nmap.org/)
+ - [CORScanner](https://github.com/chenjj/CORScanner)
+ - [sublert](https://github.com/yassineaboukir/sublert)
+ - [bass](https://github.com/Abss0x7tbh/bass)
+ - [LinkFinder](https://github.com/GerbenJavado/LinkFinder)
 
-More tools will be added in the future, feel free to make a Pull Request!
-
-Output is written to http://192.168.2.16:4000 (replace with your own ReconPi address).
+More tools will be added in the future, feel free to make a pull request!
 
 ## Contributors
 
- - [Damian Ebelties](https://github.com/ebelties)
+  - [Damian Ebelties](https://github.com/ebelties)
 
-## Coming soon
+## Support
 
- - More detailed scan results on the dashboard.
- - Add more tools.
-
-## v1.1.0 Changelog
-
-- Added some more tools: 
- [GetJS](https://github.com/003random/getJS) &
- [tojson](https://github.com/tomnomnom/hacks/tojson)
-- 
-## v1.0.2 Changelog
-
- - Fixed massdns issue; the `cp` command in `install.sh` did not work due to "
- - Fixed write issue to domains.json
- - Implemented [subdomainDB](https://github.com/smiegles/subdomainDB)
- - Switched base OS: [Hypriot OS](https://blog.hypriot.com/downloads/), Docker ships by default.
- - Made a few changes to `install.sh` to get all the requirements needed for `recon.sh`
- - Finished the curl POST request call to show data on the dashboard.
- - Tested the `install.sh` and `recon.sh` scripts on a freshly installed RPi + Hypriot OS.
- - Added cleanup function
- - Moved all of the loose parts in to functions in `install.sh`
+If you like what I do, feel free to: <a href="https://www.buymeacoffee.com/x1m"><img src="https://cdn-images-1.medium.com/max/738/1*G95uyokAH4JC5Ppvx4LmoQ@2x.png" width="150"></a>

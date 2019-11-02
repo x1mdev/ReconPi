@@ -1,22 +1,20 @@
 #!/bin/bash
 : '
 	@name   ReconPi install.sh
-	@author Martijn Baalman <@x1m_martijn>
+	@author Martijn B <Twitter: @x1m_martijn>
 	@link   https://github.com/x1mdev/ReconPi
 '
 
-
 : 'Set the main variables'
-YELLOW="\033[1;33m"
-GREEN="\033[0;32m"
+YELLOW="\033[133m"
+GREEN="\033[032m"
 RESET="\033[0m"
-VERSION="1.1.0"
-
+VERSION="2.0"
 
 : 'Display the logo'
-displayLogo()
-{
-	echo -e "
+displayLogo() {
+    clear
+    echo -e "
 __________                          __________.__
 \______   \ ____   ____  ____   ____\______   \__|
  |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
@@ -28,156 +26,296 @@ __________                          __________.__
 }
 
 : 'Basic requirements'
-basicRequirements()
-{
-    echo -e "[$GREEN+$RESET] This is the install script that will install the required dependencies to run recon.sh, please stand by..";
-    echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)";
-    cd $HOME  || return;
-    sleep 1;
-    echo -e "[$GREEN+$RESET] Getting the basics..";
-    sudo apt-get install git -y;
-    sudo apt-get update -y;
-    sudo apt-get upgrade -y;
-    sudo apt-get install -y gcc;
-    sudo apt-get install -y build-essential;
-    sudo apt install -y lua5.1 alsa-utils;
+basicRequirements() {
+    echo -e "[$GREEN+$RESET] This script will install the required dependencies to run recon.sh, please stand by.."
+    echo -e "[$GREEN+$RESET] It will take a while, go grab a cup of coffee :)"
+    cd "$HOME" || return
+    sleep 1
+    echo -e "[$GREEN+$RESET] Getting the basics.."
+    export LANGUAGE=en_US.UTF-8
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    sudo apt-get update -y
+    git clone https://github.com/x1mdev/ReconPi.git
+    sudo apt-get install -y --reinstall build-essential
+    sudo apt install -y python3-pip
+    sudo apt-get install -y dnsutils
+    sudo apt install -y lua5.1 alsa-utils
+    sudo apt-get autoremove -y
+    sudo apt clean
+    echo -e "[$GREEN+$RESET] Stopping Docker service.."
+    sudo systemctl disable docker.service
+    sudo systemctl disable docker.socket
+    echo -e "[$GREEN+$RESET] Creating directories.."
+    mkdir -p "$HOME"/tools
+    mkdir -p "$HOME"/go
+    mkdir -p "$HOME"/go/src
+    mkdir -p "$HOME"/go/bin
+    mkdir -p "$HOME"/go/pkg
+    sudo chmod u+w .
     echo -e "[$GREEN+$RESET] Done."
 }
 
-: 'Golang + Golang tools / dependencies'
-golangInstall()
-{
-    echo -e "[$GREEN+$RESET] Installing and setting up Go..";
-    cd "$HOME" || return;
-    wget https://dl.google.com/go/go1.11.1.linux-armv6l.tar.gz;
-    sudo tar -C /usr/local -xvf go1.11.1.linux-armv6l.tar.gz;
-    echo -e "[$GREEN+$RESET] Creating directories..";
-    sleep 1;
-    mkdir -p $HOME/tools;
-    mkdir -p $HOME/go;
-    mkdir -p $HOME/go/src;
-    mkdir -p $HOME/go/bin;
-    mkdir -p $HOME/go/pkg;
-    git clone https://github.com/x1mdev/ReconPi.git;
-    sudo chmod u+w .;
-    echo -e "[$GREEN+$RESET] Done.";
-    echo -e "[$GREEN+$RESET] Adding recon alias & Golang to ~/.bashrc..";
-    sleep 1;
-    echo -e 'export GOPATH=$HOME/go' >> $HOME/.bashrc;
-    echo -e 'export GOROOT=/usr/local/go' >> $HOME/.bashrc;
-    echo -e 'export PATH=$PATH:$HOME/go/bin/' >> $HOME/.bashrc;
-    echo -e 'export PATH=$PATH:$GOROOT/bin' >> $HOME/.bashrc;
-    echo -e 'export PATH=$PATH:$HOME/.local/bin' >> $HOME/.bashrc;
-    echo -e "alias recon='bash $HOME/ReconPi/recon.sh'" >> $HOME/.bashrc;
-    alias recon='bash $HOME/ReconPi/recon.sh'
-    sleep 1;
-    source $HOME/.bashrc;
-    cd $HOME  || return;
-    echo -e "[$GREEN+$RESET] Golang has been configured, checking go env..";
-    go version;
-    go env;
-    sleep 1;
+: 'Golang initials'
+golangInstall() {
+    echo -e "[$GREEN+$RESET] Installing and setting up Go.."
+    if [[ $(go version | grep -o '1.13') == 1.13 ]]; then
+        echo -e "[$GREEN+$RESET] Go is already installed, skipping installation"
+    else
+        cd "$HOME"/tools || return
+        git clone https://github.com/udhos/update-golang
+        cd "$HOME"/tools/update-golang || return
+        sudo bash update-golang.sh
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+    echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
+    sleep 1
+    configfile="$HOME"/.bashrc
+    if grep -q /go/bin/ "$configfile"; then
+        echo -e "[$GREEN+$RESET] .bashrc contains the correct lines."
+    else
+        echo export GOPATH='$HOME'/go >>"$HOME"/.bashrc
+        echo export GOROOT=/usr/local/go >>"$HOME"/.bashrc
+        echo export PATH='$PATH:$HOME'/go/bin/ >>"$HOME"/.bashrc
+        echo export PATH='$PATH:$GOROOT'/bin >>"$HOME"/.bashrc
+        echo export PATH='$PATH:$HOME'/.local/bin >>"$HOME"/.bashrc
+        echo "alias recon=/home/pirate/ReconPi/recon.sh" >>"$HOME"/.bashrc
+        echo export LANGUAGE=en_US.UTF-8 >>"$HOME"/.bashrc
+        echo export LANG=en_US.UTF-8 >>"$HOME"/.bashrc
+        echo export LC_ALL=en_US.UTF-8 >>"$HOME"/.bashrc
+    fi
+    bash /etc/profile.d/golang_path.sh
+    source "$HOME"/.bashrc
+    cd "$HOME" || return
+    echo -e "[$GREEN+$RESET] Golang has been configured."
+}
 
-    echo -e "[$GREEN+$RESET] Installing Subfinder..";
-    go get github.com/subfinder/subfinder;
-    echo -e "[$GREEN+$RESET] Done.";
+: 'Golang tools'
+golangTools() {
+    echo -e "[$GREEN+$RESET] Installing subfinder.."
+    if [ -e "$HOME"/go/bin/subfinder ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get github.com/subfinder/subfinder
+        echo -e "[$GREEN+$RESET] Done."
+    fi
 
-    echo -e "[$GREEN+$RESET] Installing gobuster..";
-    cd $HOME/go/src  || return;
-    mkdir -p OJ;
-    cd $HOME/go/src/OJ  || return;
-    git clone https://github.com/OJ/gobuster.git;
-    cd $HOME/go/src/OJ/gobuster  || return;
-    go get && go build;
-    go install;
-    echo -e "[$GREEN+$RESET] Done.";
-    cd $HOME/tools/  || return;
+    echo -e "[$GREEN+$RESET] Installing subjack.."
+    if [ -e "$HOME"/go/bin/subjack ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get github.com/haccer/subjack
+        echo -e "[$GREEN+$RESET] Done."
+    fi
 
-    echo -e "[$GREEN+$RESET] Installing GetJS..";
-    go get -u github.com/003random/getJS;
-    echo -e "[$GREEN+$RESET] Done.";
+    echo -e "[$GREEN+$RESET] Installing aquatone.."
+    if [ -e "$HOME"/go/bin/aquatone ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/michenriksen/aquatone
+        echo -e "[$GREEN+$RESET] Done."
+    fi
 
-    echo -e "[$GREEN+$RESET] Installing tojson..";
-    go get -u github.com/tomnomnom/hacks/tojson;
-    echo -e "[$GREEN+$RESET] Done.";
-    
+    echo -e "[$GREEN+$RESET] Installing httprobe.."
+    if [ -e "$HOME"/go/bin/httprobe ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/tomnomnom/httprobe
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing assetfinder.."
+    if [ -e "$HOME"/go/bin/assetfinder ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/tomnomnom/assetfinder
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing meg.."
+    if [ -e "$HOME"/go/bin/meg ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/tomnomnom/meg
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing tojson.."
+    if [ -e "$HOME"/go/bin/tojson ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/tomnomnom/hacks/tojson
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing gobuster.."
+    if [ -e "$HOME"/go/bin/gobuster ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get github.com/OJ/gobuster
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing Amass.."
+    if [ -e "$HOME"/go/bin/amass ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get github.com/OWASP/Amass
+        export GO111MODULE=on
+        cd "$HOME"/go/src/github.com/OWASP/Amass || return
+        go install ./...
+        export GO111MODULE=off
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing getJS.."
+    if [ -e "$HOME"/go/bin/getJS ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/003random/getJS
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
 }
 
 : 'Additional tools'
-additionalTools()
-{
-    echo -e "[$GREEN+$RESET] Installing massdns..";
-    cd $HOME/tools/ || return;
-    git clone https://github.com/blechschmidt/massdns.git;
-    cd massdns;
-    echo -e "[$GREEN+$RESET] Running make command for massdns..";
-    make;
-    sudo cp $HOME/tools/massdns/bin/massdns /usr/local/bin/;
-    sudo apt-get install -y jq;
-    cd $HOME/tools/ || return;
-    echo -e "[$GREEN+$RESET] Done.";
+additionalTools() {
+    echo -e "[$GREEN+$RESET] Installing massdns.."
+    if [ -e /usr/local/bin/massdns ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/blechschmidt/massdns.git
+        cd "$HOME"/tools/massdns || return
+        echo -e "[$GREEN+$RESET] Running make command for massdns.."
+        make -j
+        sudo cp "$HOME"/tools/massdns/bin/massdns /usr/local/bin/
+        echo -e "[$GREEN+$RESET] Done."
+    fi
 
-    echo -e "[$GREEN+$RESET] Installing teh_s3_bucketeers..";
-    git clone https://github.com/tomdev/teh_s3_bucketeers.git;
-    cd $HOME/tools/ || return;
-    echo -e "[$GREEN+$RESET] Done.";
+    echo -e "[$GREEN+$RESET] Installing jq.."
+    sudo apt install -y jq
+    echo -e "[$GREEN+$RESET] Done."
 
-    echo -e "[$GREEN+$RESET] Installing virtual host discovery..";
-    git clone https://github.com/jobertabma/virtual-host-discovery.git;
-    cd $HOME/tools/ || return;
-    echo -e "[$GREEN+$RESET] Done.";
+    echo -e "[$GREEN+$RESET] Installing Chromium browser.."
+    sudo apt install -y chromium-browser
+    echo -e "[$GREEN+$RESET] Done."
 
-    echo -e "[$GREEN+$RESET] Installing nmap..";
-    sudo apt-get install -y nmap;
-    cd $HOME/tools/ || return;
-    echo -e "[$GREEN+$RESET] Done.";
+    echo -e "[$GREEN+$RESET] Installing masscan.."
+    if [ -e /usr/local/bin/masscan ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/robertdavidgraham/masscan
+        cd "$HOME"/tools/masscan || return
+        make -j
+        sudo cp bin/masscan /usr/local/bin/masscan
+        sudo apt install libpcap-dev -y
+        cd "$HOME"/tools/ || return
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing CORScanner.."
+    if [ -e "$HOME"/tools/CORScanner/cors_scan.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/chenjj/CORScanner.git
+        cd "$HOME"/tools/CORScanner || return
+        sudo pip3 install -r requirements.txt
+        pip3 install future
+        cd "$HOME"/tools/ || return
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing sublert.."
+    if [ -e "$HOME"/tools/sublert/sublert.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        git clone https://github.com/yassineaboukir/sublert.git
+        cd "$HOME"/tools/sublert || return
+        sudo apt-get install -y libpq-dev dnspython psycopg2 tld termcolor
+        pip3 install -r requirements.txt --user
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing LinkFinder.."
+    # needs check
+    if [ -e "$HOME"/tools/LinkFinder/linkfinder.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/GerbenJavado/LinkFinder.git
+        cd "$HOME"/tools/LinkFinder || return
+        pip3 install -r requirements.txt --user
+        sudo python3 setup.py install
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing bass.."
+    # needs check
+    if [ -e "$HOME"/tools/bass/bass.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/Abss0x7tbh/bass.git
+        cd "$HOME"/tools/bass || return
+        sudo pip3 install tldextract
+        pip3 install -r requirements.txt --user
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing interlace.."
+    if [ -e /usr/local/bin/interlace ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/codingo/Interlace.git
+        cd "$HOME"/tools/Interlace || return
+        sudo python3 setup.py install
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing nmap.."
+    if [ -e /usr/bin/nmap ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        sudo apt-get install -y nmap
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
 }
 
 : 'Dashboard setup'
-setupDashboard()
-{
-    echo -e "[$GREEN+$RESET] Installing Nginx..";
-    sudo apt-get install -y nginx;
-    sudo nginx -t;
-    cd $HOME/tools/  || return;
-    echo -e "[$GREEN+$RESET] Done.";
-
-    echo -e "[$GREEN+$RESET] Installing Docker.."
-    sudo apt install -y docker.io;
-    service docker start;
-    sudo systemctl enable docker;
-    sleep 1;
+setupDashboard() {
+    echo -e "[$GREEN+$RESET] Installing Nginx.."
+    sudo apt-get install -y nginx
+    sudo nginx -t
     echo -e "[$GREEN+$RESET] Done."
-
-    echo -e "[$GREEN+$RESET] Installing subdomainDB and starting it up..";
-    cd $HOME/tools/  || return;
-    git clone https://github.com/smiegles/subdomainDB.git;
-    cd subdomainDB;
-    docker build --rm -t subdomaindb .;
-    cd $HOME/tools/ || return;
+    cd /var/www/html/ || return
+    sudo chmod -R 755 .
+    # setup index.html??
 }
 
 : 'Finalize'
-finalizeSetup()
-{
-	echo -e "[$GREEN+$RESET] Finishing up..";
-    displayLogo;
-    cd "$HOME" || return;
+finalizeSetup() {
+    echo -e "[$GREEN+$RESET] Finishing up.."
+    displayLogo
+    cd "$HOME" || return
     touch motd
-    displayLogo >> motd;
-    sudo mv $HOME/motd /etc/motd;
-    cd $HOME || return;
-    rm go1.11.1.linux-armv6l.tar.gz;
-    rm install.sh; 
-    echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation.";
-    sleep 1;
-    sudo reboot;
+    displayLogo >>motd
+    sudo mv "$HOME"/motd /etc/motd
+    cd "$HOME" || return
+    echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation."
+    sleep 1
+    sudo reboot
 }
 
 : 'Execute the main functions'
 displayLogo
 basicRequirements
 golangInstall
+golangTools
 additionalTools
 setupDashboard
 finalizeSetup
