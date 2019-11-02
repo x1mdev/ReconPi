@@ -33,7 +33,7 @@ Connect to your ReconPi with SSH:
 
 Curl the `install.sh` script and run it:
 
-`curl -L https://raw.githubusercontent.com/x1mdev/ReconPi/dev/v2.0/install.sh | bash`
+`curl -L https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh | bash`
 
 ### Manual installation
 
@@ -59,7 +59,7 @@ After installing all of the dependencies for the ReconPi you can finally start d
 $ recon <domain.tld>
 ```
 
-`recon.sh` starts with gathering resolvers for the given target, followed by subdomain enumeration and checking those assets for potential subdomain takeover. When this is done the IP addresses of the target are enumerated. Open ports will be discovered accompanied by a service scan provided by Nmap.
+`recon.sh` will first gather resolvers for the given target, followed by subdomain enumeration and checking those assets for potential subdomain takeover. When this is done the IP addresses of the target are enumerated. Open ports will be discovered accompanied by a service scan provided by Nmap.
 
 Finally the live targets will be screenshotted and evaluated to discover endpoints.
 
