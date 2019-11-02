@@ -140,13 +140,6 @@ gatherScreenshots() {
   "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/subdomains
 }
 
-: 'Use the CORScanner to check for CORS misconfigurations'
-checkCORS() {
-  startFunction "CORScanner"
-  python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/hosts | tee "$CORS"/cors.txt
-  echo -e "[$GREEN+$RESET] Done."
-}
-
 : 'Gather information with meg'
 startMeg() {
   startFunction "meg"
@@ -156,13 +149,20 @@ startMeg() {
   cd "$HOME" || return
 }
 
+: 'Use the CORScanner to check for CORS misconfigurations'
+checkCORS() {
+  startFunction "CORScanner"
+  python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/hosts | tee "$CORS"/cors.txt
+  echo -e "[$GREEN+$RESET] Done."
+}
+
 : 'Gather endpoints with LinkFinder'
 Startlinkfinder() {
   startFunction "LinkFinder"
   # todo
   #grep -rnw "$SUBS/meg/" -e '.js'
   for url in $("$SUBS"/hosts); do
-  python3 linkfinder.py -i $url -d -o "$HTML"/linkfinder.html
+    python3 linkfinder.py -i $url -d -o "$HTML"/linkfinder.html
   done
   # grep from meg results?
   # needs some efficiency
@@ -171,37 +171,23 @@ Startlinkfinder() {
 : 'directory brute-force'
 startBruteForce() {
   startFunction "directory brute-force"
-  # maybe run with interlace?
+  # maybe run with interlace? Might remove
   for line in $(cat "$SUBS"/hosts); do
     sub=$(echo $line | grep -oP '.*?(?=\.)' | sed -e 's;https\?://;;')
     "$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/"$sub".txt
   done
 }
 
-: 'Create HTML page for results'
-makeHtml() {
+: 'Setup aquatone results one the ReconPi IP address'
+makePage() {
   startFunction "HTML webpage"
-  # some simple testing
-  # needs work
-
-  echo "<html><head></head><body>" >>"$HTML"/index.html
-  echo "<table border=1>" >>"$HTML"/index.html
-  echo "<h1>$domain</h1>" >>"$HTML"/index.html
-  echo "<tr><td>Target</td><td>Subdomains</td><td>Ports</td><td>CORS</td><td>Screenshots</td><td>Takeovers</td></tr>" >>"$HTML"/index.html
-  echo "<a href="http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html">Screenshots</a><br>" >>"$HTML"/index.html
-  echo "<a href=$CORS/cors.txt>CORS misconfigurations</a><br>" >>"$HTML"/index.html
-  echo "<a href=$DIRSCAN/$line.txt>dirscan results</a><br>" >>"$HTML"/index.html
-  echo "</table>" >>"$HTML"/index.html
-  echo "</body></html>" >>"$HTML"/index.html
-
   cd /var/www/html/ || return
   sudo chmod -R 755 .
   sudo cp -r "$SCREENSHOTS" /var/www/html/$domain/screenshots
-  sudo cp "$HTML"/index.html /var/www/html/$domain/index.html
   cd "$HOME" || return
   echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
-  echo -e "[$GREEN+$RESET] Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/"
-  echo -e "[$GREEN+$RESET] Results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html"
+  echo -e "[$GREEN+$RESET] The aquatone results page and the meg results directory are great starting points!"
+  echo -e "[$GREEN+$RESET] Aquatone results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html"
 }
 
 : 'Execute the main functions'
@@ -215,8 +201,8 @@ gatherIPs
 portScan
 gatherScreenshots
 startMeg
-startBruteForce
-makeHtml
+makePage
+#startBruteForce either needs finetune or disable
 ### todo
 #   checkCors
 #   Startlinkfinder - gives some strange results sometimes?idk

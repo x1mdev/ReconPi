@@ -10,6 +10,8 @@ __________                          __________.__
                             v2.0 - by @x1m_martijn
 ```
 
+<p align="center"><a href="https://twitter.com/x1m_martijn" target="_blank"><img src="https://img.shields.io/twitter/follow/x1m_martijn.svg?logo=twitter"></a></p>
+
 ReconPi - A lightweight recon tool that performs extensive reconnaissance with the latest tools using a Raspberry Pi.
 
 Start using that Raspberry Pi -- I know you all have one laying around somewhere ;)
@@ -25,7 +27,11 @@ If you prepared your Raspberry Pi through the guide linked above you should be a
 
 ### Easy installation
 
+Connect to your ReconPi with SSH:
+
 `ssh pirate@192.168.2.16 [Change IP to ReconPi IP]`
+
+Curl the `install.sh` script and run it:
 
 `curl -L https://raw.githubusercontent.com/x1mdev/ReconPi/dev/v2.0/install.sh | bash`
 
@@ -55,16 +61,16 @@ $ recon <domain.tld>
 
 `recon.sh` starts with gathering resolvers for the given target, followed by subdomain enumeration and checking those assets for potential subdomain takeover. When this is done the IP addresses of the target are enumerated. Open ports will be discovered accompanied by a service scan provided by Nmap.
 
-Finally the live targets will be screenshotted and brute-forced to discover endpoints.
+Finally the live targets will be screenshotted and evaluated to discover endpoints.
 
-Results will be hosted at http://0.0.0.0, which is reachable from the local Raspberry Pi IP address.
+Results will be stored on the Recon Pi and can be viewed by running `python -m SimpleHTTPServer 1337" in your results directory. Your results will be accessible from any system with a browser that exists in the same network. 
 
 
 ## Tools
 
 Tools that are being used at this moment:
 
- - [Hypriot OS](https://blog.hypriot.com/downloads/)
+ - [HypriotOS](https://blog.hypriot.com/downloads/)
  - [GO](https://github.com/golang)
  - [Subfinder](https://github.com/Ice3man543/subfinder) (now running on native Go)
  - [aquatone](https://github.com/michenriksen/aquatone)
@@ -75,6 +81,7 @@ Tools that are being used at this moment:
  - [Amass](https://github.com/OWASP/Amass)
  - [MassDNS](https://github.com/blechschmidt/massdns)
  - [masscan](https://github.com/robertdavidgraham/masscan)
+ - [nmap](https://nmap.org/)
  - [CORScanner](https://github.com/chenjj/CORScanner)
  - [sublert](https://github.com/yassineaboukir/sublert)
  - [bass](https://github.com/Abss0x7tbh/bass)
@@ -86,8 +93,6 @@ More tools will be added in the future, feel free to make a pull request!
 
   - [Damian Ebelties](https://github.com/ebelties)
 
-## v2.0 Changelog
+## Support
 
-  - `install.sh` is now more efficient.
-  - `recon.sh` has been extended
-  - More tools have been added
+If you like what I do, feel free to: <a href="https://www.buymeacoffee.com/x1m"><img src="https://cdn-images-1.medium.com/max/738/1*G95uyokAH4JC5Ppvx4LmoQ@2x.png" width="150"></a>

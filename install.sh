@@ -1,6 +1,6 @@
 #!/bin/bash
 : '
-	@name   ReconPi recon.sh
+	@name   ReconPi install.sh
 	@author Martijn B <Twitter: @x1m_martijn>
 	@link   https://github.com/x1mdev/ReconPi
 '
@@ -229,14 +229,13 @@ additionalTools() {
     fi
 
     echo -e "[$GREEN+$RESET] Installing sublert.."
-    # needs check
     if [ -e "$HOME"/tools/sublert/sublert.py ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         git clone https://github.com/yassineaboukir/sublert.git
         cd "$HOME"/tools/sublert || return
         sudo apt-get install -y libpq-dev dnspython psycopg2 tld termcolor
-        pip3 install -r requirements.txt
+        pip3 install -r requirements.txt --user
         echo -e "[$GREEN+$RESET] Done."
     fi
 
@@ -261,8 +260,8 @@ additionalTools() {
         cd "$HOME"/tools/ || return
         git clone https://github.com/Abss0x7tbh/bass.git
         cd "$HOME"/tools/bass || return
-        pip3 install tldextract
-        pip3 install -r requirements.txt
+        sudo pip3 install tldextract
+        pip3 install -r requirements.txt --user
         echo -e "[$GREEN+$RESET] Done."
     fi
 
@@ -293,8 +292,6 @@ setupDashboard() {
     sudo apt-get install -y nginx
     sudo nginx -t
     echo -e "[$GREEN+$RESET] Done."
-    sudo rm /var/www/html/index.nginx-debian.html
-    sudo touch /var/www/html/index.html
     cd /var/www/html/ || return
     sudo chmod -R 755 .
     # setup index.html??
