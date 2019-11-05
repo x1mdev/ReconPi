@@ -130,7 +130,7 @@ portScan() {
   sudo /usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
   for line in $(cat "$SUBS"/hosts | sed -e 's;https\?://;;' | sort -u); do
     ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
-    sudo nmap -sCV -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/nmap --max-retries 3
+    sudo nmap -sCV -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/$line-nmap --max-retries 3
   done
 }
 
