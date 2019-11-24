@@ -79,7 +79,7 @@ golangInstall() {
         echo export PATH='$PATH:$HOME'/go/bin/ >>"$HOME"/.bashrc
         echo export PATH='$PATH:$GOROOT'/bin >>"$HOME"/.bashrc
         echo export PATH='$PATH:$HOME'/.local/bin >>"$HOME"/.bashrc
-        echo "alias recon=/home/pirate/ReconPi/recon.sh" >>"$HOME"/.bashrc
+        ln -s "$HOME/ReconPi/recon.sh" "$HOME/.local/bin/recon"
         echo export LANGUAGE=en_US.UTF-8 >>"$HOME"/.bashrc
         echo export LANG=en_US.UTF-8 >>"$HOME"/.bashrc
         echo export LC_ALL=en_US.UTF-8 >>"$HOME"/.bashrc
@@ -301,9 +301,9 @@ setupDashboard() {
 finalizeSetup() {
     echo -e "[$GREEN+$RESET] Finishing up.."
     displayLogo
+    cd "$HOME" || return
     echo "reconpi" > hostname
     sudo mv hostname /etc/hostname
-    cd "$HOME" || return
     touch motd
     displayLogo >>motd
     sudo mv "$HOME"/motd /etc/motd
