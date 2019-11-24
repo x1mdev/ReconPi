@@ -36,6 +36,7 @@ basicRequirements() {
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
     sudo apt-get update -y
+    sudo apt-get git -y
     git clone https://github.com/x1mdev/ReconPi.git
     sudo apt-get install -y --reinstall build-essential
     sudo apt install -y python3-pip
