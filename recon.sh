@@ -75,7 +75,7 @@ gatherSubdomains() {
     cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
     cd "$HOME" || return
   else
-    cp "$HOME"/sublert/output/"$domain".txt "$SUBS"/sublert.txt
+    cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
   fi
   echo -e "[$GREEN+$RESET] Done, next."
 
@@ -128,7 +128,7 @@ gatherIPs() {
 : 'Portscan on found IP addresses'
 portScan() {
   sudo /usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
-  for line in $(cat "$SUBS"/hosts | sed -e 's;https\?://;;' | sort -u); do
+  for line in $(cat "$IPS"/"$domain"-ips.txt); do
     ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
     sudo nmap -sCV -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/$line-nmap --max-retries 3
   done
@@ -137,7 +137,7 @@ portScan() {
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
   startFunction "aquatone"
-  "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/subdomains
+  "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/amass.txt
 }
 
 : 'Gather information with meg'
@@ -183,7 +183,8 @@ makePage() {
   startFunction "HTML webpage"
   cd /var/www/html/ || return
   sudo chmod -R 755 .
-  sudo cp -r "$SCREENSHOTS" /var/www/html/$domain/screenshots
+  sudo cp -r "$SCREENSHOTS" /var/www/html/$domain
+  sudo chmod a+r -R /var/www/html/$domain/*
   cd "$HOME" || return
   echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
   echo -e "[$GREEN+$RESET] The aquatone results page and the meg results directory are great starting points!"
