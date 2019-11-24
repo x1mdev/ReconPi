@@ -40,7 +40,7 @@ basicRequirements() {
     sudo apt-get install -y --reinstall build-essential
     sudo apt install -y python3-pip
     sudo apt-get install -y dnsutils
-    sudo apt install -y lua5.1 alsa-utils
+    sudo apt install -y lua5.1 alsa-utils libpq5
     sudo apt-get autoremove -y
     sudo apt clean
     echo -e "[$GREEN+$RESET] Stopping Docker service.."
@@ -79,7 +79,7 @@ golangInstall() {
         echo export PATH='$PATH:$HOME'/go/bin/ >>"$HOME"/.bashrc
         echo export PATH='$PATH:$GOROOT'/bin >>"$HOME"/.bashrc
         echo export PATH='$PATH:$HOME'/.local/bin >>"$HOME"/.bashrc
-        echo "alias recon=/home/pirate/ReconPi/recon.sh" >>"$HOME"/.bashrc
+        ln -s "$HOME/ReconPi/recon.sh" "$HOME/.local/bin/recon"
         echo export LANGUAGE=en_US.UTF-8 >>"$HOME"/.bashrc
         echo export LANG=en_US.UTF-8 >>"$HOME"/.bashrc
         echo export LC_ALL=en_US.UTF-8 >>"$HOME"/.bashrc
@@ -302,6 +302,8 @@ finalizeSetup() {
     echo -e "[$GREEN+$RESET] Finishing up.."
     displayLogo
     cd "$HOME" || return
+    echo "reconpi" > hostname
+    sudo mv hostname /etc/hostname
     touch motd
     displayLogo >>motd
     sudo mv "$HOME"/motd /etc/motd
