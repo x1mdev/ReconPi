@@ -40,7 +40,7 @@ basicRequirements() {
     sudo apt-get install -y --reinstall build-essential
     sudo apt install -y python3-pip
     sudo apt-get install -y dnsutils
-    sudo apt install -y lua5.1 alsa-utils
+    sudo apt install -y lua5.1 alsa-utils libpq5
     sudo apt-get autoremove -y
     sudo apt clean
     echo -e "[$GREEN+$RESET] Stopping Docker service.."
