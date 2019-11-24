@@ -301,6 +301,8 @@ setupDashboard() {
 finalizeSetup() {
     echo -e "[$GREEN+$RESET] Finishing up.."
     displayLogo
+    echo "reconpi" > hostname
+    sudo mv hostname /etc/hostname
     cd "$HOME" || return
     touch motd
     displayLogo >>motd
