@@ -97,7 +97,7 @@ golangTools() {
     if [ -e "$HOME"/go/bin/subfinder ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
-        go get github.com/subfinder/subfinder
+        go get -u github.com/projectdiscovery/subfinder/cmd/subfinder
         echo -e "[$GREEN+$RESET] Done."
     fi
 

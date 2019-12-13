@@ -80,7 +80,7 @@ gatherSubdomains() {
   echo -e "[$GREEN+$RESET] Done, next."
 
   startFunction "subfinder"
-  "$HOME"/go/bin/subfinder -d "$domain" --silent -t 50 "$domain" -nW -o "$SUBS"/subfinder.txt -rL "$IPS/"resolvers.txt
+  "$HOME"/go/bin/subfinder -d "$domain" -v -exclude-sources dnsdumpster -t 50 "$domain" -nW -o "$SUBS"/subfinder.txt -rL "$IPS/"resolvers.txt
   echo -e "[$GREEN+$RESET] Done, next."
 
   startFunction "assetfinder"
