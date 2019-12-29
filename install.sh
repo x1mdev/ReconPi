@@ -149,6 +149,46 @@ golangTools() {
         echo -e "[$GREEN+$RESET] Done."
     fi
 
+    echo -e "[$GREEN+$RESET] Installing unfurl.."
+    if [ -e "$HOME"/go/bin/unfurl ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/tomnomnom/unfurl
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing anew.."
+    if [ -e "$HOME"/go/bin/anew ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/tomnomnom/anew
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing waybackurls.."
+    if [ -e "$HOME"/go/bin/waybackurls ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get github.com/tomnomnom/waybackurls
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing qsreplace.."
+    if [ -e "$HOME"/go/bin/qsreplace ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/tomnomnom/qsreplace
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing ffuf (Fast web fuzzer).."
+    if [ -e "$HOME"/go/bin/ffuf ]; then
+	echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/ffuf/ffuf
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
     echo -e "[$GREEN+$RESET] Installing gobuster.."
     if [ -e "$HOME"/go/bin/gobuster ]; then
         echo -e "[$GREEN+$RESET] Already installed."
@@ -216,16 +256,68 @@ additionalTools() {
         echo -e "[$GREEN+$RESET] Done."
     fi
 
-    echo -e "[$GREEN+$RESET] Installing CORScanner.."
-    if [ -e "$HOME"/tools/CORScanner/cors_scan.py ]; then
+    echo -e "[$GREEN+$RESET] Installing Corsy (CORS Misconfiguration Scanner).."
+    if [ -e "$HOME"/tools/Corsy/corsy.py ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
         cd "$HOME"/tools/ || return
-        git clone https://github.com/chenjj/CORScanner.git
-        cd "$HOME"/tools/CORScanner || return
+        git clone https://github.com/s0md3v/Corsy.git
+        cd "$HOME"/tools/Corsy || return
         sudo pip3 install -r requirements.txt
-        pip3 install future
         cd "$HOME"/tools/ || return
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing dirsearch.."
+    if [ -e "$HOME"/tools/dirsearch/dirsearch.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/maurosoria/dirsearch.git
+        cd "$HOME"/tools/ || return
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing XSStrike (XSS Scanner).."
+    if [ -e "$HOME"/tools/XSStrike/xsstrike.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/s0md3v/XSStrike.git
+        cd "$HOME"/tools/XSStrike || return
+        pip3 install -r requirements.txt --user
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing Arjun (HTTP parameter discovery suite).."
+    if [ -e "$HOME"/tools/Arjun/arjun.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/s0md3v/Arjun.git
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing Diggy (Extract Endpoints).."
+    if [ -e "$HOME"/tools/Diggy/diggy.sh ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/s0md3v/Diggy.git
+        cd "$HOME"/tools/Diggy || return
+        sudo bash install.sh
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing Dnsgen .."
+    if [ -e "$HOME"/tools/dnsgen/setup.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/ProjectAnte/dnsgen
+        cd "$HOME"/tools/dnsgen || return
+        pip3 install -r requirements.txt --user
+        sudo python3 setup.py install
         echo -e "[$GREEN+$RESET] Done."
     fi
 
@@ -285,6 +377,14 @@ additionalTools() {
         echo -e "[$GREEN+$RESET] Done."
     fi
 
+    echo -e "[$GREEN+$RESET] Installing SecLists.."
+    if [ -e "$HOME"/tools/Seclists/Discovery ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        cd "$HOME"/tools/ || return
+        git clone https://github.com/danielmiessler/SecLists.git
+        echo -e "[$GREEN+$RESET] Done."
+    fi
 }
 
 : 'Dashboard setup'
