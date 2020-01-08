@@ -20,6 +20,7 @@ DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
 IPS="$RESULTDIR/ips"
 PORTSCAN="$RESULTDIR/portscan"
+WAYBACKMACHINE="$RESULTDIR/waybackmachine"
 VERSION="2.0"
 
 : 'Display the logo'
@@ -47,7 +48,7 @@ checkDirectories() {
   if [ ! -d "$RESULTDIR" ]; then
     echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
     mkdir -p "$RESULTDIR"
-    mkdir -p "$SUBS" "$CORS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN"
+    mkdir -p "$SUBS" "$CORS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$WAYBACKMACHINE"
     sudo mkdir -p /var/www/html/"$domain"
     cp "$BASE"/wordlists/*.txt "$WORDLIST"
   fi
@@ -93,6 +94,11 @@ gatherSubdomains() {
 
   echo -e "[$GREEN+$RESET] Combining and sorting results.."
   cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
+  cat "$SUBS"/subdomains | massdns -r "$IPS"/resolvers.txt -t A -o S -w "$SUBS"/alive-massdns.txt 2>/dev/null
+  cat "$SUBS"/alive-massdns.txt | cut -d " " -f 1 | sed 's/.$//' | sed '/\*/d' >> "$SUBS"/subdomains
+  rm "$SUBS"/alive-massdns.txt
+  cat "$SUBS"/subdomains | dnsgen - | massdns -r "$IPS"/resolvers.txt -t A -o S -w "$SUBS"/dnsgen.txt 2>/dev/null
+  cat "$SUBS"/dnsgen.txt | cut -d " " -f 1 | sed 's/.$//' | sed '/\*/d' | sort -u > "$SUBS"/subdomains
   "$HOME"/go/bin/httprobe <"$SUBS"/subdomains | tee "$SUBS"/hosts
   echo -e "[$GREEN+$RESET] Done."
 }
@@ -137,7 +143,22 @@ portScan() {
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
   startFunction "aquatone"
-  "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/amass.txt
+  "$HOME"/go/bin/aquatone -http-timeout 10000 -scan-timeout 300 -ports xlarge -out "$SCREENSHOTS" <"$SUBS"/subdomains
+}
+
+waybackrecon() {
+  startFunction "waybackrecon"
+  cat "$SUBS"/hosts | waybackurls > "$WAYBACKMACHINE"/waybackurls.txt
+
+  cat "$WAYBACKMACHINE"/waybackurls.txt  | sort -u | unfurl --unique keys > "$WAYBACKMACHINE"/paramlist.txt
+
+  cat "$WAYBACKMACHINE"/waybackurls.txt  | sort -u | grep -P "\w+\.js(\?|$)" | sort -u > "$WAYBACKMACHINE"/jsurls.txt
+
+  cat "$WAYBACKMACHINE"/waybackurls.txt  | sort -u | grep -P "\w+\.php(\?|$) | sort -u " > "$WAYBACKMACHINE"/phpurls.txt
+
+  cat "$WAYBACKMACHINE"/waybackurls.txt  | sort -u | grep -P "\w+\.aspx(\?|$) | sort -u " > "$WAYBACKMACHINE"/aspxurls.txt
+
+  cat "$WAYBACKMACHINE"/waybackurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | sort -u " > "$WAYBACKMACHINE"/jspurls.txt
 }
 
 : 'Gather information with meg'
@@ -188,7 +209,7 @@ makePage() {
   cd "$HOME" || return
   echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
   echo -e "[$GREEN+$RESET] The aquatone results page and the meg results directory are great starting points!"
-  echo -e "[$GREEN+$RESET] Aquatone results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')/$domain/screenshots/aquatone_report.html"
+  echo -e "[$GREEN+$RESET] Aquatone results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)/$domain/screenshots/aquatone_report.html"
 }
 
 : 'Execute the main functions'
@@ -199,9 +220,10 @@ gatherResolvers
 gatherSubdomains
 checkTakeovers
 gatherIPs
-portScan
 gatherScreenshots
 startMeg
+waybackrecon
+portScan
 makePage
 #startBruteForce either needs finetune or disable
 ### todo
