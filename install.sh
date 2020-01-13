@@ -325,6 +325,7 @@ additionalTools() {
     if [ -e "$HOME"/tools/sublert/sublert.py ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
+    	cd "$HOME"/tools/ || return
         git clone https://github.com/yassineaboukir/sublert.git
         cd "$HOME"/tools/sublert || return
         sudo apt-get install -y libpq-dev dnspython psycopg2 tld termcolor
