@@ -95,7 +95,7 @@ gatherSubdomains() {
   echo -e "[$GREEN+$RESET] Combining and sorting results.."
   cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
   cat "$SUBS"/subdomains | massdns -r "$IPS"/resolvers.txt -t A -o S -w "$SUBS"/alive-massdns.txt 2>/dev/null
-  cat "$SUBS"/alive-massdns.txt | cut -d " " -f 1 | sed 's/.$//' | sed '/\*/d' >> "$SUBS"/subdomains
+  cat "$SUBS"/alive-massdns.txt | cut -d " " -f 1 | sed 's/.$//' | sed '/\*/d' > "$SUBS"/subdomains
   rm "$SUBS"/alive-massdns.txt
   cat "$SUBS"/subdomains | dnsgen - | massdns -r "$IPS"/resolvers.txt -t A -o S -w "$SUBS"/dnsgen.txt 2>/dev/null
   cat "$SUBS"/dnsgen.txt | cut -d " " -f 1 | sed 's/.$//' | sed '/\*/d' | sort -u > "$SUBS"/subdomains
