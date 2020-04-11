@@ -165,14 +165,6 @@ golangTools() {
         echo -e "[$GREEN+$RESET] Done."
     fi
 
-    echo -e "[$GREEN+$RESET] Installing waybackurls.."
-    if [ -e "$HOME"/go/bin/waybackurls ]; then
-        echo -e "[$GREEN+$RESET] Already installed."
-    else
-        go get github.com/tomnomnom/waybackurls
-        echo -e "[$GREEN+$RESET] Done."
-    fi
-
     echo -e "[$GREEN+$RESET] Installing qsreplace.."
     if [ -e "$HOME"/go/bin/qsreplace ]; then
         echo -e "[$GREEN+$RESET] Already installed."
@@ -217,6 +209,29 @@ golangTools() {
         echo -e "[$GREEN+$RESET] Done."
     fi
 
+    echo -e "[$GREEN+$RESET] Installing getallURL.."
+    if [ -e "$HOME"/go/bin/gau ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+	go get -u github.com/lc/gau
+	echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing shuffledns.."
+    if [ -e "$HOME"/go/bin/shuffledns ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+	GO111MODULE=on go get -u -v github.com/projectdiscovery/shuffledns/cmd/shuffledns
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing shuffledns.."
+    if [ -e "$HOME"/go/bin/dnsprobe ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe
+        echo -e "[$GREEN+$RESET] Done."
+    fi
 }
 
 : 'Additional tools'
@@ -325,6 +340,7 @@ additionalTools() {
     if [ -e "$HOME"/tools/sublert/sublert.py ]; then
         echo -e "[$GREEN+$RESET] Already installed."
     else
+	cd "$HOME"/tools/ || return
         git clone https://github.com/yassineaboukir/sublert.git
         cd "$HOME"/tools/sublert || return
         sudo apt-get install -y libpq-dev dnspython psycopg2 tld termcolor
@@ -374,6 +390,7 @@ additionalTools() {
         echo -e "[$GREEN+$RESET] Already installed."
     else
         sudo apt-get install -y nmap
+	wget https://raw.githubusercontent.com/vulnersCom/nmap-vulners/master/vulners.nse -O /usr/share/nmap/scripts/vulners.nse && nmap --script-updatedb
         echo -e "[$GREEN+$RESET] Done."
     fi
 
