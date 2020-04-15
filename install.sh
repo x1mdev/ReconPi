@@ -3,6 +3,8 @@
 	@name   ReconPi install.sh
 	@author Martijn B <Twitter: @x1m_martijn>
 	@link   https://github.com/x1mdev/ReconPi
+	@Commiter Sachin G <Twitter: @mavericknerd>
+	@link   https://github.com/mavericknerd/ReconPi
 '
 
 : 'Set the main variables'
