@@ -7,10 +7,15 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
-                            v2.0 - by @x1m_martijn
+                            v2.0
 ```
 
-<p align="center"><a href="https://twitter.com/x1m_martijn" target="_blank"><img src="https://img.shields.io/twitter/follow/x1m_martijn.svg?logo=twitter"></a></p>
+Original Author: @x1m/_martijn
+
+I added lot of tools on top of the original so I think it is diverted to its only use of running it on RaspberryPi.
+I use this tool extensively on my cloud server.
+
+Thanks to the original author for the initial efort and providing the ideas.
 
 ReconPi - A lightweight recon tool that performs extensive reconnaissance with the latest tools using a Raspberry Pi.
 
@@ -23,8 +28,6 @@ Check the updated blogpost here for a complete guide on how to set up your own R
 
 If you prepared your Raspberry Pi through the guide linked above you should be able to continue below.
 
-> ReconPi v2.0 needs the [HypriotOS](https://blog.hypriot.com/downloads/) (V1.10.0) image to work 100%!
-
 ### Easy installation
 
 Connect to your ReconPi with SSH:
@@ -32,8 +35,7 @@ Connect to your ReconPi with SSH:
 `ssh pirate@192.168.2.16 [Change IP to ReconPi IP]`
 
 Curl the `install.sh` script and run it:
-
-`curl -L https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh | bash`
+`curl -L https://raw.githubusercontent.com/mavericknerd/ReconPi/master/install.sh | bash`
 
 ### Manual installation
 
@@ -44,7 +46,7 @@ Connect to your ReconPi with SSH:
 
 Now we can set up everything, it's quite simple:
 
- - `git clone https://github.com/x1mdev/ReconPi.git`
+ - `git clone https://github.com/mavericknerd/ReconPi.git`
  - `cd ReconPi`
  - `./install.sh`
  - The script gives a `reboot` command at the end of `install.sh`, please login again to start using the ReconPi.
@@ -65,6 +67,7 @@ Finally the live targets will be screenshotted and evaluated to discover endpoin
 
 Results will be stored on the Recon Pi and can be viewed by running `python -m SimpleHTTPServer 1337" in your results directory. Your results will be accessible from any system with a browser that exists in the same network. 
 
+Add your SLACK token to the tokens.txt file to get slack notification after the completion of recon process.
 
 ## Tools
 
@@ -92,7 +95,4 @@ More tools will be added in the future, feel free to make a pull request!
 ## Contributors
 
   - [Damian Ebelties](https://github.com/ebelties)
-
-## Support
-
-If you like what I do, feel free to: <a href="https://www.buymeacoffee.com/x1m"><img src="https://cdn-images-1.medium.com/max/738/1*G95uyokAH4JC5Ppvx4LmoQ@2x.png" width="150"></a>
+  - [Sachin Grover](Twitter: @mavericknerd)

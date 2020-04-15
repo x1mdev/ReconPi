@@ -3,6 +3,8 @@
 	@name   ReconPi recon.sh
 	@author Martijn B <Twitter: @x1m_martijn>
 	@link   https://github.com/x1mdev/ReconPi
+	@Commiter Sachin G <Twitter: @mavericknerd>
+	@link   https://github.com/mavericknerd/ReconPi
 '
 
 : 'Set the main variables'
@@ -33,7 +35,7 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/
-                          v$VERSION - by $YELLOW@x1m_martijn$RESET
+                          v$VERSION
 	"
 }
 
