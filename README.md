@@ -95,4 +95,4 @@ More tools will be added in the future, feel free to make a pull request!
 ## Contributors
 
   - [Damian Ebelties](https://github.com/ebelties)
-  - [Sachin Grover](Twitter: @mavericknerd)
+  - [Sachin Grover](https://github.com/mavericknerd) (Twitter: @mavericknerd)
