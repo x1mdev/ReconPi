@@ -23,6 +23,7 @@ PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
 VERSION="2.0"
 
+
 : 'Display the logo'
 displayLogo() {
   echo -e "
@@ -93,7 +94,22 @@ gatherSubdomains() {
   "$HOME"/go/bin/amass enum -active -d "$domain" -o "$SUBS"/amass.txt
 # Passive amass
   "$HOME"/go/bin/amass enum -passive -d "$domain" -o "$SUBS"/amassp.txt
+  echo -e "[$GREEN+$RESET] Done, next."
 
+  startFunction "findomain"
+  findomain -t "$domain" -u "$SUBS"/findomain_subdomains.txt
+  echo -e "[$GREEN+$RESET] Done, next."
+
+  startFunction "github-subdomains"
+  python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
+  echo -e "[$GREEN+$RESET] Done, next."
+
+  startFunction "Starting bufferover"
+  curl "http://dns.bufferover.run/dns?q=$1" --silent | jq '.FDNS_A | .[]' -r 2>/dev/null | cut -f 2 -d',' | sort -u >> "$SUBS"/bufferover_subdomains.txt
+  echo -e "[$GREEN+$RESET] Done, next."
+
+  startFunction "Get Probable Permutation of Domain"
+  for sub in $(cat $HOME/ReconPi/wordlists/subdomains.txt); do echo $sub.$domain >> "$SUBS"/commonspeak_subdomains.txt ; done
   echo -e "[$GREEN+$RESET] Done, next."
 
   echo -e "[$GREEN+$RESET] Combining and sorting results.."
@@ -152,12 +168,12 @@ portScan() {
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
   startFunction "aquatone"
-  "$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
+  "$HOME"/go/bin/aquatone -ports xlarge -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
 }
 
 fetchArchive() {
   startFunction "fetchArchive"
-  cat "$SUBS"/hosts | gau > "$ARCHIVE"/getallurls.txt
+  cat "$SUBS"/hosts | sed 's/https\?:\/\///' | gau > "$ARCHIVE"/getallurls.txt
 
   cat "$ARCHIVE"/getallurls.txt  | sort -u | unfurl --unique keys > "$ARCHIVE"/paramlist.txt
 
@@ -189,7 +205,7 @@ checkCORS() {
 startBruteForce() {
   startFunction "directory brute-force"
   # maybe run with interlace? Might remove
-cat "$SUBS"/hosts | parallel -j 5 --bar --shuf gobuster dir -u {} -t 50 -w wordlist.txt -l -e -r -k -q -o "$DIRSCAN"/"$sub".txt
+  cat "$SUBS"/hosts | parallel -j 5 --bar --shuf gobuster dir -u {} -t 50 -w wordlist.txt -l -e -r -k -q -o "$DIRSCAN"/"$sub".txt
     "$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/out.txt
 }
 
@@ -208,7 +224,22 @@ makePage() {
   echo -e "[$GREEN+$RESET]Also Don't forget Directory brutefocing"
 }
 
+notifySlack() {
+  startFunction "Trigger Slack Notification"
+  ip_add=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+  takeover="$(cat $SUBS/takeovers)"
+  hosts="$(cat $SUBS/hosts)"
+  curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## ReconPi finished scanning: $domain ##'}" $slack_url 2>/dev/null
+  curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Screenshots for $domain completed! ##\n http://$ip_add/$domain/screenshots/aquatone_report.html'}" $slack_url 2 > /dev/null
+  curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Subdomain Takeover for $domain ##\n $takeover'}" $slack_url 2>/dev/null
+  curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Hosts Discovered for $domain ##\n $hosts'}" $slack_url 2>/dev/null
+  echo -e "[$GREEN+$RESET] Done."
+}
+
 : 'Execute the main functions'
+
+source "$HOME"/ReconPi/tokens.txt
+
 displayLogo
 checkArguments
 checkDirectories
@@ -222,3 +253,4 @@ startMeg
 fetchArchive
 portScan
 makePage
+notifySlack

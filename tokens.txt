@@ -1,0 +1,5 @@
+github_subdomains_token=""
+slack_url=""
+findomain_spyse_token=""
+findomain_virustotal_token=""
+findomain_securitytrails_token=""

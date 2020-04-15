@@ -21,7 +21,7 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/
-                          v$VERSION - by $YELLOW@x1m_martijn$RESET
+                          v$VERSION
 	"
 }
 
@@ -37,7 +37,7 @@ basicRequirements() {
     export LC_ALL=en_US.UTF-8
     sudo apt-get update -y
     sudo apt-get install git -y
-    git clone https://github.com/x1mdev/ReconPi.git
+    git clone https://github.com/maverickNerd/ReconPi
     sudo apt-get install -y --reinstall build-essential
     sudo apt install -y python3-pip
     sudo apt-get install -y dnsutils
@@ -154,6 +154,16 @@ golangTools() {
         echo -e "[$GREEN+$RESET] Already installed."
     else
         go get -u github.com/tomnomnom/unfurl
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing gf.."
+    if [ -e "$HOME"/go/bin/gf ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -u github.com/tomnomnom/gf
+	echo 'source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.bash' >> ~/.bashrc
+	cp -r $GOPATH/src/github.com/tomnomnom/gf/examples ~/.gf
         echo -e "[$GREEN+$RESET] Done."
     fi
 
@@ -345,6 +355,32 @@ additionalTools() {
         cd "$HOME"/tools/sublert || return
         sudo apt-get install -y libpq-dev dnspython psycopg2 tld termcolor
         pip3 install -r requirements.txt --user
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing findomain.."
+    arch=`uname -m`
+    if [ -e "$HOME"/tools/findomain ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    elif [[ "$arch" == "x86_64" ]]; then
+        wget https://github.com/Edu4rdSHL/findomain/releases/latest/download/findomain-linux -O "$HOME"/tools/findomain
+	chmod +x "$HOME"/tools/findomain
+	sudo cp "$HOME"/tools/findomain /usr/local/bin
+        echo -e "[$GREEN+$RESET] Done."
+    else
+        wget https://github.com/Edu4rdSHL/findomain/releases/latest/download/findomain-aarch64 -O "$HOME"/tools/findomain
+	chmod +x "$HOME"/tools/findomain
+        sudo cp "$HOME"/tools/findomain /usr/local/bin
+        echo -e "[$GREEN+$RESET] Done."
+    fi
+
+    echo -e "[$GREEN+$RESET] Installing github-subdomains.py.."
+    if [ -e "$HOME"/tools/github-subdomains.py ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+	cd "$HOME"/tools/ || return
+	pip3 install colored
+        wget https://raw.githubusercontent.com/gwen001/github-search/master/github-subdomains.py
         echo -e "[$GREEN+$RESET] Done."
     fi
 
