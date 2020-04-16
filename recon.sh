@@ -118,10 +118,10 @@ gatherSubdomains() {
   cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
   cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomains
   rm "$SUBS"/subdomains
-  cat "$SUBS"/alive_subdomains | dnsgen - | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
+  cat "$SUBS"/alive_subdomains | dnsgen - | "$HOME"/go/bin/shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
   cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/alive_subdomains
 # Get http and https hosts
-  "$HOME"/go/bin/httprobe <"$SUBS"/alive_subdomains | tee "$SUBS"/hosts
+  cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/naabu -silent | "$HOME"/go/bin/httprobe | tee "$SUBS"/hosts
   echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -170,7 +170,7 @@ portScan() {
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
   startFunction "aquatone"
-  "$HOME"/go/bin/aquatone -ports xlarge -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
+  "$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
 }
 
 fetchArchive() {

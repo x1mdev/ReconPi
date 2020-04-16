@@ -244,6 +244,14 @@ golangTools() {
         GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe
         echo -e "[$GREEN+$RESET] Done."
     fi
+
+    echo -e "[$GREEN+$RESET] Installing naabu.."
+    if [ -e "$HOME"/go/bin/naabu ]; then
+        echo -e "[$GREEN+$RESET] Already installed."
+    else
+        go get -v github.com/projectdiscovery/naabu/cmd/naabu
+        echo -e "[$GREEN+$RESET] Done."
+    fi
 }
 
 : 'Additional tools'
