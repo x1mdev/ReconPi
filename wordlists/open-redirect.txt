@@ -1,3 +1,7 @@
+http:http:evil[.]com
+http:/evil%252ecom
+///www.x.com@evil.com
+https://google.comğ.target.com
 /%09/example.com
 /%2f%2fexample.com
 /%2f%2f%2fbing.com%2f%3fwww.omise.co
