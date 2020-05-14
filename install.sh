@@ -96,57 +96,57 @@ golangInstall() {
 : 'Golang tools'
 golangTools() {
 	echo -e "[$GREEN+$RESET] Installing subfinder.."
-	go get -u github.com/projectdiscovery/subfinder/cmd/subfinder
+	go get -u -v github.com/projectdiscovery/subfinder/cmd/subfinder
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing subjack.."
-	go get -u github.com/haccer/subjack
+	go get -u -v github.com/haccer/subjack
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing aquatone.."
-	go get -u github.com/michenriksen/aquatone
+	go get -u -v github.com/michenriksen/aquatone
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing httprobe.."
-	echo -e "[$GREEN+$RESET] Already installed."
-	go get -u github.com/tomnomnom/httprobe
+	go get -u -v github.com/tomnomnom/httprobe
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing assetfinder.."
-	go get -u github.com/tomnomnom/assetfinder
+	go get -u -v github.com/tomnomnom/assetfinder
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing meg.."
-	go get -u github.com/tomnomnom/meg
+	go get -u -v github.com/tomnomnom/meg
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing tojson.."
-	go get -u github.com/tomnomnom/hacks/tojson
+	go get -u -v github.com/tomnomnom/hacks/tojson
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing unfurl.."
-	go get -u github.com/tomnomnom/unfurl
+	go get -u -v github.com/tomnomnom/unfurl
+	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing gf.."
-	go get -u github.com/tomnomnom/gf
+	go get -u -v github.com/tomnomnom/gf
 	echo 'source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.bash' >> ~/.bashrc
 	cp -r $GOPATH/src/github.com/tomnomnom/gf/examples ~/.gf
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing anew.."
-	go get -u github.com/tomnomnom/anew
+	go get -u -v github.com/tomnomnom/anew
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing qsreplace.."
-	go get -u github.com/tomnomnom/qsreplace
+	go get -u -v github.com/tomnomnom/qsreplace
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing ffuf (Fast web fuzzer).."
-	go get -u github.com/ffuf/ffuf
+	go get -u -v github.com/ffuf/ffuf
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing gobuster.."
-	go get -u github.com/OJ/gobuster
+	go get -u -v github.com/OJ/gobuster
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing Amass.."
@@ -154,11 +154,11 @@ golangTools() {
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing getJS.."
-	go get -u github.com/003random/getJS
+	go get -u -v github.com/003random/getJS
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing getallURL.."
-	go get -u github.com/lc/gau
+	go get -u -v github.com/lc/gau
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing shuffledns.."
