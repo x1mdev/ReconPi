@@ -1,10 +1,10 @@
 #!/bin/bash
 : '
-	@name   ReconPi recon.sh
-	@author Martijn B <Twitter: @x1m_martijn>
-	@link   https://github.com/x1mdev/ReconPi
-	@Commiter Sachin G <Twitter: @mavericknerd>
-	@link   https://github.com/mavericknerd/ReconPi
+@name   ReconPi recon.sh
+@author Martijn B <Twitter: @x1m_martijn>
+@link   https://github.com/x1mdev/ReconPi
+@Commiter Sachin G <Twitter: @mavericknerd>
+@link   https://github.com/mavericknerd/ReconPi
 '
 
 : 'Set the main variables'
@@ -28,214 +28,223 @@ VERSION="2.0"
 
 : 'Display the logo'
 displayLogo() {
-  echo -e "
-__________                          __________.__
-\______   \ ____   ____  ____   ____\______   \__|
- |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
- |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
- |____|_  /\___  >\___  >____/|___|  /____|   |__|
-        \/     \/     \/           \/
-                          v$VERSION
-	"
-}
+	echo -e "
+	__________                          __________.__
+	\______   \ ____   ____  ____   ____\______   \__|
+		|       _// __ \_/ ___\/  _ \ /    \|     ___/  |
+		|    |   \  ___/\  \__(  <_> )   |  \    |   |  |
+		|____|_  /\___  >\___  >____/|___|  /____|   |__|
+		\/     \/     \/           \/
+			v$VERSION
+			"
+		}
 
-: 'Display help text when no arguments are given'
-checkArguments() {
-  if [[ -z $domain ]]; then
-    echo -e "[$GREEN+$RESET] Usage: recon <domain.tld>"
-    exit 1
-  fi
-}
+	: 'Display help text when no arguments are given'
+	checkArguments() {
+		if [[ -z $domain ]]; then
+			echo -e "[$GREEN+$RESET] Usage: recon <domain.tld>"
+			exit 1
+		fi
+	}
 
 checkDirectories() {
-  if [ ! -d "$RESULTDIR" ]; then
-    echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
-    mkdir -p "$RESULTDIR"
-    mkdir -p "$SUBS" "$CORS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE"
-    sudo mkdir -p /var/www/html/"$domain"
-    cp "$BASE"/wordlists/*.txt "$WORDLIST"
-  fi
+	if [ ! -d "$RESULTDIR" ]; then
+		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
+		mkdir -p "$RESULTDIR"
+		mkdir -p "$SUBS" "$CORS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE"
+		sudo mkdir -p /var/www/html/"$domain"
+		cp "$BASE"/wordlists/*.txt "$WORDLIST"
+	fi
 }
 
 startFunction() {
-  tool=$1
-  echo -e "[$GREEN+$RESET] Starting $tool"
+	tool=$1
+	echo -e "[$GREEN+$RESET] Starting $tool"
 }
 
 : 'Gather resolvers with bass'
 gatherResolvers() {
-  startFunction "bass (resolvers)"
-  cd "$HOME"/tools/bass || return
-  python3 bass.py -d "$domain" -o "$IPS"/resolvers.txt
+	startFunction "bass (resolvers)"
+	cd "$HOME"/tools/bass || return
+	python3 bass.py -d "$domain" -o "$IPS"/resolvers.txt
 }
 
 : 'subdomain gathering'
 gatherSubdomains() {
-  startFunction "sublert"
-  echo -e "[$GREEN+$RESET] Checking for existing sublert output, otherwise add it."
-  if [ ! -e "$SUBS"/sublert.txt ]; then
-    cd "$HOME"/tools/sublert || return
-    yes | python3 sublert.py -u "$domain"
-    cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
-    cd "$HOME" || return
-  else
-    cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
-  fi
-  echo -e "[$GREEN+$RESET] Done, next."
+	startFunction "sublert"
+	echo -e "[$GREEN+$RESET] Checking for existing sublert output, otherwise add it."
+	if [ ! -e "$SUBS"/sublert.txt ]; then
+		cd "$HOME"/tools/sublert || return
+		yes | python3 sublert.py -u "$domain"
+		cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
+		cd "$HOME" || return
+	else
+		cp "$HOME"/tools/sublert/output/"$domain".txt "$SUBS"/sublert.txt
+	fi
+	echo -e "[$GREEN+$RESET] Done, next."
 
-  startFunction "subfinder"
-  "$HOME"/go/bin/subfinder -d "$domain" -v -exclude-sources dnsdumpster -o "$SUBS"/subfinder.txt
-  echo -e "[$GREEN+$RESET] Done, next."
+	startFunction "subfinder"
+	"$HOME"/go/bin/subfinder -d "$domain" -v -exclude-sources dnsdumpster -o "$SUBS"/subfinder.txt
+	echo -e "[$GREEN+$RESET] Done, next."
 
-  startFunction "assetfinder"
-  "$HOME"/go/bin/assetfinder --subs-only "$domain" >"$SUBS"/assetfinder.txt
-  echo -e "[$GREEN+$RESET] Done, next."
+	startFunction "assetfinder"
+	"$HOME"/go/bin/assetfinder --subs-only "$domain" >"$SUBS"/assetfinder.txt
+	echo -e "[$GREEN+$RESET] Done, next."
 
-  startFunction "amass"
-# Active amass
-  "$HOME"/go/bin/amass enum -active -d "$domain" -o "$SUBS"/amass.txt
-# Passive amass
-  "$HOME"/go/bin/amass enum -passive -d "$domain" -o "$SUBS"/amassp.txt
-  echo -e "[$GREEN+$RESET] Done, next."
+	startFunction "amass"
+	# Active amass
+	"$HOME"/go/bin/amass enum -active -d "$domain" -o "$SUBS"/amass.txt
+	# Passive amass
+	"$HOME"/go/bin/amass enum -passive -d "$domain" -o "$SUBS"/amassp.txt
+	echo -e "[$GREEN+$RESET] Done, next."
 
-  startFunction "findomain"
-  findomain -t "$domain" -u "$SUBS"/findomain_subdomains.txt
-  echo -e "[$GREEN+$RESET] Done, next."
+	startFunction "findomain"
+	findomain -t "$domain" -u "$SUBS"/findomain_subdomains.txt
+	echo -e "[$GREEN+$RESET] Done, next."
 
-  startFunction "github-subdomains"
-  python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
-  echo -e "[$GREEN+$RESET] Done, next."
+	startFunction "github-subdomains"
+	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
+	echo -e "[$GREEN+$RESET] Done, next."
 
-  startFunction "Starting bufferover"
-  curl "http://dns.bufferover.run/dns?q=$1" --silent | jq '.FDNS_A | .[]' -r 2>/dev/null | cut -f 2 -d',' | sort -u >> "$SUBS"/bufferover_subdomains.txt
-  echo -e "[$GREEN+$RESET] Done, next."
+	startFunction "Starting bufferover"
+	curl "http://dns.bufferover.run/dns?q=$1" --silent | jq '.FDNS_A | .[]' -r 2>/dev/null | cut -f 2 -d',' | sort -u >> "$SUBS"/bufferover_subdomains.txt
+	echo -e "[$GREEN+$RESET] Done, next."
 
-  startFunction "Get Probable Permutation of Domain"
-  for sub in $(cat $HOME/ReconPi/wordlists/subdomains.txt); do echo $sub.$domain >> "$SUBS"/commonspeak_subdomains.txt ; done
-  echo -e "[$GREEN+$RESET] Done, next."
+	startFunction "Get Probable Permutation of Domain"
+	for sub in $(cat $HOME/ReconPi/wordlists/subdomains.txt); do echo $sub.$domain >> "$SUBS"/commonspeak_subdomains.txt ; done
+	echo -e "[$GREEN+$RESET] Done, next."
 
-  echo -e "[$GREEN+$RESET] Combining and sorting results.."
-  cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
-  cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomains
-  rm "$SUBS"/subdomains
-  cat "$SUBS"/alive_subdomains | dnsgen - | "$HOME"/go/bin/shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
-  cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/alive_subdomains
-# Get http and https hosts
-  cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/naabu -silent | "$HOME"/go/bin/httprobe | tee "$SUBS"/hosts
-  echo -e "[$GREEN+$RESET] Done."
+	echo -e "[$GREEN+$RESET] Combining and sorting results.."
+	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
+	cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomains
+	rm "$SUBS"/subdomains
+	cat "$SUBS"/alive_subdomains | dnsgen - | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
+	cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/alive_subdomains
+	# Get http and https hosts
+	cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe --prefix-https | tee "$SUBS"/hosts
+	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'subdomain takeover check'
 checkTakeovers() {
-  startFunction "subjack"
-  "$HOME"/go/bin/subjack -w "$SUBS"/hosts -a -ssl -t 50 -v -c "$HOME"/go/src/github.com/haccer/subjack/fingerprints.json -o "$SUBS"/all-takeover-checks.txt -ssl
-  grep -v "Not Vulnerable" <"$SUBS"/all-takeover-checks.txt >"$SUBS"/takeovers
-  rm "$SUBS"/all-takeover-checks.txt
+	startFunction "subjack"
+	"$HOME"/go/bin/subjack -w "$SUBS"/hosts -a -ssl -t 50 -v -c "$HOME"/go/src/github.com/haccer/subjack/fingerprints.json -o "$SUBS"/all-takeover-checks.txt -ssl
+	grep -v "Not Vulnerable" <"$SUBS"/all-takeover-checks.txt >"$SUBS"/takeovers
+	rm "$SUBS"/all-takeover-checks.txt
 
-  vulnto=$(cat "$SUBS"/takeovers)
-  if [[ $vulnto == *i* ]]; then
-    echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
-    for line in "$SUBS"/takeovers; do
-      echo -e "[$GREEN+$RESET] --> $vulnto "
-    done
-  else
-    echo -e "[$GREEN+$RESET] No takeovers found."
-  fi
+	vulnto=$(cat "$SUBS"/takeovers)
+	if [[ $vulnto == *i* ]]; then
+		echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
+		for line in "$SUBS"/takeovers; do
+			echo -e "[$GREEN+$RESET] --> $vulnto "
+		done
+	else
+		echo -e "[$GREEN+$RESET] No takeovers found."
+	fi
+
+	startFunction "nuclei"
+	cat "$SUBS"/hosts | nuclei -t "$HOME"/tools/nuclei-templates/subdomain-takeover/detect-all-takeovers.yaml -o "$SUBS"/nuclei-takeover-checks.txt
+	vulnto=$(cat "$SUBS"/nuclei-takeover-checks.txt)
+	if [[ $vulnto != "" ]]; then
+		echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
+		for line in "$SUBS"/nuclei-takeover-checks.txt; do
+			echo -e "[$GREEN+$RESET] --> $vulnto "
+		done
+	else
+		echo -e "[$GREEN+$RESET] No takeovers found."
+	fi
 }
 
 : 'Get all CNAME'
 getCNAME() {
-  startFunction "dnsprobe to get CNAMEs"
-  cat "$SUBS"/alive_subdomains | dnsprobe -r CNAME -o "$SUBS"/subdomains_cname.txt
+	startFunction "dnsprobe to get CNAMEs"
+	cat "$SUBS"/alive_subdomains | dnsprobe -r CNAME -o "$SUBS"/subdomains_cname.txt
 }
 : 'Gather IPs with massdns'
 gatherIPs() {
-  startFunction "massdns"
-  /usr/local/bin/massdns -r "$IPS"/resolvers.txt -q -t A -o S -w "$IPS"/massdns.raw "$SUBS"/alive_subdomains
-  cat "$IPS"/massdns.raw | grep -e ' A ' | cut -d 'A' -f 2 | tr -d ' ' >"$IPS"/massdns.txt
-  sort -u <"$IPS"/massdns.txt >"$IPS"/"$domain"-ips.txt
-  rm "$IPS"/massdns.raw
-  echo -e "[$GREEN+$RESET] Done."
+	startFunction "massdns"
+	cat "$SUBS"/alive_subdomains | dnsprobe -silent -f ip | sort -u | tee "$IPS"/"$domain"-ips.txt
+	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Portscan on found IP addresses'
 portScan() {
-  /usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
-  for line in $(cat "$IPS"/"$domain"-ips.txt); do
-    ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
-   nmap -sCV --script vulners -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/$line-nmap --max-retries 3
-  done
+	/usr/local/bin/masscan -p 1-65535 --rate 10000 --wait 0 --open -iL "$IPS"/"$domain"-ips.txt -oG "$PORTSCAN"/masscan
+	for line in $(cat "$IPS"/"$domain"-ips.txt); do
+		ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
+		nmap -sCV --script vulners -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/$line-nmap --max-retries 3
+	done
 }
 
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
-  startFunction "aquatone"
-  "$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
+	startFunction "aquatone"
+	"$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
 }
 
 fetchArchive() {
-  startFunction "fetchArchive"
-  cat "$SUBS"/hosts | sed 's/https\?:\/\///' | gau > "$ARCHIVE"/getallurls.txt
+	startFunction "fetchArchive"
+	cat "$SUBS"/hosts | sed 's/https\?:\/\///' | gau > "$ARCHIVE"/getallurls.txt
 
-  cat "$ARCHIVE"/getallurls.txt  | sort -u | unfurl --unique keys > "$ARCHIVE"/paramlist.txt
+	cat "$ARCHIVE"/getallurls.txt  | sort -u | unfurl --unique keys > "$ARCHIVE"/paramlist.txt
 
-  cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.js(\?|$)" | sort -u > "$ARCHIVE"/jsurls.txt
+	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.js(\?|$)" | sort -u > "$ARCHIVE"/jsurls.txt
 
-  cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.php(\?|$) | sort -u " > "$ARCHIVE"/phpurls.txt
+	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.php(\?|$) | sort -u " > "$ARCHIVE"/phpurls.txt
 
-  cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.aspx(\?|$) | sort -u " > "$ARCHIVE"/aspxurls.txt
+	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.aspx(\?|$) | sort -u " > "$ARCHIVE"/aspxurls.txt
 
-  cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | sort -u " > "$ARCHIVE"/jspurls.txt
+	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | sort -u " > "$ARCHIVE"/jspurls.txt
 }
 
 : 'Gather information with meg'
 startMeg() {
-  startFunction "meg"
-  cd "$SUBS" || return
-  meg -d 1000 -v /
-  mv out meg
-  cd "$HOME" || return
+	startFunction "meg"
+	cd "$SUBS" || return
+	meg -d 1000 -v /
+	mv out meg
+	cd "$HOME" || return
 }
 
 : 'Use the CORScanner to check for CORS misconfigurations'
 checkCORS() {
-  startFunction "CORScanner"
-  python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/hosts | tee "$CORS"/cors.txt
-  echo -e "[$GREEN+$RESET] Done."
+	startFunction "CORScanner"
+	python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/hosts | tee "$CORS"/cors.txt
+	echo -e "[$GREEN+$RESET] Done."
 }
 : 'directory brute-force'
 startBruteForce() {
-  startFunction "directory brute-force"
-  # maybe run with interlace? Might remove
-  cat "$SUBS"/hosts | parallel -j 5 --bar --shuf gobuster dir -u {} -t 50 -w wordlist.txt -l -e -r -k -q -o "$DIRSCAN"/"$sub".txt
-    "$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/out.txt
+	startFunction "directory brute-force"
+	# maybe run with interlace? Might remove
+	cat "$SUBS"/hosts | parallel -j 5 --bar --shuf gobuster dir -u {} -t 50 -w wordlist.txt -l -e -r -k -q -o "$DIRSCAN"/"$sub".txt
+	"$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/out.txt
 }
 
 : 'Setup aquatone results one the ReconPi IP address'
 makePage() {
-  startFunction "HTML webpage"
-  cd /var/www/html/ || return
-  sudo chmod -R 755 .
-  sudo cp -r "$SCREENSHOTS" /var/www/html/$domain
-  sudo chmod a+r -R /var/www/html/$domain/*
-  cd "$HOME" || return
-  echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
-  echo -e "[$GREEN+$RESET] The aquatone results page and the meg results directory are great starting points!"
-  echo -e "[$GREEN+$RESET] Aquatone results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)/$domain/screenshots/aquatone_report.html"
-  echo -e "[$GREEN+$RESET]Now manually do all JS Analysis (https://github.com/dark-warlord14/JSScanner)"
-  echo -e "[$GREEN+$RESET]Also Don't forget Directory brutefocing"
+	startFunction "HTML webpage"
+	cd /var/www/html/ || return
+	sudo chmod -R 755 .
+	sudo cp -r "$SCREENSHOTS" /var/www/html/$domain
+	sudo chmod a+r -R /var/www/html/$domain/*
+	cd "$HOME" || return
+	echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
+	echo -e "[$GREEN+$RESET] The aquatone results page and the meg results directory are great starting points!"
+	echo -e "[$GREEN+$RESET] Aquatone results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)/$domain/screenshots/aquatone_report.html"
+	echo -e "[$GREEN+$RESET]Now manually do all JS Analysis (https://github.com/dark-warlord14/JSScanner)"
+	echo -e "[$GREEN+$RESET]Also Don't forget Directory brutefocing"
 }
 
 notifySlack() {
-  startFunction "Trigger Slack Notification"
-  ip_add=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-  takeover="$(cat $SUBS/takeovers)"
-  hosts="$(cat $SUBS/hosts)"
-  curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## ReconPi finished scanning: $domain ##'}" $slack_url 2>/dev/null
-  curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Screenshots for $domain completed! ##\n http://$ip_add/$domain/screenshots/aquatone_report.html'}" $slack_url 2 > /dev/null
-  curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Subdomain Takeover for $domain ##\n $takeover'}" $slack_url 2>/dev/null
-  curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Hosts Discovered for $domain ##\n $hosts'}" $slack_url 2>/dev/null
-  echo -e "[$GREEN+$RESET] Done."
+	startFunction "Trigger Slack Notification"
+	ip_add=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+	takeover="$(cat $SUBS/takeovers)"
+	hosts="$(cat $SUBS/hosts)"
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## ReconPi finished scanning: $domain ##'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Screenshots for $domain completed! ##\n http://$ip_add/$domain/screenshots/aquatone_report.html'}" $slack_url 2 > /dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Subdomain Takeover for $domain ##\n $takeover'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Hosts Discovered for $domain ##\n $hosts'}" $slack_url 2>/dev/null
+	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Execute the main functions'
