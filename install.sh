@@ -361,13 +361,9 @@ additionalTools() {
 	fi
 
 	echo -e "[$GREEN+$RESET] Installing nmap.."
-	if [ -e /usr/bin/nmap ]; then
-		echo -e "[$GREEN+$RESET] Already installed."
-	else
 		sudo apt-get install -y nmap
 		wget https://raw.githubusercontent.com/vulnersCom/nmap-vulners/master/vulners.nse -O /usr/share/nmap/scripts/vulners.nse && nmap --script-updatedb
 		echo -e "[$GREEN+$RESET] Done."
-	fi
 
 	echo -e "[$GREEN+$RESET] Installing SecLists.."
 	if [ -e "$HOME"/tools/Seclists/Discovery ]; then
