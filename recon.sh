@@ -174,7 +174,7 @@ portScan() {
 	for line in $(cat "$IPS"/"$domain"-ips.txt); do
 	        /usr/local/bin/masscan -p 1-65535 --rate 5000 --wait 0 --open $line -oG "$PORTSCAN"/masscan
 		ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
-		nmap -sCV --script vulners -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/$line-nmap --max-retries 3
+		nmap -sCV --script vulners,http-title -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/$line-nmap --max-retries 3
 	done
 }
 
