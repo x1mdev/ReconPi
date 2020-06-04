@@ -66,9 +66,13 @@ Make sure to add your SLACK token to the tokens.txt file if you want to get slac
 ## Sample Token.txt
 
 github\_subdomains\_token=""
+
 slack\_url=""
+
 findomain\_spyse\_token=""
+
 findomain\_virustotal\_token=""
+
 findomain\_securitytrails\_token=""
 
 ## Tools
