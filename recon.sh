@@ -229,8 +229,24 @@ startBruteForce() {
 }
 : 'Check for Vulnerabilities'
 runNuclei() {
-	startFunction "Starting Nuclei"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/*/*.yaml -o "$NUCLEISCAN"/nuclei.txt
+	startFunction "Starting Nuclei Basic-detections"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/basic-detections/ -o "$NUCLEISCAN"/basic-detections.txt
+	startFunction "Starting Nuclei CVEs Detection"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/cves/ -o "$NUCLEISCAN"/cve.txt
+	startFunction "Starting Nuclei dns check"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/dns/ -o "$NUCLEISCAN"/dns.txt
+	startFunction "Starting Nuclei files check"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/files/ -o "$NUCLEISCAN"/files.txt
+	startFunction "Starting Nuclei Panels Check"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/panels/ -o "$NUCLEISCAN"/panels.txt
+	startFunction "Starting Nuclei Security-misconfiguration Check"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/security-misconfiguration/ -o "$NUCLEISCAN"/security-misconfiguration.txt
+	startFunction "Starting Nuclei Technologies Check"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/technologies/ -o "$NUCLEISCAN"/technologies.txt
+	startFunction "Starting Nuclei Tokens Check"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/tokens/ -o "$NUCLEISCAN"/tokens.txt
+	startFunction "Starting Nuclei Vulnerabilties Check"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/vulnerabilities/ -o "$NUCLEISCAN"/vulnerabilties.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
