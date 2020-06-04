@@ -127,7 +127,7 @@ gatherSubdomains() {
 	cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/alive_subdomains
 	# Get http and https hosts
 	echo -e "[$GREEN+$RESET] Getting alive hosts.."
-	cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe --prefix-https | tee "$SUBS"/hosts
+	cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
 	echo -e "[$GREEN+$RESET] Done."
 }
 
