@@ -69,6 +69,7 @@ golangInstall() {
 		git clone https://github.com/udhos/update-golang
 		cd "$HOME"/tools/update-golang || return
 		sudo bash update-golang.sh
+		sudo cp /usr/local/go/bin/go /usr/bin/ 
 		echo -e "[$GREEN+$RESET] Done."
 	fi
 	echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
