@@ -63,7 +63,7 @@ Results will be stored on the Recon Pi and can be viewed by running `python -m S
 
 Make sure to add your SLACK token to the tokens.txt file if you want to get slack notification after the completion of recon process.
 
-## Sample Token.txt
+## Sample Token.txt ($HOME/ReconPi/tokens.txt)
 
 github\_subdomains\_token=""
 
@@ -80,7 +80,7 @@ findomain\_securitytrails\_token=""
 Tools that will be installed:
 - [Go](https://github.com/golang)
 - [Subfinder](https://github.com/projectdiscovery/subfinder/cmd/subfinder)
-- [Subjack](htttps://github.com/haccer/subjack)
+- [Subjack](https://github.com/haccer/subjack)
 - [Aquatone](https://github.com/michenriksen/aquatone)
 - [httprobe](https://github.com/tomnomnom/httprobe)
 - [assetfinder](https://github.com/tomnomnom/assetfinder)
