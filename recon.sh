@@ -16,7 +16,6 @@ BASE="$HOME/ReconPi"
 RESULTDIR="$HOME/assets/$domain"
 WORDLIST="$RESULTDIR/wordlists"
 SCREENSHOTS="$RESULTDIR/screenshots"
-CORS="$RESULTDIR/cors"
 SUBS="$RESULTDIR/subdomains"
 DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
@@ -24,6 +23,7 @@ IPS="$RESULTDIR/ips"
 PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
 VERSION="2.0"
+NUCLEISCAN="$RESULTDIR/nucleiscan"
 
 
 : 'Display the logo'
@@ -51,7 +51,7 @@ checkDirectories() {
 	if [ ! -d "$RESULTDIR" ]; then
 		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
 		mkdir -p "$RESULTDIR"
-		mkdir -p "$SUBS" "$CORS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE"
+		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN"
 		sudo mkdir -p /var/www/html/"$domain"
 		cp "$BASE"/wordlists/*.txt "$WORDLIST"
 	fi
@@ -142,7 +142,7 @@ checkTakeovers() {
 		echo -e "[$GREEN+$RESET] No takeovers found."
 	fi
 
-	startFunction "nuclei"
+	startFunction "nuclei to check takeover"
 	cat "$SUBS"/hosts | nuclei -t "$HOME"/tools/nuclei-templates/subdomain-takeover/detect-all-takeovers.yaml -o "$SUBS"/nuclei-takeover-checks.txt
 	vulnto=$(cat "$SUBS"/nuclei-takeover-checks.txt)
 	if [[ $vulnto != "" ]]; then
@@ -198,6 +198,13 @@ fetchArchive() {
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | sort -u " > "$ARCHIVE"/jspurls.txt
 }
 
+fetchEndpoints() {
+	startFunction "fetchEndpoints"
+	for js in `cat "$ARCHIVE"/jsurls.txt`;
+	do
+		python3 "$HOME"/tools/LinkFinder/linkfinder.py -i $js -o cli | anew "$ARCHIVE"/endpoints.txt;
+	done
+}
 : 'Gather information with meg'
 startMeg() {
 	startFunction "meg"
@@ -207,18 +214,18 @@ startMeg() {
 	cd "$HOME" || return
 }
 
-: 'Use the CORScanner to check for CORS misconfigurations'
-checkCORS() {
-	startFunction "CORScanner"
-	python3 "$HOME"/tools/CORScanner/cors_scan.py -v -t 50 -i "$SUBS"/hosts | tee "$CORS"/cors.txt
-	echo -e "[$GREEN+$RESET] Done."
-}
 : 'directory brute-force'
 startBruteForce() {
 	startFunction "directory brute-force"
 	# maybe run with interlace? Might remove
 	cat "$SUBS"/hosts | parallel -j 5 --bar --shuf gobuster dir -u {} -t 50 -w wordlist.txt -l -e -r -k -q -o "$DIRSCAN"/"$sub".txt
 	"$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/out.txt
+}
+: 'Check for Vulnerabilities'
+runNuclei() {
+	startFunction "Starting Nuclei"
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/*/*.yaml -o "$NUCLEISCAN"/nuclei.txt
+	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
 : 'Setup aquatone results one the ReconPi IP address'
@@ -241,10 +248,12 @@ notifySlack() {
 	ip_add=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 	takeover="$(cat $SUBS/takeovers)"
 	hosts="$(cat $SUBS/hosts)"
+	nucleiScan="$(cat $NUCLEISCAN/nuclei.txt)"
 	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## ReconPi finished scanning: $domain ##'}" $slack_url 2>/dev/null
 	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Screenshots for $domain completed! ##\n http://$ip_add/$domain/screenshots/aquatone_report.html'}" $slack_url 2 > /dev/null
 	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Subdomain Takeover for $domain ##\n $takeover'}" $slack_url 2>/dev/null
 	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Hosts Discovered for $domain ##\n $hosts'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Scan for $domain ##\n $nucleiScan'}" $slack_url 2>/dev/null
 	echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -263,6 +272,8 @@ gatherIPs
 gatherScreenshots
 startMeg
 fetchArchive
+fetchEndpoints
+runNuclei
 portScan
 makePage
 notifySlack
