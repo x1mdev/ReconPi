@@ -396,7 +396,7 @@ finalizeSetup() {
 	echo -e "[$GREEN+$RESET] Finishing up.."
 	displayLogo
 	source ~/.bashrc
-	echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation."
+	echo -e "[$GREEN+$RESET] Installation script finished! "
 }
 
 : 'Execute the main functions'
