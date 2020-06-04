@@ -117,8 +117,11 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
 	echo -e "[$GREEN+$RESET] Resolving subdomains.."
-	cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomains
+	cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomain
 	rm "$SUBS"/subdomains
+	# Running second time, to make sure that we don't get any un-resolved domains
+	cat "$SUBS"/alive_subdomain | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomains
+	rm "$SUBS"/alive_subdomain
 	echo -e "[$GREEN+$RESET] Running dnsgen to mutate subdomains.."
 	cat "$SUBS"/alive_subdomains | dnsgen - | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
 	cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/alive_subdomains
