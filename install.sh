@@ -395,16 +395,8 @@ setupDashboard() {
 finalizeSetup() {
 	echo -e "[$GREEN+$RESET] Finishing up.."
 	displayLogo
-	cd "$HOME" || return
-	echo "reconpi" > hostname
-	sudo mv hostname /etc/hostname
-	touch motd
-	displayLogo >>motd
-	sudo mv "$HOME"/motd /etc/motd
-	cd "$HOME" || return
+	source ~/.bashrc
 	echo -e "[$GREEN+$RESET] Installation script finished! System will reboot to finalize installation."
-	sleep 1
-	#    sudo reboot
 }
 
 : 'Execute the main functions'
