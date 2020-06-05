@@ -270,7 +270,7 @@ notifySlack() {
 	ip_add=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 	takeover="$(cat $SUBS/takeovers)"
 	hosts="$(cat $SUBS/hosts)"
-	nucleiScan="$(cat $NUCLEISCAN/nuclei.txt)"
+	nucleiScan="$(cat $NUCLEISCAN/*)"
 	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## ReconPi finished scanning: $domain ##'}" $slack_url 2>/dev/null
 	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Screenshots for $domain completed! ##\n http://$ip_add/$domain/screenshots/aquatone_report.html'}" $slack_url 2 > /dev/null
 	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Subdomain Takeover for $domain ##\n $takeover'}" $slack_url 2>/dev/null
