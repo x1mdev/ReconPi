@@ -151,7 +151,7 @@ golangTools() {
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing Amass.."
-	GO111MODULE=on go get -u -v github.com/OWASP/Amass/v3/...
+	GO111MODULE=on go get -v github.com/OWASP/Amass/v3/...
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing getJS.."
