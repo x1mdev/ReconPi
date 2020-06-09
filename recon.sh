@@ -24,6 +24,7 @@ PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
 VERSION="2.0"
 NUCLEISCAN="$RESULTDIR/nucleiscan"
+SHODANSCAN="$RESULTDIR/shodanscan"
 
 
 : 'Display the logo'
@@ -51,7 +52,7 @@ checkDirectories() {
 	if [ ! -d "$RESULTDIR" ]; then
 		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
 		mkdir -p "$RESULTDIR"
-		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN"
+		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$SHODANSCAN"
 		sudo mkdir -p /var/www/html/"$domain"
 		cp "$BASE"/wordlists/*.txt "$WORDLIST"
 	fi
@@ -117,11 +118,8 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
 	echo -e "[$GREEN+$RESET] Resolving subdomains.."
-	cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomain
+	cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomains
 	rm "$SUBS"/subdomains
-	# Running second time, to make sure that we don't get any un-resolved domains
-	cat "$SUBS"/alive_subdomain | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomains
-	rm "$SUBS"/alive_subdomain
 	echo -e "[$GREEN+$RESET] Running dnsgen to mutate subdomains.."
 	cat "$SUBS"/alive_subdomains | dnsgen - | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
 	cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/alive_subdomains
@@ -166,9 +164,10 @@ getCNAME() {
 	startFunction "dnsprobe to get CNAMEs"
 	cat "$SUBS"/alive_subdomains | dnsprobe -r CNAME -o "$SUBS"/subdomains_cname.txt
 }
-: 'Gather IPs with massdns'
+
+: 'Gather IPs with dnsprobe'
 gatherIPs() {
-	startFunction "massdns"
+	startFunction "dnsprobe"
 	cat "$SUBS"/alive_subdomains | dnsprobe -silent -f ip | tee "$IPS"/"$domain"-ips.txt
 	cat "$IPS"/"$domain"-ips.txt | cf-check | sort -u > "$IPS"/"$domain"-origin-ips.txt
 	echo -e "[$GREEN+$RESET] Done."
@@ -250,6 +249,9 @@ runNuclei() {
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
+checkShodan() {
+	startFunction "Checking Resolved IPs on Shodan"
+	cat "$IPS"/"$domain"-origin-ips.txt | sort -u | python3 "$HOME"/tools/Shodanfy.py/shodanfy.py --stdin --getvuln --getports --getinfo --getbanner | tee "$SHODANSCAN"/shodanfy.txt
 : 'Setup aquatone results one the ReconPi IP address'
 makePage() {
 	startFunction "HTML webpage"
@@ -296,6 +298,7 @@ startMeg
 fetchArchive
 fetchEndpoints
 runNuclei
+checkShodan
 portScan
 makePage
 notifySlack
