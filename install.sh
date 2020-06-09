@@ -378,6 +378,16 @@ additionalTools() {
 		git clone https://github.com/danielmiessler/SecLists.git
 		echo -e "[$GREEN+$RESET] Done."
 	fi
+
+	echo -e "[$GREEN+$RESET] Installing shodanfy.."
+	if [ -e "$HOME"/tools/Shodanfy.py ]; then
+		echo -e "[$GREEN+$RESET] Already installed."
+	else
+		cd "$HOME"/tools/ || return
+		git clone https://github.com/m4ll0k/Shodanfy.py.git
+		sudo pip3 install lxml
+		echo -e "[$GREEN+$RESET] Done."
+	fi
 }
 
 : 'Dashboard setup'
