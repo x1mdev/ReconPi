@@ -132,6 +132,9 @@ golangTools() {
 	go get -u -v github.com/tomnomnom/gf
 	echo 'source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.bash' >> ~/.bashrc
 	cp -r $GOPATH/src/github.com/tomnomnom/gf/examples ~/.gf
+	cd "$HOME"/tools/ || return
+	git clone https://github.com/1ndianl33t/Gf-Patterns
+	cp ~/Gf-Patterns/*.json ~/.gf
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing anew.."
