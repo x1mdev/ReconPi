@@ -3,8 +3,6 @@
 @name   ReconPi recon.sh
 @author Martijn B <Twitter: @x1m_martijn>
 @link   https://github.com/x1mdev/ReconPi
-@Commiter Sachin G <Twitter: @mavericknerd>
-@link   https://github.com/mavericknerd/ReconPi
 '
 
 : 'Set the main variables'
@@ -22,7 +20,7 @@ HTML="$RESULTDIR/html"
 IPS="$RESULTDIR/ips"
 PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
-VERSION="2.0"
+VERSION="2.1"
 NUCLEISCAN="$RESULTDIR/nucleiscan"
 SHODANSCAN="$RESULTDIR/shodanscan"
 
@@ -30,14 +28,14 @@ SHODANSCAN="$RESULTDIR/shodanscan"
 : 'Display the logo'
 displayLogo() {
 	echo -e "
-	__________                          __________.__
-	\______   \ ____   ____  ____   ____\______   \__|
-		|       _// __ \_/ ___\/  _ \ /    \|     ___/  |
-		|    |   \  ___/\  \__(  <_> )   |  \    |   |  |
-		|____|_  /\___  >\___  >____/|___|  /____|   |__|
-		\/     \/     \/           \/
-			v$VERSION
-			"
+__________                          __________.__ 
+\______   \ ____   ____  ____   ____\______   \__|
+ |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
+ |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
+ |____|_  /\___  >\___  >____/|___|  /____|   |__|
+        \/     \/     \/           \/             
+                            
+			v$VERSION - $YELLOW@x1m_martijn$RESET" 
 		}
 
 	: 'Display help text when no arguments are given'
@@ -94,7 +92,7 @@ gatherSubdomains() {
 
 	startFunction "amass"
 	# Active amass
-	"$HOME"/go/bin/amass enum -active -d "$domain" -o "$SUBS"/amass.txt
+	#"$HOME"/go/bin/amass enum -active -d "$domain" -o "$SUBS"/amass.txt
 	# Passive amass
 	"$HOME"/go/bin/amass enum -passive -d "$domain" -o "$SUBS"/amassp.txt
 	echo -e "[$GREEN+$RESET] Done, next."
@@ -252,6 +250,7 @@ runNuclei() {
 checkShodan() {
 	startFunction "Checking Resolved IPs on Shodan"
 	cat "$IPS"/"$domain"-origin-ips.txt | sort -u | python3 "$HOME"/tools/Shodanfy.py/shodanfy.py --stdin --getvuln --getports --getinfo --getbanner | tee "$SHODANSCAN"/shodanfy.txt
+
 : 'Setup aquatone results one the ReconPi IP address'
 makePage() {
 	startFunction "HTML webpage"
@@ -295,10 +294,10 @@ getCNAME
 gatherIPs
 gatherScreenshots
 startMeg
-fetchArchive
-fetchEndpoints
+#fetchArchive
+#fetchEndpoints
 runNuclei
 checkShodan
-portScan
+#portScan
 makePage
 notifySlack

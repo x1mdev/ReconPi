@@ -3,28 +3,26 @@
 @name   ReconPi install.sh
 @author Martijn B <Twitter: @x1m_martijn>
 @link   https://github.com/x1mdev/ReconPi
-@Commiter Sachin G <Twitter: @mavericknerd>
-@link   https://github.com/mavericknerd/ReconPi
 '
 
 : 'Set the main variables'
 YELLOW="\033[133m"
 GREEN="\033[032m"
 RESET="\033[0m"
-VERSION="2.0"
+VERSION="2.1"
 
 : 'Display the logo'
 displayLogo() {
 	clear
 	echo -e "
-	__________                          __________.__
-	\______   \ ____   ____  ____   ____\______   \__|
-		|       _// __ \_/ ___\/  _ \ /    \|     ___/  |
-		|    |   \  ___/\  \__(  <_> )   |  \    |   |  |
-		|____|_  /\___  >\___  >____/|___|  /____|   |__|
-		\/     \/     \/           \/
-			v$VERSION
-			"
+__________                          __________.__ 
+\______   \ ____   ____  ____   ____\______   \__|
+ |       _// __ \_/ ___\/  _ \ /    \|     ___/  |
+ |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
+ |____|_  /\___  >\___  >____/|___|  /____|   |__|
+        \/     \/     \/           \/             
+                            
+			v$VERSION - $YELLOW@x1m_martijn$RESET"
 		}
 
 	: 'Basic requirements'
@@ -42,6 +40,7 @@ displayLogo() {
 		git clone https://github.com/maverickNerd/ReconPi
 		sudo apt-get install -y --reinstall build-essential
 		sudo apt install -y python3-pip
+		sudo apt install -y file
 		sudo apt-get install -y dnsutils
 		sudo apt install -y lua5.1 alsa-utils libpq5
 		sudo apt-get autoremove -y
@@ -62,7 +61,7 @@ displayLogo() {
 : 'Golang initials'
 golangInstall() {
 	echo -e "[$GREEN+$RESET] Installing and setting up Go.."
-	if [[ $(go version | grep -o '1.13') == 1.13 ]]; then
+	if [[ $(go version | grep -o '1.14') == 1.14 ]]; then
 		echo -e "[$GREEN+$RESET] Go is already installed, skipping installation"
 	else
 		cd "$HOME"/tools || return
@@ -169,6 +168,10 @@ golangTools() {
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/shuffledns/cmd/shuffledns
 	echo -e "[$GREEN+$RESET] Done."
 
+	echo -e "[$GREEN+$RESET] Installing dalfox.."
+	GO111MODULE=on go get -u -v github.com/hahwul/dalfox
+	echo -e "[$GREEN+$RESET] Done."
+
 	echo -e "[$GREEN+$RESET] Installing dnsprobe.."
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe
 	echo -e "[$GREEN+$RESET] Done."
@@ -240,44 +243,12 @@ additionalTools() {
 		echo -e "[$GREEN+$RESET] Done."
 	fi
 
-	echo -e "[$GREEN+$RESET] Installing dirsearch.."
-	if [ -e "$HOME"/tools/dirsearch/dirsearch.py ]; then
-		echo -e "[$GREEN+$RESET] Already installed."
-	else
-		cd "$HOME"/tools/ || return
-		git clone https://github.com/maurosoria/dirsearch.git
-		cd "$HOME"/tools/ || return
-		echo -e "[$GREEN+$RESET] Done."
-	fi
-
-	echo -e "[$GREEN+$RESET] Installing XSStrike (XSS Scanner).."
-	if [ -e "$HOME"/tools/XSStrike/xsstrike.py ]; then
-		echo -e "[$GREEN+$RESET] Already installed."
-	else
-		cd "$HOME"/tools/ || return
-		git clone https://github.com/s0md3v/XSStrike.git
-		cd "$HOME"/tools/XSStrike || return
-		pip3 install -r requirements.txt --user
-		echo -e "[$GREEN+$RESET] Done."
-	fi
-
 	echo -e "[$GREEN+$RESET] Installing Arjun (HTTP parameter discovery suite).."
 	if [ -e "$HOME"/tools/Arjun/arjun.py ]; then
 		echo -e "[$GREEN+$RESET] Already installed."
 	else
 		cd "$HOME"/tools/ || return
 		git clone https://github.com/s0md3v/Arjun.git
-		echo -e "[$GREEN+$RESET] Done."
-	fi
-
-	echo -e "[$GREEN+$RESET] Installing Diggy (Extract Endpoints).."
-	if [ -e "$HOME"/tools/Diggy/diggy.sh ]; then
-		echo -e "[$GREEN+$RESET] Already installed."
-	else
-		cd "$HOME"/tools/ || return
-		git clone https://github.com/s0md3v/Diggy.git
-		cd "$HOME"/tools/Diggy || return
-		sudo bash install.sh
 		echo -e "[$GREEN+$RESET] Done."
 	fi
 
@@ -408,7 +379,7 @@ setupDashboard() {
 finalizeSetup() {
 	echo -e "[$GREEN+$RESET] Finishing up.."
 	displayLogo
-	source ~/.bashrc || return
+	source "$HOME"/.bashrc
 	echo -e "[$GREEN+$RESET] Installation script finished! "
 }
 

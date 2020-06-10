@@ -7,7 +7,7 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
-                            v2.0
+                            v2.1
 ```
 
 Original Author: @x1m/_martijn
@@ -16,18 +16,15 @@ ReconPi - A lightweight recon tool that performs extensive reconnaissance with t
 
 Start using that Raspberry Pi -- I know you all have one laying around somewhere ;)
 
+> Version 2.1 is now also usable on your VPS, thanks to [Sachin Grover](https://github.com/mavericknerd) for putting in a lot of work.
 
-I added lot of tools on top of the original so I think it is diverted to its only use of running it on RaspberryPi.
-
-I use this tool extensively on my cloud server so spin up your own cloud server and recon everything.
-
-Added wordlists from tomnomnom common files, few raft lists and all.txt(jhaddix)
+The latest [HypriotOS](https://blog.hypriot.com/downloads/) image works perfect!
 
 ### Easy installation
 
-Connect to your ReconPi with SSH:
+Connect to your ReconPi or VPS with SSH:
 
-`ssh pirate@192.168.2.16 [Change IP to ReconPi IP]` or ssh to your cloud server
+`ssh pirate@192.168.2.16 [Edit IP address if needed]`
 
 Curl the `install.sh` script and run it:
 `curl -L https://raw.githubusercontent.com/x1mdev/ReconPi/master/install.sh | bash`
@@ -37,7 +34,7 @@ Curl the `install.sh` script and run it:
 Connect to your ReconPi with SSH:
 
 
-`$ ssh pirate@192.168.2.16 [Change IP to ReconPi IP]`
+`$ ssh pirate@192.168.2.16 [Edit IP address if needed]`
 
 Now we can set up everything, it's quite simple:
 
@@ -105,8 +102,6 @@ Tools that will be installed:
 - [jq](https://stedolan.github.io/jq/)
 - [masscan](https://github.com/robertdavidgraham/masscan)
 - [Corsy](https://github.com/s0md3v/Corsy)
-- [dirsearch](https://github.com/maurosoria/dirsearch)
-- [XSStrike](https://github.com/s0md3v/XSStrike)
 - [Arjun](https://github.com/s0md3v/Arjun)
 - [Diggy](https://github.com/s0md3v/Diggy)
 - [Dnsgen](https://github.com/ProjectAnte/dnsgen)
@@ -119,6 +114,7 @@ Tools that will be installed:
 - [nmap](https://nmap.org)
 - [Seclist](https://github.com/danielmiessler/SecList)
 - [Shodanfy.py](https://github.com/m4ll0k/Shodanfy.py)
+
 ## Methodology
 - gatherResolvers
 - gatherSubdomains
