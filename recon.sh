@@ -173,17 +173,18 @@ gatherIPs() {
 
 : 'Portscan on found IP addresses'
 portScan() {
+	startFunction "Starting Port Scan"
 	for line in $(cat "$IPS"/"$domain"-origin-ips.txt); do
-	        /usr/local/bin/masscan -p 1-65535 --rate 5000 --wait 0 --open $line -oG "$PORTSCAN"/masscan
-		ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
-		nmap -sCV --script vulners,http-title -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/$line-nmap --max-retries 3
+		echo "$line" | naabu -silent | bash "HOME"/tools/naabu2nmap.sh | tee "$PORTSCAN"/"$line".nmap
 	done
+	echo -e "[$GREEN+$RESET] Port Scan finished"
 }
 
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
 	startFunction "aquatone"
 	"$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
+	echo -e "[$GREEN+$RESET] Aquatone finished"
 }
 
 fetchArchive() {
@@ -199,6 +200,7 @@ fetchArchive() {
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.aspx(\?|$) | sort -u " > "$ARCHIVE"/aspxurls.txt
 
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | sort -u " > "$ARCHIVE"/jspurls.txt
+	echo -e "[$GREEN+$RESET] fetchArchive finished"
 }
 
 fetchEndpoints() {
@@ -207,6 +209,7 @@ fetchEndpoints() {
 	do
 		python3 "$HOME"/tools/LinkFinder/linkfinder.py -i $js -o cli | anew "$ARCHIVE"/endpoints.txt;
 	done
+	echo -e "[$GREEN+$RESET] fetchEndpoints finished"
 }
 : 'Gather information with meg'
 startMeg() {
@@ -250,6 +253,7 @@ runNuclei() {
 checkShodan() {
 	startFunction "Checking Resolved IPs on Shodan"
 	cat "$IPS"/"$domain"-origin-ips.txt | sort -u | python3 "$HOME"/tools/Shodanfy.py/shodanfy.py --stdin --getvuln --getports --getinfo --getbanner | tee "$SHODANSCAN"/shodanfy.txt
+	echo -e "[$GREEN+$RESET] Shodan Scan finished"
 }
 
 : 'Setup aquatone results one the ReconPi IP address'
@@ -295,10 +299,10 @@ getCNAME
 gatherIPs
 gatherScreenshots
 startMeg
-#fetchArchive
-#fetchEndpoints
+fetchArchive
+fetchEndpoints
 runNuclei
 checkShodan
-#portScan
+portScan
 makePage
 notifySlack

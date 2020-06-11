@@ -81,13 +81,8 @@ golangInstall() {
 		echo export GOPATH='$HOME'/go >>"$HOME"/.bashrc
 	fi
 
-	if [ "$(cat "$configfile" | grep '^export GOROOT=')" == "" ]; then
-		echo export GOROOT=/usr/local/go >>"$HOME"/.bashrc
-	fi
-
-	if [ "$(echo $PATH | grep $GOROOT/bin)" == "" ]; then
+	if [ "$(echo $PATH | grep $GOPATH/bin)" == "" ]; then
 		echo export PATH='$PATH:$GOPATH'/bin >>"$HOME"/.bashrc
-		echo export PATH='$PATH:$GOROOT'/bin >>"$HOME"/.bashrc
 	fi
 
 	if [ "$(cat "$configfile" | grep '^alias recon=')" == "" ]; then
