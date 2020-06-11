@@ -61,6 +61,7 @@ __________                          __________.__
 : 'Golang initials'
 golangInstall() {
 	echo -e "[$GREEN+$RESET] Installing and setting up Go.."
+
 	if [[ $(go version | grep -o '1.14') == 1.14 ]]; then
 		echo -e "[$GREEN+$RESET] Go is already installed, skipping installation"
 	else
@@ -71,24 +72,32 @@ golangInstall() {
 		sudo cp /usr/local/go/bin/go /usr/bin/ 
 		echo -e "[$GREEN+$RESET] Done."
 	fi
+
 	echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
 	sleep 1
 	configfile="$HOME"/.bashrc
-	if grep -q /go/bin/ "$configfile"; then
-		echo -e "[$GREEN+$RESET] .bashrc contains the correct lines."
-	else
+
+	if [ "$(cat "$configfile" | grep '^export GOPATH=')" == "" ]; then
 		echo export GOPATH='$HOME'/go >>"$HOME"/.bashrc
-		echo export GOROOT=/usr/local/go >>"$HOME"/.bashrc
-		echo export PATH='$PATH:$HOME'/go/bin/ >>"$HOME"/.bashrc
-		echo export PATH='$PATH:$GOROOT'/bin >>"$HOME"/.bashrc
-		echo export PATH='$PATH:$HOME'/.local/bin >>"$HOME"/.bashrc
-		echo "alias recon=$HOME/ReconPi/recon.sh" >>"$HOME"/.bashrc
-		echo export LANGUAGE=en_US.UTF-8 >>"$HOME"/.bashrc
-		echo export LANG=en_US.UTF-8 >>"$HOME"/.bashrc
-		echo export LC_ALL=en_US.UTF-8 >>"$HOME"/.bashrc
 	fi
+
+	if [ "$(cat "$configfile" | grep '^export GOROOT=')" == "" ]; then
+		echo export GOROOT=/usr/local/go >>"$HOME"/.bashrc
+	fi
+
+	if [ "$(echo $PATH | grep $GOROOT/bin)" == "" ]; then
+		echo export PATH='$PATH:$GOPATH'/bin >>"$HOME"/.bashrc
+		echo export PATH='$PATH:$GOROOT'/bin >>"$HOME"/.bashrc
+	fi
+
+	if [ "$(cat "$configfile" | grep '^alias recon=')" == "" ]; then
+		echo "alias recon=$HOME/ReconPi/recon.sh" >>"$HOME"/.bashrc
+	fi
+
 	bash /etc/profile.d/golang_path.sh
+
 	source "$HOME"/.bashrc
+
 	cd "$HOME" || return
 	echo -e "[$GREEN+$RESET] Golang has been configured."
 }
@@ -187,6 +196,18 @@ golangTools() {
         echo -e "[$GREEN+$RESET] Installing cf-check"
 	go get -u github.com/dwisiswant0/cf-check
 	echo -e "[$GREEN+$RESET] Done."
+
+        echo -e "[$GREEN+$RESET] Installing dalfox"
+	GO111MODULE=on go get -u -v github.com/hahwul/dalfox
+	echo -e "[$GREEN+$RESET] Done."
+
+        echo -e "[$GREEN+$RESET] Installing hakrawler"
+	go get github.com/hakluke/hakrawler
+	echo -e "[$GREEN+$RESET] Done."
+
+        echo -e "[$GREEN+$RESET] Installing naabu"
+	GO111MODULE=on go get -v github.com/projectdiscovery/naabu/cmd/naabu
+	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Additional tools'
@@ -239,6 +260,16 @@ additionalTools() {
 		git clone https://github.com/s0md3v/Corsy.git
 		cd "$HOME"/tools/Corsy || return
 		sudo pip3 install -r requirements.txt
+		cd "$HOME"/tools/ || return
+		echo -e "[$GREEN+$RESET] Done."
+	fi
+
+	echo -e "[$GREEN+$RESET] Installing dirsearch.."
+	if [ -e "$HOME"/tools/dirsearch/dirsearch.py ]; then
+		echo -e "[$GREEN+$RESET] Already installed."
+	else
+		cd "$HOME"/tools/ || return
+		git clone https://github.com/maurosoria/dirsearch.git
 		cd "$HOME"/tools/ || return
 		echo -e "[$GREEN+$RESET] Done."
 	fi
@@ -360,6 +391,15 @@ additionalTools() {
 		cd "$HOME"/tools/ || return
 		git clone https://github.com/m4ll0k/Shodanfy.py.git
 		sudo pip3 install lxml
+		echo -e "[$GREEN+$RESET] Done."
+	fi
+
+	echo -e "[$GREEN+$RESET] Installing naabu2nmap wrapper script.."
+	if [ -e "$HOME"/tools/naabu2nmap.sh ]; then
+		echo -e "[$GREEN+$RESET] Already installed."
+	else
+		wget https://raw.githubusercontent.com/maverickNerd/naabu/master/scripts/naabu2nmap.sh -O "$HOME"/tools/naabu2nmap.sh
+		chmod +x "$HOME"/tools/naabu2nmap.sh
 		echo -e "[$GREEN+$RESET] Done."
 	fi
 }

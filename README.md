@@ -114,6 +114,10 @@ Tools that will be installed:
 - [nmap](https://nmap.org)
 - [Seclist](https://github.com/danielmiessler/SecList)
 - [Shodanfy.py](https://github.com/m4ll0k/Shodanfy.py)
+- [Dirsearch](https://github.com/maurosoria/dirsearch)
+- [Dalfox](https://github.com/hahwul/dalfox)
+- [Hakrawler] (https://github.com/hakluke/hakrawler)
+- [Naabu](https://github.com/projectdiscovery/naabu)
 
 ## Methodology
 - gatherResolvers
