@@ -250,6 +250,7 @@ runNuclei() {
 checkShodan() {
 	startFunction "Checking Resolved IPs on Shodan"
 	cat "$IPS"/"$domain"-origin-ips.txt | sort -u | python3 "$HOME"/tools/Shodanfy.py/shodanfy.py --stdin --getvuln --getports --getinfo --getbanner | tee "$SHODANSCAN"/shodanfy.txt
+}
 
 : 'Setup aquatone results one the ReconPi IP address'
 makePage() {
