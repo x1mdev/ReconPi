@@ -52,7 +52,6 @@ checkDirectories() {
 		mkdir -p "$RESULTDIR"
 		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$SHODANSCAN"
 		sudo mkdir -p /var/www/html/"$domain"
-		cp "$BASE"/wordlists/*.txt "$WORDLIST"
 	fi
 }
 
@@ -109,9 +108,9 @@ gatherSubdomains() {
 	curl "http://dns.bufferover.run/dns?q=$1" --silent | jq '.FDNS_A | .[]' -r 2>/dev/null | cut -f 2 -d',' | sort -u >> "$SUBS"/bufferover_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
-	startFunction "Get Probable Permutation of Domain"
-	for sub in $(cat $HOME/ReconPi/wordlists/subdomains.txt); do echo $sub.$domain >> "$SUBS"/commonspeak_subdomains.txt ; done
-	echo -e "[$GREEN+$RESET] Done, next."
+	#startFunction "Get Probable Permutation of Domain"
+	#for sub in $(cat $HOME/ReconPi/wordlists/subdomains.txt); do echo $sub.$domain >> "$SUBS"/commonspeak_subdomains.txt ; done
+	#echo -e "[$GREEN+$RESET] Done, next."
 
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains

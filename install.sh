@@ -180,10 +180,6 @@ golangTools() {
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe
 	echo -e "[$GREEN+$RESET] Done."
 
-	echo -e "[$GREEN+$RESET] Installing naabu.."
-	go get -u -v github.com/projectdiscovery/naabu/cmd/naabu
-	echo -e "[$GREEN+$RESET] Done."
-
 	echo -e "[$GREEN+$RESET] Installing nuclei.."
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/nuclei/cmd/nuclei
 	echo -e "[$GREEN+$RESET] Done."
