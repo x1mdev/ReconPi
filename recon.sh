@@ -100,7 +100,16 @@ gatherSubdomains() {
 	findomain -t "$domain" -u "$SUBS"/findomain_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
+	startFunction "chaos"
+	chaos -d "$domain" -o "$SUBS"/chaos_data.txt
+	echo -e "[$GREEN+$RESET] Done, next."
+
+	# Github gives different result sometimes, so running multiple instances so that we don't miss any subdomain
 	startFunction "github-subdomains"
+	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
+	sleep 5
+	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
+	sleep 5
 	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
