@@ -52,7 +52,6 @@ checkDirectories() {
 		mkdir -p "$RESULTDIR"
 		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$SHODANSCAN"
 		sudo mkdir -p /var/www/html/"$domain"
-		cp "$BASE"/wordlists/*.txt "$WORDLIST"
 	fi
 }
 
@@ -101,7 +100,16 @@ gatherSubdomains() {
 	findomain -t "$domain" -u "$SUBS"/findomain_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
+	startFunction "chaos"
+	chaos -d "$domain" -o "$SUBS"/chaos_data.txt
+	echo -e "[$GREEN+$RESET] Done, next."
+
+	# Github gives different result sometimes, so running multiple instances so that we don't miss any subdomain
 	startFunction "github-subdomains"
+	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
+	sleep 5
+	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
+	sleep 5
 	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
@@ -109,9 +117,9 @@ gatherSubdomains() {
 	curl "http://dns.bufferover.run/dns?q=$1" --silent | jq '.FDNS_A | .[]' -r 2>/dev/null | cut -f 2 -d',' | sort -u >> "$SUBS"/bufferover_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
-	startFunction "Get Probable Permutation of Domain"
-	for sub in $(cat $HOME/ReconPi/wordlists/subdomains.txt); do echo $sub.$domain >> "$SUBS"/commonspeak_subdomains.txt ; done
-	echo -e "[$GREEN+$RESET] Done, next."
+	#startFunction "Get Probable Permutation of Domain"
+	#for sub in $(cat $HOME/ReconPi/wordlists/subdomains.txt); do echo $sub.$domain >> "$SUBS"/commonspeak_subdomains.txt ; done
+	#echo -e "[$GREEN+$RESET] Done, next."
 
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
@@ -173,17 +181,18 @@ gatherIPs() {
 
 : 'Portscan on found IP addresses'
 portScan() {
+	startFunction "Starting Port Scan"
 	for line in $(cat "$IPS"/"$domain"-origin-ips.txt); do
-	        /usr/local/bin/masscan -p 1-65535 --rate 5000 --wait 0 --open $line -oG "$PORTSCAN"/masscan
-		ports=$(cat "$PORTSCAN"/masscan | grep -Eo "Ports:.[0-9]{1,5}" | cut -c 8- | sort -u | paste -sd,)
-		nmap -sCV --script vulners,http-title -p $ports --open -Pn -T4 $line -oA "$PORTSCAN"/$line-nmap --max-retries 3
+		echo "$line" | naabu -silent | bash "$HOME"/tools/naabu2nmap.sh | tee "$PORTSCAN"/"$line".nmap
 	done
+	echo -e "[$GREEN+$RESET] Port Scan finished"
 }
 
 : 'Use aquatone+chromium-browser to gather screenshots'
 gatherScreenshots() {
 	startFunction "aquatone"
 	"$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
+	echo -e "[$GREEN+$RESET] Aquatone finished"
 }
 
 fetchArchive() {
@@ -199,6 +208,7 @@ fetchArchive() {
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.aspx(\?|$) | sort -u " > "$ARCHIVE"/aspxurls.txt
 
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | sort -u " > "$ARCHIVE"/jspurls.txt
+	echo -e "[$GREEN+$RESET] fetchArchive finished"
 }
 
 fetchEndpoints() {
@@ -207,6 +217,7 @@ fetchEndpoints() {
 	do
 		python3 "$HOME"/tools/LinkFinder/linkfinder.py -i $js -o cli | anew "$ARCHIVE"/endpoints.txt;
 	done
+	echo -e "[$GREEN+$RESET] fetchEndpoints finished"
 }
 : 'Gather information with meg'
 startMeg() {
@@ -250,6 +261,7 @@ runNuclei() {
 checkShodan() {
 	startFunction "Checking Resolved IPs on Shodan"
 	cat "$IPS"/"$domain"-origin-ips.txt | sort -u | python3 "$HOME"/tools/Shodanfy.py/shodanfy.py --stdin --getvuln --getports --getinfo --getbanner | tee "$SHODANSCAN"/shodanfy.txt
+	echo -e "[$GREEN+$RESET] Shodan Scan finished"
 }
 
 : 'Setup aquatone results one the ReconPi IP address'
@@ -295,10 +307,10 @@ getCNAME
 gatherIPs
 gatherScreenshots
 startMeg
-#fetchArchive
-#fetchEndpoints
+fetchArchive
+fetchEndpoints
 runNuclei
 checkShodan
-#portScan
+portScan
 makePage
 notifySlack
