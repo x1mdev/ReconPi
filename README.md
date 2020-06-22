@@ -72,6 +72,8 @@ findomain\_virustotal\_token=""
 
 findomain\_securitytrails\_token=""
 
+CHAOS\_KEY=""
+
 ## Tools
 
 Tools that will be installed:
@@ -114,6 +116,12 @@ Tools that will be installed:
 - [nmap](https://nmap.org)
 - [Seclist](https://github.com/danielmiessler/SecList)
 - [Shodanfy.py](https://github.com/m4ll0k/Shodanfy.py)
+- [Dirsearch](https://github.com/maurosoria/dirsearch)
+- [Dalfox](https://github.com/hahwul/dalfox)
+- [Hakrawler](https://github.com/hakluke/hakrawler)
+- [Naabu](https://github.com/projectdiscovery/naabu)
+- [chaos](https://github.com/projectdiscovery/chaos-client)
+- [httpx](https://github.com/projectdiscovery/httpx)
 
 ## Methodology
 - gatherResolvers
@@ -134,8 +142,9 @@ Tools that will be installed:
 - Sublert
 - Subfinder
 - assetfinder
-- amass passive and active enum
+- amass
 - findomain (Add findomain sources token to get better result)
+- chaos dataset
 - github-subdomains
 - dns.bufferover.run
 - Mutate above Subdomains using commonspeak subdomain list
