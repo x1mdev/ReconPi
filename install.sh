@@ -37,7 +37,7 @@ __________                          __________.__
 		export LC_ALL=en_US.UTF-8
 		sudo apt-get update -y
 		sudo apt-get install git -y
-		git clone https://github.com/maverickNerd/ReconPi
+		git clone https://github.com/x1mdev/ReconPi.git
 		sudo apt-get install -y --reinstall build-essential
 		sudo apt install -y python3-pip
 		sudo apt install -y file
