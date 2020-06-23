@@ -60,7 +60,7 @@ Results will be stored on the Recon Pi and can be viewed by running `python -m S
 
 Make sure to add your SLACK token to the tokens.txt file if you want to get slack notification after the completion of recon process.
 
-## Sample Token.txt ($HOME/ReconPi/tokens.txt)
+## Sample Token.txt ($HOME/ReconPi/configs/tokens.txt)
 
 github\_subdomains\_token=""
 
@@ -73,6 +73,13 @@ findomain\_virustotal\_token=""
 findomain\_securitytrails\_token=""
 
 CHAOS\_KEY=""
+
+## Config Files
+
+** Input your API keys in these files to get better results **
+
+Subfinder Config file path : $HOME/ReconPi/configs/config.yaml
+Amass Config file path : $HOME/ReconPi/configs/config.ini
 
 ## Tools
 
@@ -122,6 +129,7 @@ Tools that will be installed:
 - [Naabu](https://github.com/projectdiscovery/naabu)
 - [chaos](https://github.com/projectdiscovery/chaos-client)
 - [httpx](https://github.com/projectdiscovery/httpx)
+- [altdns](https://github.com/infosec-au/altdns)
 
 ## Methodology
 - gatherResolvers

@@ -82,7 +82,7 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "subfinder"
-	"$HOME"/go/bin/subfinder -d "$domain" -v -exclude-sources dnsdumpster -o "$SUBS"/subfinder.txt
+	"$HOME"/go/bin/subfinder -d "$domain" -config "$HOME"/ReconPi/configs/config.yaml -o "$SUBS"/subfinder.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "assetfinder"
@@ -93,7 +93,7 @@ gatherSubdomains() {
 	# Active amass
 	#"$HOME"/go/bin/amass enum -active -d "$domain" -o "$SUBS"/amass.txt
 	# Passive amass
-	"$HOME"/go/bin/amass enum -passive -d "$domain" -o "$SUBS"/amassp.txt
+	"$HOME"/go/bin/amass enum -passive -d "$domain" -config "$HOME"/ReconPi/configs/config.ini -o "$SUBS"/amassp.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "findomain"
@@ -101,7 +101,7 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "chaos"
-	chaos -d "$domain" -o "$SUBS"/chaos_data.txt
+	chaos -d "$domain" -key $CHAOS_KEY -o "$SUBS"/chaos_data.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	# Github gives different result sometimes, so running multiple instances so that we don't miss any subdomain
@@ -114,7 +114,7 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "Starting bufferover"
-	curl "http://dns.bufferover.run/dns?q=$1" --silent | jq '.FDNS_A | .[]' -r 2>/dev/null | cut -f 2 -d',' | sort -u >> "$SUBS"/bufferover_subdomains.txt
+	curl "http://dns.bufferover.run/dns?q=$domain" --silent | jq '.FDNS_A | .[]' -r 2>/dev/null | cut -f 2 -d',' | sort -u >> "$SUBS"/bufferover_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	#startFunction "Get Probable Permutation of Domain"
@@ -124,11 +124,25 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
 	echo -e "[$GREEN+$RESET] Resolving subdomains.."
-	cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/alive_subdomains
+	cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/all_subdomains.txt
 	rm "$SUBS"/subdomains
-	echo -e "[$GREEN+$RESET] Running dnsgen to mutate subdomains.."
-	cat "$SUBS"/alive_subdomains | dnsgen - | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
-	cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/alive_subdomains
+
+	all_subdomains="$(wc -l<"$SUBS"/all_subdomains.txt)"
+
+	#If total alive subdomains are less than 500, run dnsgen otherwise altdns, this is done to keep script efficient.
+	if [ "$all_subdomains" -lt 500 ]; then
+	echo -e "[$GREEN+$RESET] Running dnsgen to mutate subdomains and resolving them.."
+	cat "$SUBS"/all_subdomains.txt | dnsgen - | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
+	cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/all_subdomains.txt
+	else
+	echo -e "[$GREEN+$RESET] Running altdns to mutate subdomains and resolving them.."
+	altdns -i "$SUBS"/all_subdomains.txt -w "$HOME"/ReconPi/wordlists/words_permutation.txt -o "$SUBS"/altdns.txt
+	cat "$SUBS"/altdns.txt | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt >> "$SUBS"/all_subdomains.txt
+	fi
+
+	echo -e "[$GREEN+$RESET] Resolving All Subdomains.."
+	cat "$SUBS"/all_subdomains.txt | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
+	rm "$SUBS"/all_subdomains.txt
 	# Get http and https hosts
 	echo -e "[$GREEN+$RESET] Getting alive hosts.."
 	cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
@@ -153,7 +167,7 @@ checkTakeovers() {
 	fi
 
 	startFunction "nuclei to check takeover"
-	cat "$SUBS"/hosts | nuclei -t "$HOME"/tools/nuclei-templates/subdomain-takeover/ -o "$SUBS"/nuclei-takeover-checks.txt
+	cat "$SUBS"/hosts | nuclei -t "$HOME"/tools/nuclei-templates/subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
 	vulnto=$(cat "$SUBS"/nuclei-takeover-checks.txt)
 	if [[ $vulnto != "" ]]; then
 		echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
@@ -238,23 +252,23 @@ startBruteForce() {
 : 'Check for Vulnerabilities'
 runNuclei() {
 	startFunction "Starting Nuclei Basic-detections"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/basic-detections/ -o "$NUCLEISCAN"/basic-detections.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/basic-detections/ -c 50 -o "$NUCLEISCAN"/basic-detections.txt
 	startFunction "Starting Nuclei CVEs Detection"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/cves/ -o "$NUCLEISCAN"/cve.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
 	startFunction "Starting Nuclei dns check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/dns/ -o "$NUCLEISCAN"/dns.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
 	startFunction "Starting Nuclei files check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/files/ -o "$NUCLEISCAN"/files.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/files/ -c 50 -o "$NUCLEISCAN"/files.txt
 	startFunction "Starting Nuclei Panels Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/panels/ -o "$NUCLEISCAN"/panels.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
 	startFunction "Starting Nuclei Security-misconfiguration Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/security-misconfiguration/ -o "$NUCLEISCAN"/security-misconfiguration.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
 	startFunction "Starting Nuclei Technologies Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/technologies/ -o "$NUCLEISCAN"/technologies.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
 	startFunction "Starting Nuclei Tokens Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/tokens/ -o "$NUCLEISCAN"/tokens.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
 	startFunction "Starting Nuclei Vulnerabilties Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/vulnerabilities/ -o "$NUCLEISCAN"/vulnerabilties.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
@@ -295,7 +309,7 @@ notifySlack() {
 
 : 'Execute the main functions'
 
-source "$HOME"/ReconPi/tokens.txt
+source "$HOME"/ReconPi/configs/tokens.txt || return
 
 displayLogo
 checkArguments

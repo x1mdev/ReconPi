@@ -37,7 +37,7 @@ __________                          __________.__
 		export LC_ALL=en_US.UTF-8
 		sudo apt-get update -y
 		sudo apt-get install git -y
-		git clone https://github.com/maverickNerd/ReconPi
+		git clone https://github.com/x1mdev/ReconPi.git
 		sudo apt-get install -y --reinstall build-essential
 		sudo apt install -y python3-pip
 		sudo apt install -y file
@@ -401,6 +401,10 @@ additionalTools() {
 		chmod +x "$HOME"/tools/naabu2nmap.sh
 		echo -e "[$GREEN+$RESET] Done."
 	fi
+
+	echo -e "[$GREEN+$RESET] Installing Altdns.."
+	pip install py-altdns
+	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Dashboard setup'
@@ -418,7 +422,7 @@ setupDashboard() {
 finalizeSetup() {
 	echo -e "[$GREEN+$RESET] Finishing up.."
 	displayLogo
-	source "$HOME"/.bashrc
+	source "$HOME"/.bashrc || return
 	echo -e "[$GREEN+$RESET] Installation script finished! "
 }
 
