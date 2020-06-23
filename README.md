@@ -122,6 +122,7 @@ Tools that will be installed:
 - [Naabu](https://github.com/projectdiscovery/naabu)
 - [chaos](https://github.com/projectdiscovery/chaos-client)
 - [httpx](https://github.com/projectdiscovery/httpx)
+- [altdns](https://github.com/infosec-au/altdns)
 
 ## Methodology
 - gatherResolvers

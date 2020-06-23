@@ -401,6 +401,10 @@ additionalTools() {
 		chmod +x "$HOME"/tools/naabu2nmap.sh
 		echo -e "[$GREEN+$RESET] Done."
 	fi
+
+	echo -e "[$GREEN+$RESET] Installing Altdns.."
+	pip install py-altdns
+	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Dashboard setup'
