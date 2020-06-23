@@ -309,7 +309,7 @@ notifySlack() {
 
 : 'Execute the main functions'
 
-source "$HOME"/ReconPi/configs/tokens.txt
+source "$HOME"/ReconPi/configs/tokens.txt || return
 
 displayLogo
 checkArguments

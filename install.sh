@@ -422,7 +422,7 @@ setupDashboard() {
 finalizeSetup() {
 	echo -e "[$GREEN+$RESET] Finishing up.."
 	displayLogo
-	source "$HOME"/.bashrc
+	source "$HOME"/.bashrc || return
 	echo -e "[$GREEN+$RESET] Installation script finished! "
 }
 
