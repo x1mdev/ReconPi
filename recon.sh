@@ -82,7 +82,7 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "subfinder"
-	"$HOME"/go/bin/subfinder -d "$domain" -v -exclude-sources dnsdumpster -o "$SUBS"/subfinder.txt
+	"$HOME"/go/bin/subfinder -d "$domain" -config "$HOME"/ReconPi/configs/config.yaml -o "$SUBS"/subfinder.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "assetfinder"
@@ -93,7 +93,7 @@ gatherSubdomains() {
 	# Active amass
 	#"$HOME"/go/bin/amass enum -active -d "$domain" -o "$SUBS"/amass.txt
 	# Passive amass
-	"$HOME"/go/bin/amass enum -passive -d "$domain" -o "$SUBS"/amassp.txt
+	"$HOME"/go/bin/amass enum -passive -d "$domain" -config "$HOME"/ReconPi/configs/config.ini -o "$SUBS"/amassp.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "findomain"
@@ -309,7 +309,7 @@ notifySlack() {
 
 : 'Execute the main functions'
 
-source "$HOME"/ReconPi/tokens.txt
+source "$HOME"/ReconPi/configs/tokens.txt
 
 displayLogo
 checkArguments
