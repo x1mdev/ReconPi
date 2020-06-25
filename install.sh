@@ -383,16 +383,6 @@ additionalTools() {
 		echo -e "[$GREEN+$RESET] Done."
 	fi
 
-	echo -e "[$GREEN+$RESET] Installing shodanfy.."
-	if [ -e "$HOME"/tools/Shodanfy.py ]; then
-		echo -e "[$GREEN+$RESET] Already installed."
-	else
-		cd "$HOME"/tools/ || return
-		git clone https://github.com/m4ll0k/Shodanfy.py.git
-		sudo pip3 install lxml
-		echo -e "[$GREEN+$RESET] Done."
-	fi
-
 	echo -e "[$GREEN+$RESET] Installing naabu2nmap wrapper script.."
 	if [ -e "$HOME"/tools/naabu2nmap.sh ]; then
 		echo -e "[$GREEN+$RESET] Already installed."

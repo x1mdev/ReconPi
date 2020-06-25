@@ -122,7 +122,6 @@ Tools that will be installed:
 - [interlace](https://github.com/codingo/Interlace)
 - [nmap](https://nmap.org)
 - [Seclist](https://github.com/danielmiessler/SecList)
-- [Shodanfy.py](https://github.com/m4ll0k/Shodanfy.py)
 - [Dirsearch](https://github.com/maurosoria/dirsearch)
 - [Dalfox](https://github.com/hahwul/dalfox)
 - [Hakrawler](https://github.com/hakluke/hakrawler)
@@ -142,7 +141,6 @@ Tools that will be installed:
 - fetchArchive
 - fetchEndpoints
 - runNuclei
-- checkShodan
 - portScan
 - notifySlack
 
@@ -174,8 +172,6 @@ Tools that will be installed:
 - Get Endpoints using Linkfinder
 
 - Run Nuclei Scripts on alive hosts
-
-- Check IPs for vulnerability on Shodan
 
 - Notify on Slack channel if token is specified.
 
