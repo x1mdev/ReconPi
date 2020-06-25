@@ -195,9 +195,7 @@ gatherIPs() {
 : 'Portscan on found IP addresses'
 portScan() {
 	startFunction "Starting Port Scan"
-	for line in $(cat "$IPS"/"$domain"-origin-ips.txt); do
-		echo "$line" | naabu -silent | bash "$HOME"/tools/naabu2nmap.sh | tee "$PORTSCAN"/"$line".nmap
-	done
+	cat "$IPS"/"$domain"-origin-ips.txt | naabu -silent | bash "$HOME"/tools/naabu2nmap.sh | tee "$PORTSCAN"/"$domain".nmap
 	echo -e "[$GREEN+$RESET] Port Scan finished"
 }
 
