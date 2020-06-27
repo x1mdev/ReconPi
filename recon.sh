@@ -22,7 +22,6 @@ PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
 VERSION="2.1"
 NUCLEISCAN="$RESULTDIR/nucleiscan"
-SHODANSCAN="$RESULTDIR/shodanscan"
 
 
 : 'Display the logo'
@@ -50,7 +49,7 @@ checkDirectories() {
 	if [ ! -d "$RESULTDIR" ]; then
 		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
 		mkdir -p "$RESULTDIR"
-		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$SHODANSCAN"
+		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN"
 		sudo mkdir -p /var/www/html/"$domain"
 	fi
 }
@@ -189,16 +188,14 @@ getCNAME() {
 gatherIPs() {
 	startFunction "dnsprobe"
 	cat "$SUBS"/alive_subdomains | dnsprobe -silent -f ip | tee "$IPS"/"$domain"-ips.txt
-	cat "$IPS"/"$domain"-ips.txt | cf-check | sort -u > "$IPS"/"$domain"-origin-ips.txt
+	cat "$IPS"/"$domain"-ips.txt | cf-check -c 5 | sort -u > "$IPS"/"$domain"-origin-ips.txt
 	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Portscan on found IP addresses'
 portScan() {
 	startFunction "Starting Port Scan"
-	for line in $(cat "$IPS"/"$domain"-origin-ips.txt); do
-		echo "$line" | naabu -silent | bash "$HOME"/tools/naabu2nmap.sh | tee "$PORTSCAN"/"$line".nmap
-	done
+	cat "$IPS"/"$domain"-origin-ips.txt | naabu -silent | bash "$HOME"/tools/naabu2nmap.sh | tee "$PORTSCAN"/"$domain".nmap
 	echo -e "[$GREEN+$RESET] Port Scan finished"
 }
 
@@ -272,12 +269,6 @@ runNuclei() {
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
-checkShodan() {
-	startFunction "Checking Resolved IPs on Shodan"
-	cat "$IPS"/"$domain"-origin-ips.txt | sort -u | python3 "$HOME"/tools/Shodanfy.py/shodanfy.py --stdin --getvuln --getports --getinfo --getbanner | tee "$SHODANSCAN"/shodanfy.txt
-	echo -e "[$GREEN+$RESET] Shodan Scan finished"
-}
-
 : 'Setup aquatone results one the ReconPi IP address'
 makePage() {
 	startFunction "HTML webpage"
@@ -324,7 +315,6 @@ startMeg
 fetchArchive
 fetchEndpoints
 runNuclei
-checkShodan
 portScan
 makePage
 notifySlack
