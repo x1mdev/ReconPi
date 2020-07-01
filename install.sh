@@ -224,6 +224,11 @@ additionalTools() {
 		echo -e "[$GREEN+$RESET] Done."
 	fi
 
+	echo -e "[$GREEN+$RESET] Installing nuclei-templates.."
+	cd "$HOME"/tools/ || return
+	git clone https://github.com/projectdiscovery/nuclei-templates.git
+	echo -e "[$GREEN+$RESET] Done."
+
 	echo -e "[$GREEN+$RESET] Installing jq.."
 	sudo apt install -y jq
 	echo -e "[$GREEN+$RESET] Done."

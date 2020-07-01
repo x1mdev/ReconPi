@@ -166,8 +166,7 @@ checkTakeovers() {
 	fi
 
 	startFunction "nuclei to check takeover"
-	nuclei -update-templates
-	cat "$SUBS"/hosts | nuclei -t subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
+	cat "$SUBS"/hosts | nuclei -t "$HOME"/tools/nuclei-templates/subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
 	vulnto=$(cat "$SUBS"/nuclei-takeover-checks.txt)
 	if [[ $vulnto != "" ]]; then
 		echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
@@ -249,25 +248,24 @@ startBruteForce() {
 }
 : 'Check for Vulnerabilities'
 runNuclei() {
-	nuclei -update-templates
 	startFunction "Starting Nuclei Basic-detections"
-	nuclei -l "$SUBS"/hosts -t basic-detections/ -c 50 -o "$NUCLEISCAN"/basic-detections.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/basic-detections/ -c 50 -o "$NUCLEISCAN"/basic-detections.txt
 	startFunction "Starting Nuclei CVEs Detection"
-	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
 	startFunction "Starting Nuclei dns check"
-	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
 	startFunction "Starting Nuclei files check"
-	nuclei -l "$SUBS"/hosts -t files/ -c 50 -o "$NUCLEISCAN"/files.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/files/ -c 50 -o "$NUCLEISCAN"/files.txt
 	startFunction "Starting Nuclei Panels Check"
-	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
 	startFunction "Starting Nuclei Security-misconfiguration Check"
-	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
 	startFunction "Starting Nuclei Technologies Check"
-	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
 	startFunction "Starting Nuclei Tokens Check"
-	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
 	startFunction "Starting Nuclei Vulnerabilties Check"
-	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
+	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
