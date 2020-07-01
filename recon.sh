@@ -166,7 +166,8 @@ checkTakeovers() {
 	fi
 
 	startFunction "nuclei to check takeover"
-	cat "$SUBS"/hosts | nuclei -t "$HOME"/tools/nuclei-templates/subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
+	nuclei -update-templates
+	cat "$SUBS"/hosts | nuclei -t subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
 	vulnto=$(cat "$SUBS"/nuclei-takeover-checks.txt)
 	if [[ $vulnto != "" ]]; then
 		echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
@@ -248,24 +249,25 @@ startBruteForce() {
 }
 : 'Check for Vulnerabilities'
 runNuclei() {
+	nuclei -update-templates
 	startFunction "Starting Nuclei Basic-detections"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/basic-detections/ -c 50 -o "$NUCLEISCAN"/basic-detections.txt
+	nuclei -l "$SUBS"/hosts -t basic-detections/ -c 50 -o "$NUCLEISCAN"/basic-detections.txt
 	startFunction "Starting Nuclei CVEs Detection"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
+	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
 	startFunction "Starting Nuclei dns check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
+	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
 	startFunction "Starting Nuclei files check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/files/ -c 50 -o "$NUCLEISCAN"/files.txt
+	nuclei -l "$SUBS"/hosts -t files/ -c 50 -o "$NUCLEISCAN"/files.txt
 	startFunction "Starting Nuclei Panels Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
+	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
 	startFunction "Starting Nuclei Security-misconfiguration Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
+	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
 	startFunction "Starting Nuclei Technologies Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
+	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
 	startFunction "Starting Nuclei Tokens Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
+	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
 	startFunction "Starting Nuclei Vulnerabilties Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
+	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
@@ -278,23 +280,19 @@ makePage() {
 	sudo chmod a+r -R /var/www/html/$domain/*
 	cd "$HOME" || return
 	echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
-	echo -e "[$GREEN+$RESET] The aquatone results page and the meg results directory are great starting points!"
+	echo -e "[$GREEN+$RESET] The aquatone results page, nuclei results directory and the meg results directory are great starting points!"
 	echo -e "[$GREEN+$RESET] Aquatone results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)/$domain/screenshots/aquatone_report.html"
-	echo -e "[$GREEN+$RESET]Now manually do all JS Analysis (https://github.com/dark-warlord14/JSScanner)"
-	echo -e "[$GREEN+$RESET]Also Don't forget Directory brutefocing"
 }
 
 notifySlack() {
 	startFunction "Trigger Slack Notification"
-	ip_add=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-	takeover="$(cat $SUBS/takeovers)"
-	hosts="$(cat $SUBS/hosts)"
-	nucleiScan="$(cat $NUCLEISCAN/*)"
+	takeover="$(cat $SUBS/takeovers | wc -l)"
+	totalsum=$(cat $SUBS/hosts | wc -l)
+  	intfiles=$(cat $NUCLEISCAN/*.txt | wc -l)
 	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## ReconPi finished scanning: $domain ##'}" $slack_url 2>/dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Screenshots for $domain completed! ##\n http://$ip_add/$domain/screenshots/aquatone_report.html'}" $slack_url 2 > /dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Subdomain Takeover for $domain ##\n $takeover'}" $slack_url 2>/dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Hosts Discovered for $domain ##\n $hosts'}" $slack_url 2>/dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Scan for $domain ##\n $nucleiScan'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$totalsum' live hosts for '$domain'"}' $slack_url 2 > /dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$intfiles' interesting files."}' $slack_url 2 > /dev/null
+    curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$takeover' subdomain takeovers on '$domain'"}' $slack_url 2 > /dev/null
 	echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -316,5 +314,5 @@ fetchArchive
 fetchEndpoints
 runNuclei
 portScan
-makePage
+# makePage enable this manually as this is used on VPS too.
 notifySlack
