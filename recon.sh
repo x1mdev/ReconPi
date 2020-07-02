@@ -249,23 +249,25 @@ startBruteForce() {
 : 'Check for Vulnerabilities'
 runNuclei() {
 	startFunction "Starting Nuclei Basic-detections"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/basic-detections/ -c 50 -o "$NUCLEISCAN"/basic-detections.txt
+	nuclei -l "$SUBS"/hosts -t basic-detections/ -c 50 -o "$NUCLEISCAN"/basic-detections.txt
+	startFunction "Starting Nuclei Brute-force"
+	nuclei -l "$SUBS"/hosts -t brute-force/ -c 50 -o "$NUCLEISCAN"/brute-force.txt
 	startFunction "Starting Nuclei CVEs Detection"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
+	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
 	startFunction "Starting Nuclei dns check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
+	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
 	startFunction "Starting Nuclei files check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/files/ -c 50 -o "$NUCLEISCAN"/files.txt
+	nuclei -l "$SUBS"/hosts -t files/ -c 50 -o "$NUCLEISCAN"/files.txt
 	startFunction "Starting Nuclei Panels Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
+	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
 	startFunction "Starting Nuclei Security-misconfiguration Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
+	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
 	startFunction "Starting Nuclei Technologies Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
+	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
 	startFunction "Starting Nuclei Tokens Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
+	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
 	startFunction "Starting Nuclei Vulnerabilties Check"
-	nuclei -l "$SUBS"/hosts -t "$HOME"/tools/nuclei-templates/vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
+	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
@@ -287,10 +289,21 @@ notifySlack() {
 	takeover="$(cat $SUBS/takeovers | wc -l)"
 	totalsum=$(cat $SUBS/hosts | wc -l)
   	intfiles=$(cat $NUCLEISCAN/*.txt | wc -l)
+	nucleiCveScan="$(cat $NUCLEISCAN/cve.txt)"
+	nucleiFileScan="$(cat $NUCLEISCAN/files.txt)"
+	nucleiMisconfigureScan="$(cat $NUCLEISCAN/security-misconfiguration.txt)"
+	nucleiTokenScan="$(cat $NUCLEISCAN/tokens.txt)"
+	nucleiVulScan="$(cat $NUCLEISCAN/vulnerabilties.txt)"
+
 	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## ReconPi finished scanning: $domain ##'}" $slack_url 2>/dev/null
 	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$totalsum' live hosts for '$domain'"}' $slack_url 2 > /dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$intfiles' interesting files."}' $slack_url 2 > /dev/null
-    curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$takeover' subdomain takeovers on '$domain'"}' $slack_url 2 > /dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$intfiles' interesting files using nuclei"}' $slack_url 2 > /dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$takeover' subdomain takeovers on '$domain'"}' $slack_url 2 > /dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei CVEs Scan for $domain ##\n $nucleiCveScan'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Files Scan for $domain ##\n $nucleiFileScan'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Security Misconfiguration Scan for $domain ##\n $nucleiMisconfigureScan'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Tokens Scan for $domain ##\n $nucleiTokenScan'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Vulnerabilities Scan for $domain ##\n $nucleiVulScan'}" $slack_url 2>/dev/null
 	echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -312,5 +325,5 @@ fetchArchive
 fetchEndpoints
 runNuclei
 portScan
-# makePage enable this manually as this is used on VPS too.
+makePage
 notifySlack
