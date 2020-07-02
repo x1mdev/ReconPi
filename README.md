@@ -10,7 +10,7 @@ __________                          __________.__
                             v2.1
 ```
 
-Original Author: @x1m/_martijn
+Original Author: [@x1m_martijn](https://twitter.com/x1m_martijn)
 
 ReconPi - A lightweight recon tool that performs extensive reconnaissance with the latest tools using a Raspberry Pi.
 
