@@ -81,7 +81,7 @@ golangInstall() {
 		echo export GOPATH='$HOME'/go >>"$HOME"/.bashrc
 	fi
 
-	if [ "$(echo $PATH | grep $GOPATH/bin)" == "" ]; then
+	if [ "$(echo $PATH | grep $GOPATH)" == "" ]; then
 		echo export PATH='$PATH:$GOPATH'/bin >>"$HOME"/.bashrc
 	fi
 
@@ -181,7 +181,7 @@ golangTools() {
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing nuclei.."
-	GO111MODULE=on go get -u -v github.com/projectdiscovery/nuclei/cmd/nuclei
+	GO111MODULE=on go get -u -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei
 	echo -e "[$GREEN+$RESET] Done."
 
         echo -e "[$GREEN+$RESET] Installing cf-check"
@@ -225,8 +225,7 @@ additionalTools() {
 	fi
 
 	echo -e "[$GREEN+$RESET] Installing nuclei-templates.."
-	cd "$HOME"/tools/ || return
-	git clone https://github.com/projectdiscovery/nuclei-templates.git
+	nuclei -update-templates
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing jq.."
