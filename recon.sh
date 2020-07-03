@@ -124,20 +124,20 @@ gatherSubdomains() {
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
 	echo -e "[$GREEN+$RESET] Resolving subdomains.."
 	cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/all_subdomains.txt
-	rm "$SUBS"/subdomains
+	# rm "$SUBS"/subdomains
 
-	all_subdomains="$(wc -l<"$SUBS"/all_subdomains.txt)"
+	#all_subdomains="$(wc -l<"$SUBS"/all_subdomains.txt)"
 
 	#If total alive subdomains are less than 500, run dnsgen otherwise altdns, this is done to keep script efficient.
-	if [ "$all_subdomains" -lt 500 ]; then
-	echo -e "[$GREEN+$RESET] Running dnsgen to mutate subdomains and resolving them.."
-	cat "$SUBS"/all_subdomains.txt | dnsgen - | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
-	cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/all_subdomains.txt
-	else
-	echo -e "[$GREEN+$RESET] Running altdns to mutate subdomains and resolving them.."
-	altdns -i "$SUBS"/all_subdomains.txt -w "$HOME"/ReconPi/wordlists/words_permutation.txt -o "$SUBS"/altdns.txt
-	cat "$SUBS"/altdns.txt | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt >> "$SUBS"/all_subdomains.txt
-	fi
+	# if [ "$all_subdomains" -lt 500 ]; then
+	# echo -e "[$GREEN+$RESET] Running dnsgen to mutate subdomains and resolving them.."
+	# # cat "$SUBS"/all_subdomains.txt | dnsgen - | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
+	# # cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/all_subdomains.txt
+	# else
+	# echo -e "[$GREEN+$RESET] Running altdns to mutate subdomains and resolving them.."
+	# altdns -i "$SUBS"/all_subdomains.txt -w "$HOME"/ReconPi/wordlists/words_permutation.txt -o "$SUBS"/altdns.txt
+	# cat "$SUBS"/altdns.txt | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt >> "$SUBS"/all_subdomains.txt
+	# fi
 
 	echo -e "[$GREEN+$RESET] Resolving All Subdomains.."
 	cat "$SUBS"/all_subdomains.txt | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
