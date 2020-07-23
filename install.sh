@@ -193,11 +193,11 @@ golangTools() {
 	echo -e "[$GREEN+$RESET] Done."
 
         echo -e "[$GREEN+$RESET] Installing hakrawler"
-	go get github.com/hakluke/hakrawler
+	go get -u -v github.com/hakluke/hakrawler
 	echo -e "[$GREEN+$RESET] Done."
 
         echo -e "[$GREEN+$RESET] Installing naabu"
-	GO111MODULE=on go get -v github.com/projectdiscovery/naabu/cmd/naabu
+	GO111MODULE=on go get -u -v github.com/projectdiscovery/naabu/cmd/naabu
 	echo -e "[$GREEN+$RESET] Done."
 
         echo -e "[$GREEN+$RESET] Installing chaos"
