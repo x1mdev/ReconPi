@@ -112,8 +112,8 @@ gatherSubdomains() {
 	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
-	startFunction "Starting bufferover"
-	curl "http://dns.bufferover.run/dns?q=$domain" --silent | jq '.FDNS_A | .[]' -r 2>/dev/null | cut -f 2 -d',' | sort -u >> "$SUBS"/bufferover_subdomains.txt
+	startFunction "Starting rapiddns"
+	curl -s "https://rapiddns.io/subdomain/$1?full=1" | grep -oP '_blank">\K[^<]*' | grep -v http | sort -u
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	#startFunction "Get Probable Permutation of Domain"
