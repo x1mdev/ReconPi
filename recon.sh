@@ -10,7 +10,6 @@ YELLOW="\033[1;33m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
 domain="$1"
-BASE="$HOME/ReconPi"
 RESULTDIR="$HOME/assets/$domain"
 WORDLIST="$RESULTDIR/wordlists"
 SCREENSHOTS="$RESULTDIR/screenshots"
@@ -50,7 +49,7 @@ checkDirectories() {
 		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
 		mkdir -p "$RESULTDIR"
 		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN"
-		sudo mkdir -p /var/www/html/"$domain"
+		#sudo mkdir -p /var/www/html/"$domain"
 	fi
 }
 
@@ -89,9 +88,6 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "amass"
-	# Active amass
-	#"$HOME"/go/bin/amass enum -active -d "$domain" -o "$SUBS"/amass.txt
-	# Passive amass
 	"$HOME"/go/bin/amass enum -passive -d "$domain" -config "$HOME"/ReconPi/configs/config.ini -o "$SUBS"/amassp.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
@@ -116,14 +112,10 @@ gatherSubdomains() {
 	curl -s "https://rapiddns.io/subdomain/$domain?full=1" | grep -oP '_blank">\K[^<]*' | grep -v http | sort -u | tee "$SUBS"/rapiddns_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
-	#startFunction "Get Probable Permutation of Domain"
-	#for sub in $(cat $HOME/ReconPi/wordlists/subdomains.txt); do echo $sub.$domain >> "$SUBS"/commonspeak_subdomains.txt ; done
-	#echo -e "[$GREEN+$RESET] Done, next."
-
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
 	echo -e "[$GREEN+$RESET] Resolving subdomains.."
-	cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/all_subdomains.txt
+	#cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/all_subdomains.txt
 	# rm "$SUBS"/subdomains
 
 	#all_subdomains="$(wc -l<"$SUBS"/all_subdomains.txt)"
@@ -139,12 +131,12 @@ gatherSubdomains() {
 	# cat "$SUBS"/altdns.txt | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt >> "$SUBS"/all_subdomains.txt
 	# fi
 
-	echo -e "[$GREEN+$RESET] Resolving All Subdomains.."
-	cat "$SUBS"/all_subdomains.txt | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
-	rm "$SUBS"/all_subdomains.txt
+	#echo -e "[$GREEN+$RESET] Resolving All Subdomains.."
+	#cat "$SUBS"/subdomains.txt | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
+	#rm "$SUBS"/subdomains.txt
 	# Get http and https hosts
 	echo -e "[$GREEN+$RESET] Getting alive hosts.."
-	cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
+	cat "$SUBS"/subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
 	echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -181,13 +173,13 @@ checkTakeovers() {
 : 'Get all CNAME'
 getCNAME() {
 	startFunction "dnsprobe to get CNAMEs"
-	cat "$SUBS"/alive_subdomains | dnsprobe -r CNAME -o "$SUBS"/subdomains_cname.txt
+	cat "$SUBS"/subdomains | dnsprobe -r CNAME -o "$SUBS"/subdomains_cname.txt
 }
 
 : 'Gather IPs with dnsprobe'
 gatherIPs() {
 	startFunction "dnsprobe"
-	cat "$SUBS"/alive_subdomains | dnsprobe -silent -f ip | tee "$IPS"/"$domain"-ips.txt
+	cat "$SUBS"/subdomains | dnsprobe -silent -f ip | tee "$IPS"/"$domain"-ips.txt
 	cat "$IPS"/"$domain"-ips.txt | cf-check -c 5 | sort -u > "$IPS"/"$domain"-origin-ips.txt
 	echo -e "[$GREEN+$RESET] Done."
 }
@@ -291,19 +283,12 @@ notifySlack() {
   	intfiles=$(cat $NUCLEISCAN/*.txt | wc -l)
 	nucleiCveScan="$(cat $NUCLEISCAN/cve.txt)"
 	nucleiFileScan="$(cat $NUCLEISCAN/files.txt)"
-	nucleiMisconfigureScan="$(cat $NUCLEISCAN/security-misconfiguration.txt)"
-	nucleiTokenScan="$(cat $NUCLEISCAN/tokens.txt)"
-	nucleiVulScan="$(cat $NUCLEISCAN/vulnerabilties.txt)"
 
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## ReconPi finished scanning: $domain ##'}" $slack_url 2>/dev/null
 	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$totalsum' live hosts for '$domain'"}' $slack_url 2 > /dev/null
 	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$intfiles' interesting files using nuclei"}' $slack_url 2 > /dev/null
 	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$takeover' subdomain takeovers on '$domain'"}' $slack_url 2 > /dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei CVEs Scan for $domain ##\n $nucleiCveScan'}" $slack_url 2>/dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Files Scan for $domain ##\n $nucleiFileScan'}" $slack_url 2>/dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Security Misconfiguration Scan for $domain ##\n $nucleiMisconfigureScan'}" $slack_url 2>/dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Tokens Scan for $domain ##\n $nucleiTokenScan'}" $slack_url 2>/dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'## Nuclei Vulnerabilities Scan for $domain ##\n $nucleiVulScan'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'CVEs found for $domain: \n $nucleiCveScan'}" $slack_url 2>/dev/null
+	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'Files for $domain: \n $nucleiFileScan'}" $slack_url 2>/dev/null
 	echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -321,9 +306,11 @@ getCNAME
 gatherIPs
 gatherScreenshots
 startMeg
-fetchArchive
-fetchEndpoints
+#fetchArchive
+#fetchEndpoints
 runNuclei
 portScan
-makePage
+#makePage
 notifySlack
+
+# Uncomment the functions 

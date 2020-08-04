@@ -7,10 +7,9 @@ __________                          __________.__
  |    |   \  ___/\  \__(  <_> )   |  \    |   |  |
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
-                            v2.1
+                            
+			v2.1 - @x1m_martijn 
 ```
-
-Original Author: [@x1m_martijn](https://twitter.com/x1m_martijn)
 
 ReconPi - A lightweight recon tool that performs extensive reconnaissance with the latest tools using a Raspberry Pi.
 
@@ -31,7 +30,7 @@ Curl the `install.sh` script and run it:
 
 ### Manual installation
 
-Connect to your ReconPi with SSH:
+Connect to your system with SSH:
 
 
 `$ ssh pirate@192.168.2.16 [Edit IP address if needed]`
