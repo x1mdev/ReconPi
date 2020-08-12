@@ -100,7 +100,7 @@ golangInstall() {
 : 'Golang tools'
 golangTools() {
 	echo -e "[$GREEN+$RESET] Installing subfinder.."
-	go get -u -v github.com/projectdiscovery/subfinder/cmd/subfinder
+	GO111MODULE=auto go get -u -v github.com/projectdiscovery/subfinder/cmd/subfinder
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing subjack.."

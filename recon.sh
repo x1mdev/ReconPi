@@ -81,7 +81,7 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "subfinder"
-	"$HOME"/go/bin/subfinder -d "$domain" -config "$HOME"/ReconPi/configs/config.yaml -o "$SUBS"/subfinder.txt
+	"$HOME"/go/bin/subfinder -d "$domain" -all -config "$HOME"/ReconPi/configs/config.yaml -o "$SUBS"/subfinder.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "assetfinder"

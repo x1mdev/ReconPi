@@ -1,49 +1,91 @@
 resolvers:
-  - 1.1.1.1
-  - 1.0.0.1
-  - 8.8.8.8
-  - 8.8.4.4
-  - 9.9.9.9
-  - 9.9.9.10
-  - 77.88.8.8
-  - 77.88.8.1
-  - 208.67.222.222
-  - 208.67.220.220
+    - 1.1.1.1
+    - 1.0.0.1
+    - 8.8.8.8
+    - 8.8.4.4
+    - 9.9.9.9
+    - 9.9.9.10
+    - 77.88.8.8
+    - 77.88.8.1
+    - 208.67.222.222
+    - 208.67.220.220
 sources:
-  - alienvault
-  - archiveis
-  - binaryedge
-  - bufferover
-  - censys
-  - certspotter
-  - certspotterold
-  - commoncrawl
-  - crtsh
-  - digicert
-  - dnsdumpster
-  - dnsdb
-  - entrust
-  - hackertarget
-  - ipv4info
-  - passivetotal
-  - rapiddns
-  - securitytrails
-  - shodan
-  - sitedossier
-  - sublist3r
-  - threatcrowd
-  - threatminer
-  - urlscan
-  - virustotal
-  - waybackarchive
-  - zoomeye
+    - alienvault
+    - binaryedge
+    - bufferover
+    - certspotter
+    - certspotterold
+    - censys
+    - chaos
+    - crtsh
+    - dnsdumpster
+    - hackertarget
+    - intelx
+    - ipv4info
+    - passivetotal
+    - securitytrails
+    - shodan
+    - spyse
+    - sublist3r
+    - threatcrowd
+    - threatminer
+    - virustotal
+all-sources:
+    - alienvault
+    - archiveis
+    - binaryedge
+    - bufferover
+    - censys
+    - certspotter
+    - certspotterold
+    - chaos
+    - commoncrawl
+    - crtsh
+    - dnsdumpster
+    - dnsdb
+    - entrust
+    - github
+    - hackertarget
+    - ipv4info
+    - intelx
+    - passivetotal
+    - rapiddns
+    - recon
+    - securitytrails
+    - shodan
+    - sitedossier
+    - spyse
+    - sublist3r
+    - threatcrowd
+    - threatminer
+    - virustotal
+    - waybackarchive
+    - zoomeye
+recursive:
+    - alienvault
+    - bufferover
+    - certspotter
+    - certspotterold
+    - crtsh
+    - dnsdumpster
+    - hackertarget
+    - ipv4info
+    - passivetotal
+    - securitytrails
+    - sublist3r
+    - virustotal
 binaryedge: []
 censys: []
 certspotter: []
+chaos: []
 dnsdb: []
+github: []
+intelx: []
 passivetotal: []
 securitytrails: []
 shodan: []
+spyse: []
 urlscan: []
 virustotal: []
 zoomeye: []
+subfinder-version: 2.4.0
