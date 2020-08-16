@@ -60,9 +60,8 @@ startFunction() {
 
 : 'Gather resolvers with bass'
 gatherResolvers() {
-	startFunction "bass (resolvers)"
-	cd "$HOME"/tools/bass || return
-	python3 bass.py -d "$domain" -o "$IPS"/resolvers.txt
+	startFunction "Get fresh working resolvers"
+	wget https://raw.githubusercontent.com/BBerastegui/fresh-dns-servers/master/resolvers.txt -O "$IPS"/resolvers.txt
 }
 
 : 'subdomain gathering'
@@ -80,7 +79,7 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "subfinder"
-	"$HOME"/go/bin/subfinder -d "$domain" -config "$HOME"/ReconPi/configs/config.yaml -o "$SUBS"/subfinder.txt
+	"$HOME"/go/bin/subfinder -d "$domain" -all -config "$HOME"/ReconPi/configs/config.yaml -o "$SUBS"/subfinder.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction "assetfinder"
@@ -132,11 +131,11 @@ gatherSubdomains() {
 	# fi
 
 	#echo -e "[$GREEN+$RESET] Resolving All Subdomains.."
-	#cat "$SUBS"/subdomains.txt | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
+	cat "$SUBS"/subdomains.txt | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
 	#rm "$SUBS"/subdomains.txt
 	# Get http and https hosts
 	echo -e "[$GREEN+$RESET] Getting alive hosts.."
-	cat "$SUBS"/subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
+	cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
 	echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -313,4 +312,4 @@ portScan
 #makePage
 notifySlack
 
-# Uncomment the functions 
+# Uncomment the functions
