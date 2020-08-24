@@ -242,9 +242,7 @@ startBruteForce() {
 : 'Check for Vulnerabilities'
 runNuclei() {
 	startFunction "Starting Nuclei Basic-detections"
-	nuclei -l "$SUBS"/hosts -t basic-detections/ -c 50 -o "$NUCLEISCAN"/basic-detections.txt
-	startFunction "Starting Nuclei Brute-force"
-	nuclei -l "$SUBS"/hosts -t brute-force/ -c 50 -o "$NUCLEISCAN"/brute-force.txt
+	nuclei -l "$SUBS"/hosts -t generic-detections/ -c 50 -o "$NUCLEISCAN"/generic-detections.txt
 	startFunction "Starting Nuclei CVEs Detection"
 	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
 	startFunction "Starting Nuclei dns check"
