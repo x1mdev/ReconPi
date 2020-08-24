@@ -78,6 +78,7 @@ CHAOS\_KEY=""
 ** Input your API keys in these files to get better results **
 
 Subfinder Config file path : $HOME/ReconPi/configs/config.yaml
+
 Amass Config file path : $HOME/ReconPi/configs/config.ini
 
 ## Scripts
