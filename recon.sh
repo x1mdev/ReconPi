@@ -190,11 +190,13 @@ portScan() {
 	echo -e "[$GREEN+$RESET] Port Scan finished"
 }
 
-: 'Use aquatone+chromium-browser to gather screenshots'
+: 'Use eyewitness to gather screenshots'
 gatherScreenshots() {
-	startFunction "aquatone"
-	"$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
-	echo -e "[$GREEN+$RESET] Aquatone finished"
+	startFunction "Starting Screenshot Gathering"
+# Bug in aquatone, once it gets fixed, will enable aquatone.
+#	"$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
+	python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
+	echo -e "[$GREEN+$RESET] Screenshot Gathering finished"
 }
 
 fetchArchive() {
@@ -262,7 +264,7 @@ runNuclei() {
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
-: 'Setup aquatone results one the ReconPi IP address'
+: 'Setup screenshot results on the target IP address'
 makePage() {
 	startFunction "HTML webpage"
 	cd /var/www/html/ || return
@@ -271,8 +273,8 @@ makePage() {
 	sudo chmod a+r -R /var/www/html/$domain/*
 	cd "$HOME" || return
 	echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
-	echo -e "[$GREEN+$RESET] The aquatone results page, nuclei results directory and the meg results directory are great starting points!"
-	echo -e "[$GREEN+$RESET] Aquatone results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)/$domain/screenshots/aquatone_report.html"
+	echo -e "[$GREEN+$RESET] The screenshot results page, nuclei results directory and the meg results directory are great starting points!"
+	echo -e "[$GREEN+$RESET] screenshot results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)/$domain/screenshots/report.html"
 }
 
 notifySlack() {

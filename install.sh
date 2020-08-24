@@ -394,6 +394,12 @@ additionalTools() {
 	echo -e "[$GREEN+$RESET] Installing Altdns.."
 	pip install py-altdns
 	echo -e "[$GREEN+$RESET] Done."
+
+	echo -e "[$GREEN+$RESET] Installing Eyewitness.."i
+	cd "$HOME"/tools/ || return
+	git clone https://github.com/FortyNorthSecurity/EyeWitness.git
+	sudo bash "$HOME"/tools/EyeWitness/Python/setup/setup.sh
+	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Dashboard setup'
