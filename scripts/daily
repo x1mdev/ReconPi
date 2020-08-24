@@ -1,0 +1,17 @@
+#!/bin/bash
+
+wget https://raw.githubusercontent.com/BBerastegui/fresh-dns-servers/master/resolvers.txt -O $HOME/assets/$1/ips/resolvers.txt
+
+amass enum -active -nf $HOME/assets/$1/subdomains/subdomains -d $1 -config $HOME/ReconPi/configs/config.ini -rf $HOME/assets/$1/ips/resolvers.txt -o $HOME/assets/$1/subdomains/amass_results.txt -dir $HOME/assets/$1/subdomains/regular_amass_scan -noalts
+
+RESULT=$(amass track -d $1 -config $HOME/ReconPi/configs/config.ini -last 2 -dir $HOME/assets/$1/subdomains/regular_amass_scan | grep Found | awk '{print $2}')
+
+FINAL_RESULT=$(while read -r d; do if grep --quiet "$d" $HOME/assets/$1/subdomains/subdomains; then continue; else echo "$d"; fi; done <<< $RESULT)
+
+if [[ -z "$FINAL_RESULT" ]]; then
+FINAL_RESULT="No new subdomains were found"
+else
+echo "$FINAL_RESULT" >> $HOME/assets/$1/subdomains/subdomains
+fi
+# SLACK_WEBHOOK_URL="https://hooks.slack.com/services/xxx/xxx/xxx"
+echo $FINAL_RESULT | slackcat -u $SLACK_WEBHOOK_URL

@@ -131,7 +131,7 @@ gatherSubdomains() {
 	# fi
 
 	#echo -e "[$GREEN+$RESET] Resolving All Subdomains.."
-	cat "$SUBS"/subdomains.txt | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
+	cat "$SUBS"/subdomains | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
 	#rm "$SUBS"/subdomains.txt
 	# Get http and https hosts
 	echo -e "[$GREEN+$RESET] Getting alive hosts.."
@@ -178,8 +178,8 @@ getCNAME() {
 : 'Gather IPs with dnsprobe'
 gatherIPs() {
 	startFunction "dnsprobe"
-	cat "$SUBS"/subdomains | dnsprobe -silent -f ip | tee "$IPS"/"$domain"-ips.txt
-	cat "$IPS"/"$domain"-ips.txt | cf-check -c 5 | sort -u > "$IPS"/"$domain"-origin-ips.txt
+	cat "$SUBS"/subdomains | dnsprobe -silent -f ip | sort -u | tee "$IPS"/"$domain"-ips.txt
+	python3 $HOME/ReconPi/scripts/clean_ips.py "$IPS"/"$domain"-ips.txt "$IPS"/"$domain"-origin-ips.txt
 	echo -e "[$GREEN+$RESET] Done."
 }
 
