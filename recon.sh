@@ -230,7 +230,7 @@ startMeg() {
 	cd "$SUBS" || return
 	meg -d 1000 -v /
 	mv out meg
-	cd /home/admin || return
+	cd "$HOME" || return
 }
 
 : 'Use gf to find secrets in meg file'
