@@ -17,6 +17,7 @@ SUBS="$RESULTDIR/subdomains"
 DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
 IPS="$RESULTDIR/ips"
+GFSCAN="$RESULTDIR/gfscan"
 PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
 VERSION="2.1"
@@ -48,7 +49,7 @@ checkDirectories() {
 	if [ ! -d "$RESULTDIR" ]; then
 		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
 		mkdir -p "$RESULTDIR"
-		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN"
+		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$GFSCAN"
 		#sudo mkdir -p /var/www/html/"$domain"
 	fi
 }
@@ -229,7 +230,19 @@ startMeg() {
 	cd "$SUBS" || return
 	meg -d 1000 -v /
 	mv out meg
-	cd "$HOME" || return
+	cd /home/admin || return
+}
+
+: 'Use gf to find secrets in meg file'
+startGfScan(){
+	startFunction "Gf scan in meg files"
+	cd "$SUBS"/meg
+	for i in `gf -list`; 
+	do
+		gf ${i} > "$GFSCAN"/"${i}".txt
+		[[ -s "$GFSCAN"/"${i}".txt ]] || rm "$GFSCAN"/"${i}".txt	
+	done
+	cd -
 }
 
 : 'directory brute-force'
@@ -305,6 +318,7 @@ getCNAME
 gatherIPs
 gatherScreenshots
 startMeg
+startGfScan
 #fetchArchive
 #fetchEndpoints
 runNuclei
