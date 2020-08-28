@@ -107,7 +107,7 @@ gatherSubdomains() {
 	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
-	startFunction  rapiddns"
+	startFunction  rapiddns
 	curl -s "https://rapiddns.io/subdomain/$domain?full=1" | grep -oP '_blank">\K[^<]*' | grep -v http | sort -u | tee "$SUBS"/rapiddns_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
@@ -185,14 +185,14 @@ gatherIPs() {
 
 : 'Portscan on found IP addresses'
 portScan() {
-	startFunction  Port Scan"
+	startFunction  "Port Scan"
 	cat "$IPS"/"$domain"-origin-ips.txt | naabu -silent | bash "$HOME"/tools/naabu2nmap.sh | tee "$PORTSCAN"/"$domain".nmap
 	echo -e "[$GREEN+$RESET] Port Scan finished"
 }
 
 : 'Use eyewitness to gather screenshots'
 gatherScreenshots() {
-	startFunction  Screenshot Gathering"
+	startFunction  "Screenshot Gathering"
 # Bug in aquatone, once it gets fixed, will enable aquatone.
 #	"$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
 	python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
@@ -241,7 +241,7 @@ startBruteForce() {
 }
 : 'Check for Vulnerabilities'
 runNuclei() {
-	startFunction  Nuclei Basic-detections"
+	startFunction  "Nuclei Basic-detections"
 	nuclei -l "$SUBS"/hosts -t generic-detections/ -c 50 -o "$NUCLEISCAN"/generic-detections.txt
 	startFunction  Nuclei CVEs Detection"
 	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
