@@ -243,21 +243,21 @@ startBruteForce() {
 runNuclei() {
 	startFunction  "Nuclei Basic-detections"
 	nuclei -l "$SUBS"/hosts -t generic-detections/ -c 50 -o "$NUCLEISCAN"/generic-detections.txt
-	startFunction  Nuclei CVEs Detection"
+	startFunction  "Nuclei CVEs Detection"
 	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
-	startFunction  Nuclei dns check"
+	startFunction  "Nuclei dns check"
 	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
-	startFunction  Nuclei files check"
+	startFunction  "Nuclei files check"
 	nuclei -l "$SUBS"/hosts -t files/ -c 50 -o "$NUCLEISCAN"/files.txt
-	startFunction  Nuclei Panels Check"
+	startFunction  "Nuclei Panels Check"
 	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
-	startFunction  Nuclei Security-misconfiguration Check"
+	startFunction  "Nuclei Security-misconfiguration Check"
 	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
-	startFunction  Nuclei Technologies Check"
+	startFunction  "Nuclei Technologies Check"
 	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
-	startFunction  Nuclei Tokens Check"
+	startFunction  "Nuclei Tokens Check"
 	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
-	startFunction  Nuclei Vulnerabilties Check"
+	startFunction  "Nuclei Vulnerabilties Check"
 	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
