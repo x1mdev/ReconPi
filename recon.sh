@@ -205,7 +205,7 @@ fetchArchive() {
 
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | unfurl --unique keys > "$ARCHIVE"/paramlist.txt
 
-	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.js(\?|$)" | httpx -mc 200 | sort -u > "$ARCHIVE"/jsurls.txt
+	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.js(\?|$)" | httpx -status-code -mc 200 | sort -u > "$ARCHIVE"/jsurls.txt
 
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.php(\?|$) | sort -u " > "$ARCHIVE"/phpurls.txt
 
