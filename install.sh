@@ -172,10 +172,6 @@ golangTools() {
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/shuffledns/cmd/shuffledns
 	echo -e "[$GREEN+$RESET] Done."
 
-	echo -e "[$GREEN+$RESET] Installing dalfox.."
-	GO111MODULE=on go get -u -v github.com/hahwul/dalfox
-	echo -e "[$GREEN+$RESET] Done."
-
 	echo -e "[$GREEN+$RESET] Installing dnsprobe.."
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe
 	echo -e "[$GREEN+$RESET] Done."

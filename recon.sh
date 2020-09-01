@@ -107,7 +107,7 @@ gatherSubdomains() {
 	python3 "$HOME"/tools/github-subdomains.py -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
-	startFunction "Starting rapiddns"
+	startFunction  rapiddns
 	curl -s "https://rapiddns.io/subdomain/$domain?full=1" | grep -oP '_blank">\K[^<]*' | grep -v http | sort -u | tee "$SUBS"/rapiddns_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
@@ -185,14 +185,14 @@ gatherIPs() {
 
 : 'Portscan on found IP addresses'
 portScan() {
-	startFunction "Starting Port Scan"
+	startFunction  "Port Scan"
 	cat "$IPS"/"$domain"-origin-ips.txt | naabu -silent | bash "$HOME"/tools/naabu2nmap.sh | tee "$PORTSCAN"/"$domain".nmap
 	echo -e "[$GREEN+$RESET] Port Scan finished"
 }
 
 : 'Use eyewitness to gather screenshots'
 gatherScreenshots() {
-	startFunction "Starting Screenshot Gathering"
+	startFunction  "Screenshot Gathering"
 # Bug in aquatone, once it gets fixed, will enable aquatone.
 #	"$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
 	python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
@@ -241,23 +241,23 @@ startBruteForce() {
 }
 : 'Check for Vulnerabilities'
 runNuclei() {
-	startFunction "Starting Nuclei Basic-detections"
+	startFunction  "Nuclei Basic-detections"
 	nuclei -l "$SUBS"/hosts -t generic-detections/ -c 50 -o "$NUCLEISCAN"/generic-detections.txt
-	startFunction "Starting Nuclei CVEs Detection"
+	startFunction  "Nuclei CVEs Detection"
 	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
-	startFunction "Starting Nuclei dns check"
+	startFunction  "Nuclei dns check"
 	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
-	startFunction "Starting Nuclei files check"
+	startFunction  "Nuclei files check"
 	nuclei -l "$SUBS"/hosts -t files/ -c 50 -o "$NUCLEISCAN"/files.txt
-	startFunction "Starting Nuclei Panels Check"
+	startFunction  "Nuclei Panels Check"
 	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
-	startFunction "Starting Nuclei Security-misconfiguration Check"
+	startFunction  "Nuclei Security-misconfiguration Check"
 	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
-	startFunction "Starting Nuclei Technologies Check"
+	startFunction  "Nuclei Technologies Check"
 	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
-	startFunction "Starting Nuclei Tokens Check"
+	startFunction  "Nuclei Tokens Check"
 	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
-	startFunction "Starting Nuclei Vulnerabilties Check"
+	startFunction  "Nuclei Vulnerabilties Check"
 	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
@@ -271,7 +271,7 @@ makePage() {
 	sudo chmod a+r -R /var/www/html/$domain/*
 	cd "$HOME" || return
 	echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
-	echo -e "[$GREEN+$RESET] The screenshot results page, nuclei results directory and the meg results directory are great starting points!"
+	echo -e "[$GREEN+$RESET] The screenshot results page, nuclei results directory and the meg results directory are great points!"
 	echo -e "[$GREEN+$RESET] screenshot results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)/$domain/screenshots/report.html"
 }
 

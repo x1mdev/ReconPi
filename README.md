@@ -78,7 +78,14 @@ CHAOS\_KEY=""
 ** Input your API keys in these files to get better results **
 
 Subfinder Config file path : $HOME/ReconPi/configs/config.yaml
+
 Amass Config file path : $HOME/ReconPi/configs/config.ini
+
+## Scripts
+
+- Script folder contains a script named **daily** which can be used as a cronjob to run subdomain enumeration automatically.
+
+- Methodology is to take already enumerated subdomains as input and use amass on top of them, then track their last 2 result, and alert new subdomains on slack.
 
 ## Tools
 
