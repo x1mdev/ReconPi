@@ -193,9 +193,12 @@ portScan() {
 : 'Use eyewitness to gather screenshots'
 gatherScreenshots() {
 	startFunction  "Screenshot Gathering"
-# Bug in aquatone, once it gets fixed, will enable aquatone.
-#	"$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
-	python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
+# Bug in aquatone, once it gets fixed, will enable aquatone on x86 also.
+	if [[ "$arch" == "x86_64" ]]; then
+        python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
+    else
+        "$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
+    fi
 	echo -e "[$GREEN+$RESET] Screenshot Gathering finished"
 }
 
