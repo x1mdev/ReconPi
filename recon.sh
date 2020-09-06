@@ -156,7 +156,7 @@ checkTakeovers() {
 	fi
 
 	startFunction "nuclei to check takeover"
-	cat "$SUBS"/hosts | nuclei -t "$HOME"/tools/nuclei-templates/subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
+	cat "$SUBS"/hosts | nuclei -t subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
 	vulnto=$(cat "$SUBS"/nuclei-takeover-checks.txt)
 	if [[ $vulnto != "" ]]; then
 		echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
