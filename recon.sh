@@ -193,6 +193,7 @@ portScan() {
 gatherScreenshots() {
 	startFunction  "Screenshot Gathering"
 # Bug in aquatone, once it gets fixed, will enable aquatone on x86 also.
+	arch=`uname -m`
 	if [[ "$arch" == "x86_64" ]]; then
         python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
     else
