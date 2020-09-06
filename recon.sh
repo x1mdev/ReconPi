@@ -58,10 +58,10 @@ startFunction() {
 	echo -e "[$GREEN+$RESET] Starting $tool"
 }
 
-: 'Gather resolvers with bass'
+: 'Gather resolvers'
 gatherResolvers() {
 	startFunction "Get fresh working resolvers"
-	wget https://raw.githubusercontent.com/BBerastegui/fresh-dns-servers/master/resolvers.txt -O "$IPS"/resolvers.txt
+	wget https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt -O "$IPS"/resolvers.txt
 }
 
 : 'subdomain gathering'
