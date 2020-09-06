@@ -58,10 +58,10 @@ startFunction() {
 	echo -e "[$GREEN+$RESET] Starting $tool"
 }
 
-: 'Gather resolvers with bass'
+: 'Gather resolvers'
 gatherResolvers() {
 	startFunction "Get fresh working resolvers"
-	wget https://raw.githubusercontent.com/BBerastegui/fresh-dns-servers/master/resolvers.txt -O "$IPS"/resolvers.txt
+	wget https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt -O "$IPS"/resolvers.txt
 }
 
 : 'subdomain gathering'
@@ -193,9 +193,12 @@ portScan() {
 : 'Use eyewitness to gather screenshots'
 gatherScreenshots() {
 	startFunction  "Screenshot Gathering"
-# Bug in aquatone, once it gets fixed, will enable aquatone.
-#	"$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
-	python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
+# Bug in aquatone, once it gets fixed, will enable aquatone on x86 also.
+	if [[ "$arch" == "x86_64" ]]; then
+        python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
+    else
+        "$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
+    fi
 	echo -e "[$GREEN+$RESET] Screenshot Gathering finished"
 }
 
