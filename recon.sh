@@ -46,12 +46,10 @@ __________                          __________.__
 	}
 
 checkDirectories() {
-	if [ ! -d "$RESULTDIR" ]; then
 		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
 		mkdir -p "$RESULTDIR"
 		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$GFSCAN"
 		#sudo mkdir -p /var/www/html/"$domain"
-	fi
 }
 
 startFunction() {
