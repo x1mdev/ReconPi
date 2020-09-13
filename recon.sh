@@ -106,7 +106,7 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	startFunction  rapiddns
-	curl -s "https://rapiddns.io/subdomain/$domain?full=1" | grep -oP '_blank">\K[^<]*' | grep -v http | sort -u | tee "$SUBS"/rapiddns_subdomains.txt
+	crobat -s "$domain" | sort -u | tee "$SUBS"/rapiddns_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
