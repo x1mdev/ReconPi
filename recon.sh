@@ -269,7 +269,8 @@ makePage() {
 
 notifySlack() {
 	startFunction "Trigger Slack Notification"
-	source "$HOME"/ReconPi/configs/tokens.txt || return
+	source "$HOME"/ReconPi/configs/tokens.txt
+	export SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL"
 	echo -e "ReconPi $domain scan completed!" | slackcat
 	totalsum=$(cat $SUBS/hosts | wc -l)
 	echo -e "$totalsum live subdomain hosts discovered" | slackcat
@@ -302,7 +303,7 @@ notifySlack() {
 : 'Execute the main functions'
 
 source "$HOME"/ReconPi/configs/tokens.txt || return
-#export SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL"
+export SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL"
 
 displayLogo
 checkArguments
