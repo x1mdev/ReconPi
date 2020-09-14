@@ -1,6 +1,7 @@
 github_subdomains_token=""
-slack_url=""
+SLACK_WEBHOOK_URL="https://hooks.slack.com/services/xxx/xxx/xxx"
 findomain_spyse_token=""
 findomain_virustotal_token=""
 findomain_securitytrails_token=""
 CHAOS_KEY=""
+hackerhandle="reconpi"

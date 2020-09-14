@@ -45,9 +45,9 @@ __________                          __________.__
 		sudo apt install -y lua5.1 alsa-utils libpq5
 		sudo apt-get autoremove -y
 		sudo apt clean
-		echo -e "[$GREEN+$RESET] Stopping Docker service.."
-		sudo systemctl disable docker.service
-		sudo systemctl disable docker.socket
+		#echo -e "[$GREEN+$RESET] Stopping Docker service.."
+		#sudo systemctl disable docker.service
+		#sudo systemctl disable docker.socket
 		echo -e "[$GREEN+$RESET] Creating directories.."
 		mkdir -p "$HOME"/tools
 		mkdir -p "$HOME"/go
@@ -206,6 +206,10 @@ golangTools() {
 	
 	echo -e "[$GREEN+$RESET] Installing crobat"
 	go get -u github.com/cgboal/sonarsearch/crobat
+	echo -e "[$GREEN+$RESET] Done."
+
+	echo -e "[$GREEN+$RESET] Installing slackcat"
+	go get -u github.com/dwisiswant0/slackcat
 	echo -e "[$GREEN+$RESET] Done."
 }
 

@@ -257,23 +257,25 @@ startBruteForce() {
 : 'Check for Vulnerabilities'
 runNuclei() {
 	startFunction  "Nuclei Basic-detections"
-	nuclei -l "$SUBS"/hosts -t generic-detections/ -c 50 -o "$NUCLEISCAN"/generic-detections.txt
+	nuclei -l "$SUBS"/hosts -t generic-detections/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/generic-detections.txt
 	startFunction  "Nuclei CVEs Detection"
-	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
+	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/cve.txt
+	startFunction  "Nuclei default-creds Check"
+	nuclei -l "$SUBS"/hosts -t default-credentials/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/default-creds.txt
 	startFunction  "Nuclei dns check"
-	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
+	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/dns.txt
 	startFunction  "Nuclei files check"
-	nuclei -l "$SUBS"/hosts -t files/ -c 50 -o "$NUCLEISCAN"/files.txt
+	nuclei -l "$SUBS"/hosts -t files/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/files.txt
 	startFunction  "Nuclei Panels Check"
-	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
+	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/panels.txt
 	startFunction  "Nuclei Security-misconfiguration Check"
-	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
+	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/security-misconfiguration.txt
 	startFunction  "Nuclei Technologies Check"
-	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
+	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/technologies.txt
 	startFunction  "Nuclei Tokens Check"
-	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
+	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/tokens.txt
 	startFunction  "Nuclei Vulnerabilties Check"
-	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
+	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/vulnerabilties.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
@@ -294,15 +296,37 @@ notifySlack() {
 	startFunction "Trigger Slack Notification"
 	takeover="$(cat $SUBS/takeovers | wc -l)"
 	totalsum=$(cat $SUBS/hosts | wc -l)
-  	intfiles=$(cat $NUCLEISCAN/*.txt | wc -l)
-	nucleiCveScan="$(cat $NUCLEISCAN/cve.txt)"
-	nucleiFileScan="$(cat $NUCLEISCAN/files.txt)"
+  	# intfiles=$(cat $NUCLEISCAN/*.txt | wc -l)
+	# nucleiCveScan="$(cat $NUCLEISCAN/cve.txt)"
+	# nucleiFileScan="$(cat $NUCLEISCAN/files.txt)"
 
-	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$totalsum' live hosts for '$domain'"}' $slack_url 2 > /dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$intfiles' interesting files using nuclei"}' $slack_url 2 > /dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$takeover' subdomain takeovers on '$domain'"}' $slack_url 2 > /dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'CVEs found for $domain: \n $nucleiCveScan'}" $slack_url 2>/dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'Files for $domain: \n $nucleiFileScan'}" $slack_url 2>/dev/null
+	#curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$totalsum' live hosts for '$domain'"}' $slack_url 2 > /dev/null
+	#curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$intfiles' interesting files using nuclei"}' $slack_url 2 > /dev/null
+	#curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$takeover' subdomain takeovers on '$domain'"}' $slack_url 2 > /dev/null
+	#curl -s -X POST -H 'Content-type: application/json' --data "{'text':'CVEs found for $domain: \n $nucleiCveScan'}" $slack_url 2>/dev/null
+	#curl -s -X POST -H 'Content-type: application/json' --data "{'text':'Files for $domain: \n $nucleiFileScan'}" $slack_url 2>/dev/null
+	echo -e "'$totalsum' live hosts discovered for '$domain'" | slackcat
+	echo -e "'$takeover' subdomain takeovers discovered on '$domain'" | slackcat
+
+
+	if [ -f "$NUCLEISCAN/cve.txt" ]; then
+    cat "$NUCLEISCAN/cve.txt" | slackcat
+		else 
+    echo -e "No CVE's discovered for '$domain'" | slackcat
+	fi
+
+	if [ -f "$NUCLEISCAN/files.txt" ]; then
+    cat "$NUCLEISCAN/files.txt" | slackcat
+		else 
+    echo -e "No files discovered for '$domain'" | slackcat
+	fi
+
+	# if [ -f "$NUCLEISCAN/files.txt" ]; then
+    # cat "$NUCLEISCAN/files.txt" | slackcat
+	# 	else 
+    # echo -e "No files discovered for '$domain'" | slackcat
+	# fi
+	
 	echo -e "[$GREEN+$RESET] Done."
 }
 
