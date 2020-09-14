@@ -20,7 +20,7 @@ IPS="$RESULTDIR/ips"
 GFSCAN="$RESULTDIR/gfscan"
 PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
-VERSION="2.1"
+VERSION="2.2"
 NUCLEISCAN="$RESULTDIR/nucleiscan"
 
 
@@ -49,7 +49,6 @@ checkDirectories() {
 		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
 		mkdir -p "$RESULTDIR"
 		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$GFSCAN"
-		#sudo mkdir -p /var/www/html/"$domain"
 }
 
 startFunction() {
@@ -113,26 +112,7 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
 	echo -e "[$GREEN+$RESET] Resolving subdomains.."
-	#cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/all_subdomains.txt
-	# rm "$SUBS"/subdomains
-
-	#all_subdomains="$(wc -l<"$SUBS"/all_subdomains.txt)"
-
-	#If total alive subdomains are less than 500, run dnsgen otherwise altdns, this is done to keep script efficient.
-	# if [ "$all_subdomains" -lt 500 ]; then
-	# echo -e "[$GREEN+$RESET] Running dnsgen to mutate subdomains and resolving them.."
-	# # cat "$SUBS"/all_subdomains.txt | dnsgen - | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
-	# # cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/all_subdomains.txt
-	# else
-	# echo -e "[$GREEN+$RESET] Running altdns to mutate subdomains and resolving them.."
-	# altdns -i "$SUBS"/all_subdomains.txt -w "$HOME"/ReconPi/wordlists/words_permutation.txt -o "$SUBS"/altdns.txt
-	# cat "$SUBS"/altdns.txt | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt >> "$SUBS"/all_subdomains.txt
-	# fi
-
-	#echo -e "[$GREEN+$RESET] Resolving All Subdomains.."
 	cat "$SUBS"/subdomains | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
-	#rm "$SUBS"/subdomains.txt
-	# Get http and https hosts
 	echo -e "[$GREEN+$RESET] Getting alive hosts.."
 	cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
 	echo -e "[$GREEN+$RESET] Done."
@@ -184,14 +164,14 @@ gatherIPs() {
 
 : 'Portscan on found IP addresses'
 portScan() {
-	startFunction  "Port Scan"
+	startFunction "Port Scan"
 	cat "$IPS"/"$domain"-origin-ips.txt | naabu -silent | bash "$HOME"/tools/naabu2nmap.sh | tee "$PORTSCAN"/"$domain".nmap
 	echo -e "[$GREEN+$RESET] Port Scan finished"
 }
 
 : 'Use eyewitness to gather screenshots'
 gatherScreenshots() {
-	startFunction  "Screenshot Gathering"
+	startFunction "Screenshot Gathering"
 # Bug in aquatone, once it gets fixed, will enable aquatone on x86 also.
 	arch=`uname -m`
 	if [[ "$arch" == "x86_64" ]]; then
@@ -205,15 +185,10 @@ gatherScreenshots() {
 fetchArchive() {
 	startFunction "fetchArchive"
 	cat "$SUBS"/hosts | sed 's/https\?:\/\///' | gau > "$ARCHIVE"/getallurls.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | unfurl --unique keys > "$ARCHIVE"/paramlist.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.js(\?|$)" | httpx -silent -status-code -mc 200 | awk '{print $1}' | sort -u > "$ARCHIVE"/jsurls.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.php(\?|$) | httpx -silent -status-code -mc 200 | awk '{print $1}' | sort -u " > "$ARCHIVE"/phpurls.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.aspx(\?|$) | httpx -silent -status-code -mc 200 | awk '{print $1}' | sort -u " > "$ARCHIVE"/aspxurls.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | httpx -silent -status-code -mc 200 | awk '{print $1}' | sort -u " > "$ARCHIVE"/jspurls.txt
 	echo -e "[$GREEN+$RESET] fetchArchive finished"
 }
@@ -294,39 +269,32 @@ makePage() {
 
 notifySlack() {
 	startFunction "Trigger Slack Notification"
-	takeover="$(cat $SUBS/takeovers | wc -l)"
+	echo -e "ReconPi $domain scan completed!"
 	totalsum=$(cat $SUBS/hosts | wc -l)
-  	# intfiles=$(cat $NUCLEISCAN/*.txt | wc -l)
-	# nucleiCveScan="$(cat $NUCLEISCAN/cve.txt)"
-	# nucleiFileScan="$(cat $NUCLEISCAN/files.txt)"
+	echo -e "$totalsum live subdomain hosts discovered" | slackcat
 
-	#curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$totalsum' live hosts for '$domain'"}' $slack_url 2 > /dev/null
-	#curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$intfiles' interesting files using nuclei"}' $slack_url 2 > /dev/null
-	#curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$takeover' subdomain takeovers on '$domain'"}' $slack_url 2 > /dev/null
-	#curl -s -X POST -H 'Content-type: application/json' --data "{'text':'CVEs found for $domain: \n $nucleiCveScan'}" $slack_url 2>/dev/null
-	#curl -s -X POST -H 'Content-type: application/json' --data "{'text':'Files for $domain: \n $nucleiFileScan'}" $slack_url 2>/dev/null
-	echo -e "'$totalsum' live hosts discovered for '$domain'" | slackcat
-	echo -e "'$takeover' subdomain takeovers discovered on '$domain'" | slackcat
-
+	posibbletko="$(cat $SUBS/takeovers | wc -l)"
+	if [ -s "$SUBS/takeovers" ]
+		then
+        echo -e "Found $posibbletko possible subdomain takeovers." | slackcat
+	else
+        echo "No subdomain takeovers found." | slackcat
+	fi
 
 	if [ -f "$NUCLEISCAN/cve.txt" ]; then
+	echo "CVE's discovered:" | slackcat
     cat "$NUCLEISCAN/cve.txt" | slackcat
 		else 
-    echo -e "No CVE's discovered for '$domain'" | slackcat
+    echo -e "No CVE's discovered:" | slackcat
 	fi
 
 	if [ -f "$NUCLEISCAN/files.txt" ]; then
+	echo "files discovered:" | slackcat
     cat "$NUCLEISCAN/files.txt" | slackcat
 		else 
-    echo -e "No files discovered for '$domain'" | slackcat
+    echo -e "No files discovered." | slackcat
 	fi
 
-	# if [ -f "$NUCLEISCAN/files.txt" ]; then
-    # cat "$NUCLEISCAN/files.txt" | slackcat
-	# 	else 
-    # echo -e "No files discovered for '$domain'" | slackcat
-	# fi
-	
 	echo -e "[$GREEN+$RESET] Done."
 }
 

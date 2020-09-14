@@ -9,7 +9,7 @@
 YELLOW="\033[133m"
 GREEN="\033[032m"
 RESET="\033[0m"
-VERSION="2.1"
+VERSION="2.2"
 
 : 'Display the logo'
 displayLogo() {
@@ -412,9 +412,6 @@ setupDashboard() {
 	sudo apt-get install -y nginx
 	sudo nginx -t
 	echo -e "[$GREEN+$RESET] Done."
-	cd /var/www/html/ || return
-	sudo chmod -R 755 .
-	# setup index.html??
 }
 
 : 'Finalize'
