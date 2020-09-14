@@ -269,7 +269,8 @@ makePage() {
 
 notifySlack() {
 	startFunction "Trigger Slack Notification"
-	echo -e "ReconPi $domain scan completed!"
+	source "$HOME"/ReconPi/configs/tokens.txt || return
+	echo -e "ReconPi $domain scan completed!" | slackcat
 	totalsum=$(cat $SUBS/hosts | wc -l)
 	echo -e "$totalsum live subdomain hosts discovered" | slackcat
 
@@ -285,7 +286,7 @@ notifySlack() {
 	echo "CVE's discovered:" | slackcat
     cat "$NUCLEISCAN/cve.txt" | slackcat
 		else 
-    echo -e "No CVE's discovered:" | slackcat
+    echo -e "No CVE's discovered." | slackcat
 	fi
 
 	if [ -f "$NUCLEISCAN/files.txt" ]; then
@@ -301,6 +302,7 @@ notifySlack() {
 : 'Execute the main functions'
 
 source "$HOME"/ReconPi/configs/tokens.txt || return
+#export SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL"
 
 displayLogo
 checkArguments
