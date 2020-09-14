@@ -204,8 +204,8 @@ golangTools() {
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/httpx/cmd/httpx
 	echo -e "[$GREEN+$RESET] Done."
 	
-	echo -e "[$GREEN+$RESET] Installing httpx"
-	go get github.com/cgboal/sonarsearch/crobat
+	echo -e "[$GREEN+$RESET] Installing crobat"
+	go get -u github.com/cgboal/sonarsearch/crobat
 	echo -e "[$GREEN+$RESET] Done."
 }
 
