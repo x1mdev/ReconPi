@@ -8,16 +8,16 @@ __________                          __________.__
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
                             
-			v2.1 - @x1m_martijn 
+			v2.2 - @x1m_martijn 
 ```
 
 ReconPi - A lightweight recon tool that performs extensive reconnaissance with the latest tools using a Raspberry Pi.
 
 Start using that Raspberry Pi -- I know you all have one laying around somewhere ;)
 
-> Version 2.1 is now also usable on your VPS, thanks to [Sachin Grover](https://github.com/mavericknerd) for putting in a lot of work.
+> Since version 2.1 ReconPi is usable on your VPS, thanks to [Sachin Grover](https://github.com/mavericknerd) for putting in a lot of work.
 
-The latest [HypriotOS](https://blog.hypriot.com/downloads/) image works perfect!
+The latest [HypriotOS](https://blog.hypriot.com/downloads/) image works perfect for Raspberry Pi's!
 
 ### Easy installation
 
@@ -53,6 +53,8 @@ $ recon <domain.tld>
 
 `recon.sh` will first gather resolvers for the given target, followed by subdomain enumeration and checking those assets for potential subdomain takeover. When this is done the IP addresses of the target are enumerated. Open ports will be discovered accompanied by a service scan provided by Nmap.
 
+[Nuclei](https://github) and its templates have been implemented in the routine!
+
 Finally the live targets will be screenshotted and evaluated to discover endpoints.
 
 Results will be stored on the Recon Pi and can be viewed by running `python -m SimpleHTTPServer 1337" in your results directory. Your results will be accessible from any system with a browser that exists in the same network. 
@@ -61,17 +63,15 @@ Make sure to add your SLACK token to the tokens.txt file if you want to get slac
 
 ## Sample Token.txt ($HOME/ReconPi/configs/tokens.txt)
 
-github\_subdomains\_token=""
-
-slack\_url=""
-
-findomain\_spyse\_token=""
-
-findomain\_virustotal\_token=""
-
-findomain\_securitytrails\_token=""
-
-CHAOS\_KEY=""
+```
+github_subdomains_token=""
+SLACK_WEBHOOK_URL="https://hooks.slack.com/services/xxx/xxx/xxx"
+findomain_spyse_token=""
+findomain_virustotal_token=""
+findomain_securitytrails_token=""
+CHAOS_KEY=""
+hackerhandle="reconpi"
+```
 
 ## Config Files
 
@@ -80,6 +80,8 @@ CHAOS\_KEY=""
 Subfinder Config file path : $HOME/ReconPi/configs/config.yaml
 
 Amass Config file path : $HOME/ReconPi/configs/config.ini
+
+We have added a `$hackerhandle` which is used in the nuclei scans. An additional `x-bug-bounty: reconpi` header will be added, please update this with your own handle :) 
 
 ## Scripts
 

@@ -9,7 +9,7 @@
 YELLOW="\033[133m"
 GREEN="\033[032m"
 RESET="\033[0m"
-VERSION="2.1"
+VERSION="2.2"
 
 : 'Display the logo'
 displayLogo() {
@@ -45,9 +45,9 @@ __________                          __________.__
 		sudo apt install -y lua5.1 alsa-utils libpq5
 		sudo apt-get autoremove -y
 		sudo apt clean
-		echo -e "[$GREEN+$RESET] Stopping Docker service.."
-		sudo systemctl disable docker.service
-		sudo systemctl disable docker.socket
+		#echo -e "[$GREEN+$RESET] Stopping Docker service.."
+		#sudo systemctl disable docker.service
+		#sudo systemctl disable docker.socket
 		echo -e "[$GREEN+$RESET] Creating directories.."
 		mkdir -p "$HOME"/tools
 		mkdir -p "$HOME"/go
@@ -204,8 +204,12 @@ golangTools() {
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/httpx/cmd/httpx
 	echo -e "[$GREEN+$RESET] Done."
 	
-	echo -e "[$GREEN+$RESET] Installing httpx"
-	go get github.com/cgboal/sonarsearch/crobat
+	echo -e "[$GREEN+$RESET] Installing crobat"
+	go get -u github.com/cgboal/sonarsearch/crobat
+	echo -e "[$GREEN+$RESET] Done."
+
+	echo -e "[$GREEN+$RESET] Installing slackcat"
+	go get -u github.com/dwisiswant0/slackcat
 	echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -399,9 +403,6 @@ setupDashboard() {
 	sudo apt-get install -y nginx
 	sudo nginx -t
 	echo -e "[$GREEN+$RESET] Done."
-	cd /var/www/html/ || return
-	sudo chmod -R 755 .
-	# setup index.html??
 }
 
 : 'Finalize'

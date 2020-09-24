@@ -17,9 +17,10 @@ SUBS="$RESULTDIR/subdomains"
 DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
 IPS="$RESULTDIR/ips"
+GFSCAN="$RESULTDIR/gfscan"
 PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
-VERSION="2.1"
+VERSION="2.2"
 NUCLEISCAN="$RESULTDIR/nucleiscan"
 
 
@@ -47,8 +48,7 @@ __________                          __________.__
 checkDirectories() {
 		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
 		mkdir -p "$RESULTDIR"
-		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN"
-		#sudo mkdir -p /var/www/html/"$domain"
+		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$GFSCAN"
 }
 
 startFunction() {
@@ -112,26 +112,7 @@ gatherSubdomains() {
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
 	echo -e "[$GREEN+$RESET] Resolving subdomains.."
-	#cat "$SUBS"/subdomains | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/all_subdomains.txt
-	# rm "$SUBS"/subdomains
-
-	#all_subdomains="$(wc -l<"$SUBS"/all_subdomains.txt)"
-
-	#If total alive subdomains are less than 500, run dnsgen otherwise altdns, this is done to keep script efficient.
-	# if [ "$all_subdomains" -lt 500 ]; then
-	# echo -e "[$GREEN+$RESET] Running dnsgen to mutate subdomains and resolving them.."
-	# # cat "$SUBS"/all_subdomains.txt | dnsgen - | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt -o "$SUBS"/dnsgen.txt
-	# # cat "$SUBS"/dnsgen.txt | sort -u >> "$SUBS"/all_subdomains.txt
-	# else
-	# echo -e "[$GREEN+$RESET] Running altdns to mutate subdomains and resolving them.."
-	# altdns -i "$SUBS"/all_subdomains.txt -w "$HOME"/ReconPi/wordlists/words_permutation.txt -o "$SUBS"/altdns.txt
-	# cat "$SUBS"/altdns.txt | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt >> "$SUBS"/all_subdomains.txt
-	# fi
-
-	#echo -e "[$GREEN+$RESET] Resolving All Subdomains.."
 	cat "$SUBS"/subdomains | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
-	#rm "$SUBS"/subdomains.txt
-	# Get http and https hosts
 	echo -e "[$GREEN+$RESET] Getting alive hosts.."
 	cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
 	echo -e "[$GREEN+$RESET] Done."
@@ -155,7 +136,7 @@ checkTakeovers() {
 	fi
 
 	startFunction "nuclei to check takeover"
-	cat "$SUBS"/hosts | nuclei -t "$HOME"/tools/nuclei-templates/subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
+	cat "$SUBS"/hosts | nuclei -t subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
 	vulnto=$(cat "$SUBS"/nuclei-takeover-checks.txt)
 	if [[ $vulnto != "" ]]; then
 		echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
@@ -191,8 +172,9 @@ portScan() {
 
 : 'Use eyewitness to gather screenshots'
 gatherScreenshots() {
-	startFunction  "Screenshot Gathering"
+	startFunction "Screenshot Gathering"
 # Bug in aquatone, once it gets fixed, will enable aquatone on x86 also.
+	arch=`uname -m`
 	if [[ "$arch" == "x86_64" ]]; then
         python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
     else
@@ -204,15 +186,10 @@ gatherScreenshots() {
 fetchArchive() {
 	startFunction "fetchArchive"
 	cat "$SUBS"/hosts | sed 's/https\?:\/\///' | gau > "$ARCHIVE"/getallurls.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | unfurl --unique keys > "$ARCHIVE"/paramlist.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.js(\?|$)" | httpx -silent -status-code -mc 200 | awk '{print $1}' | sort -u > "$ARCHIVE"/jsurls.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.php(\?|$) | httpx -silent -status-code -mc 200 | awk '{print $1}' | sort -u " > "$ARCHIVE"/phpurls.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.aspx(\?|$) | httpx -silent -status-code -mc 200 | awk '{print $1}' | sort -u " > "$ARCHIVE"/aspxurls.txt
-
 	cat "$ARCHIVE"/getallurls.txt  | sort -u | grep -P "\w+\.jsp(\?|$) | httpx -silent -status-code -mc 200 | awk '{print $1}' | sort -u " > "$ARCHIVE"/jspurls.txt
 	echo -e "[$GREEN+$RESET] fetchArchive finished"
 }
@@ -234,6 +211,18 @@ startMeg() {
 	cd "$HOME" || return
 }
 
+: 'Use gf to find secrets in meg file'
+startGfScan(){
+	startFunction "Gf scan in meg files"
+	cd "$SUBS"/meg
+	for i in `gf -list`; 
+	do
+		gf ${i} > "$GFSCAN"/"${i}".txt
+		[[ -s "$GFSCAN"/"${i}".txt ]] || rm "$GFSCAN"/"${i}".txt	
+	done
+	cd -
+}
+
 : 'directory brute-force'
 startBruteForce() {
 	startFunction "directory brute-force"
@@ -244,23 +233,25 @@ startBruteForce() {
 : 'Check for Vulnerabilities'
 runNuclei() {
 	startFunction  "Nuclei Basic-detections"
-	nuclei -l "$SUBS"/hosts -t generic-detections/ -c 50 -o "$NUCLEISCAN"/generic-detections.txt
+	nuclei -l "$SUBS"/hosts -t generic-detections/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/generic-detections.txt
 	startFunction  "Nuclei CVEs Detection"
-	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -o "$NUCLEISCAN"/cve.txt
+	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/cve.txt
+	startFunction  "Nuclei default-creds Check"
+	nuclei -l "$SUBS"/hosts -t default-credentials/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/default-creds.txt
 	startFunction  "Nuclei dns check"
-	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -o "$NUCLEISCAN"/dns.txt
+	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/dns.txt
 	startFunction  "Nuclei files check"
-	nuclei -l "$SUBS"/hosts -t files/ -c 50 -o "$NUCLEISCAN"/files.txt
+	nuclei -l "$SUBS"/hosts -t files/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/files.txt
 	startFunction  "Nuclei Panels Check"
-	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -o "$NUCLEISCAN"/panels.txt
+	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/panels.txt
 	startFunction  "Nuclei Security-misconfiguration Check"
-	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -o "$NUCLEISCAN"/security-misconfiguration.txt
+	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/security-misconfiguration.txt
 	startFunction  "Nuclei Technologies Check"
-	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -o "$NUCLEISCAN"/technologies.txt
+	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/technologies.txt
 	startFunction  "Nuclei Tokens Check"
-	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -o "$NUCLEISCAN"/tokens.txt
+	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/tokens.txt
 	startFunction  "Nuclei Vulnerabilties Check"
-	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -o "$NUCLEISCAN"/vulnerabilties.txt
+	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/vulnerabilties.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
@@ -279,23 +270,41 @@ makePage() {
 
 notifySlack() {
 	startFunction "Trigger Slack Notification"
-	takeover="$(cat $SUBS/takeovers | wc -l)"
+	source "$HOME"/ReconPi/configs/tokens.txt
+	export SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL"
+	echo -e "ReconPi $domain scan completed!" | slackcat
 	totalsum=$(cat $SUBS/hosts | wc -l)
-  	intfiles=$(cat $NUCLEISCAN/*.txt | wc -l)
-	nucleiCveScan="$(cat $NUCLEISCAN/cve.txt)"
-	nucleiFileScan="$(cat $NUCLEISCAN/files.txt)"
+	echo -e "$totalsum live subdomain hosts discovered" | slackcat
 
-	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$totalsum' live hosts for '$domain'"}' $slack_url 2 > /dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$intfiles' interesting files using nuclei"}' $slack_url 2 > /dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data '{"text":"Found '$takeover' subdomain takeovers on '$domain'"}' $slack_url 2 > /dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'CVEs found for $domain: \n $nucleiCveScan'}" $slack_url 2>/dev/null
-	curl -s -X POST -H 'Content-type: application/json' --data "{'text':'Files for $domain: \n $nucleiFileScan'}" $slack_url 2>/dev/null
+	posibbletko="$(cat $SUBS/takeovers | wc -l)"
+	if [ -s "$SUBS/takeovers" ]
+		then
+        echo -e "Found $posibbletko possible subdomain takeovers." | slackcat
+	else
+        echo "No subdomain takeovers found." | slackcat
+	fi
+
+	if [ -f "$NUCLEISCAN/cve.txt" ]; then
+	echo "CVE's discovered:" | slackcat
+    cat "$NUCLEISCAN/cve.txt" | slackcat
+		else 
+    echo -e "No CVE's discovered." | slackcat
+	fi
+
+	if [ -f "$NUCLEISCAN/files.txt" ]; then
+	echo "files discovered:" | slackcat
+    cat "$NUCLEISCAN/files.txt" | slackcat
+		else 
+    echo -e "No files discovered." | slackcat
+	fi
+
 	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Execute the main functions'
 
 source "$HOME"/ReconPi/configs/tokens.txt || return
+export SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL"
 
 displayLogo
 checkArguments
@@ -307,6 +316,7 @@ getCNAME
 gatherIPs
 gatherScreenshots
 startMeg
+startGfScan
 #fetchArchive
 #fetchEndpoints
 runNuclei
