@@ -180,23 +180,23 @@ golangTools() {
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei
 	echo -e "[$GREEN+$RESET] Done."
 
-        echo -e "[$GREEN+$RESET] Installing cf-check"
+    echo -e "[$GREEN+$RESET] Installing cf-check"
 	go get -u github.com/dwisiswant0/cf-check
 	echo -e "[$GREEN+$RESET] Done."
 
-        echo -e "[$GREEN+$RESET] Installing dalfox"
+    echo -e "[$GREEN+$RESET] Installing dalfox"
 	GO111MODULE=on go get -u -v github.com/hahwul/dalfox
 	echo -e "[$GREEN+$RESET] Done."
 
-        echo -e "[$GREEN+$RESET] Installing hakrawler"
+    echo -e "[$GREEN+$RESET] Installing hakrawler"
 	go get -u -v github.com/hakluke/hakrawler
 	echo -e "[$GREEN+$RESET] Done."
 
-        echo -e "[$GREEN+$RESET] Installing naabu"
+    echo -e "[$GREEN+$RESET] Installing naabu"
 	GO111MODULE=on go get -u -v github.com/projectdiscovery/naabu/cmd/naabu
 	echo -e "[$GREEN+$RESET] Done."
 
-        echo -e "[$GREEN+$RESET] Installing chaos"
+    echo -e "[$GREEN+$RESET] Installing chaos"
 	GO111MODULE=on go get -u github.com/projectdiscovery/chaos-client/cmd/chaos
 	echo -e "[$GREEN+$RESET] Done."
 
@@ -379,15 +379,6 @@ additionalTools() {
 	else
 		cd "$HOME"/tools/ || return
 		git clone https://github.com/danielmiessler/SecLists.git
-		echo -e "[$GREEN+$RESET] Done."
-	fi
-
-	echo -e "[$GREEN+$RESET] Installing naabu2nmap wrapper script.."
-	if [ -e "$HOME"/tools/naabu2nmap.sh ]; then
-		echo -e "[$GREEN+$RESET] Already installed."
-	else
-		wget https://raw.githubusercontent.com/maverickNerd/naabu/master/scripts/naabu2nmap.sh -O "$HOME"/tools/naabu2nmap.sh
-		chmod +x "$HOME"/tools/naabu2nmap.sh
 		echo -e "[$GREEN+$RESET] Done."
 	fi
 
