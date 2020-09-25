@@ -211,6 +211,10 @@ golangTools() {
 	echo -e "[$GREEN+$RESET] Installing slackcat"
 	go get -u github.com/dwisiswant0/slackcat
 	echo -e "[$GREEN+$RESET] Done."
+
+    echo -e "[$GREEN+$RESET] Installing github-subdomains"
+	go get -u github.com/gwen001/github-subdomains
+	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Additional tools'
@@ -322,16 +326,6 @@ additionalTools() {
 		wget https://github.com/Edu4rdSHL/findomain/releases/latest/download/findomain-aarch64 -O "$HOME"/tools/findomain
 		chmod +x "$HOME"/tools/findomain
 		sudo cp "$HOME"/tools/findomain /usr/local/bin
-		echo -e "[$GREEN+$RESET] Done."
-	fi
-
-	echo -e "[$GREEN+$RESET] Installing github-subdomains.py.."
-	if [ -e "$HOME"/tools/github-subdomains.py ]; then
-		echo -e "[$GREEN+$RESET] Already installed."
-	else
-		cd "$HOME"/tools/ || return
-		pip3 install colored
-		wget https://raw.githubusercontent.com/gwen001/github-search/master/github-subdomains.py
 		echo -e "[$GREEN+$RESET] Done."
 	fi
 
