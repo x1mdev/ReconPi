@@ -17,7 +17,6 @@ SUBS="$RESULTDIR/subdomains"
 DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
 IPS="$RESULTDIR/ips"
-GFSCAN="$RESULTDIR/gfscan"
 PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
 VERSION="2.2"
@@ -206,18 +205,6 @@ startMeg() {
 	cd "$HOME" || return
 }
 
-: 'Use gf to find secrets in meg file'
-startGfScan(){
-	startFunction "Gf scan in meg files"
-	cd "$SUBS"/meg
-	for i in `gf -list`; 
-	do
-		gf ${i} > "$GFSCAN"/"${i}".txt
-		[[ -s "$GFSCAN"/"${i}".txt ]] || rm "$GFSCAN"/"${i}".txt	
-	done
-	cd -
-}
-
 : 'directory brute-force'
 startBruteForce() {
 	startFunction "directory brute-force"
@@ -311,7 +298,6 @@ getCNAME
 gatherIPs
 gatherScreenshots
 startMeg
-startGfScan
 #fetchArchive
 #fetchEndpoints
 runNuclei
