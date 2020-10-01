@@ -73,9 +73,9 @@ CHAOS_KEY=""
 hackerhandle="reconpi"
 ```
 
-## Config Files
+## Config Files (Note: config file for amass, subfinder and naabu are stored inside ReconPi/configs/ folder, provide your api keys in these files)
 
-** Input your API keys in these files to get better results **
+**Input your API keys in these files to get better results**
 
 Subfinder Config file path : $HOME/ReconPi/configs/config.yaml
 
