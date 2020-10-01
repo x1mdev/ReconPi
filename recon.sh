@@ -16,6 +16,7 @@ SCREENSHOTS="$RESULTDIR/screenshots"
 SUBS="$RESULTDIR/subdomains"
 DIRSCAN="$RESULTDIR/directories"
 HTML="$RESULTDIR/html"
+GFSCAN="$RESULTDIR/gfscan"
 IPS="$RESULTDIR/ips"
 PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
@@ -205,6 +206,14 @@ startMeg() {
 	cd "$HOME" || return
 }
 
+: 'Use gf to find secrets in responses'
+startGfScan() {
+	startFunction "Checking for secrets using gf"
+	cd "$SUBS"/meg || return
+	for i in `gf -list`; do [[ ${i} =~ "_secrets"* ]] && gf ${i} >> "$GFSCAN"/"${i}".txt; done
+	cd "$HOME" || return
+}
+
 : 'directory brute-force'
 startBruteForce() {
 	startFunction "directory brute-force"
@@ -300,6 +309,7 @@ gatherScreenshots
 startMeg
 #fetchArchive
 #fetchEndpoints
+startGfScan
 runNuclei
 portScan
 #makePage
