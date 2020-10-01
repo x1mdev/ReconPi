@@ -138,6 +138,8 @@ golangTools() {
 	cd "$HOME"/tools/ || return
 	git clone https://github.com/1ndianl33t/Gf-Patterns
 	cp ~/Gf-Patterns/*.json ~/.gf
+	git clone https://github.com/dwisiswant0/gf-secrets
+	cp "$HOME"/tools/gf-secrets/.gf/*.json ~/.gf
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing anew.."
