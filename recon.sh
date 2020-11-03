@@ -292,6 +292,41 @@ notifySlack() {
 	echo -e "[$GREEN+$RESET] Done."
 }
 
+notifyDiscord() {
+	startFunction "Trigger Discord Notification"
+	intfiles=$(cat $NUCLEISCAN/*.txt | wc -l)
+
+	source "$HOME"/ReconPi/configs/tokens.txt
+	export DISCORD_WEBHOOK_URL="$DISCORD_WEBHOOK_URL"
+
+	totalsum=$(cat $SUBS/hosts | wc -l)
+	message="**$domain scan completed!\n $totalsum live hosts discovered.**\n"
+
+	if [ -s "$SUBS/takeovers" ]
+	then
+			posibbletko="$(cat $SUBS/takeovers | wc -l)"
+			message+="**Found $posibbletko possible subdomain takeovers.**\n"
+	else
+			message+="**No subdomain takovers found.**\n"
+	fi
+
+	cd $NUCLEISCAN
+	for file in *.txt
+	do
+		if [ -s "$file" ]
+		then
+			fileName=$(basename ${file%%.*})
+			fileNameUpper="$(tr '[:lower:]' '[:upper:]' <<< ${fileName:0:1})${fileName:1}"
+			nucleiData="$(jq -Rs . <$file | cut -c 2- | rev | cut -c 2- | rev)"
+			message+="**$fileNameUpper discovered:**\n "$nucleiData"\n"
+		fi
+	done
+
+	python3 $HOME/ReconPi/scripts/webhook_Discord.py <<< $(echo "$message")
+
+	echo -e "[$GREEN+$RESET] Done."
+}
+
 : 'Execute the main functions'
 
 source "$HOME"/ReconPi/configs/tokens.txt || return
@@ -314,5 +349,6 @@ runNuclei
 portScan
 #makePage
 notifySlack
+notifyDiscord
 
 # Uncomment the functions
