@@ -1,5 +1,6 @@
 github_subdomains_token=""
 SLACK_WEBHOOK_URL="https://hooks.slack.com/services/xxx/xxx/xxx"
+DISCORD_WEBHOOK_URL="https://discordapp.com/api/webhooks/xxx/xxx"
 findomain_spyse_token=""
 findomain_virustotal_token=""
 findomain_securitytrails_token=""

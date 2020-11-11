@@ -391,6 +391,10 @@ additionalTools() {
 	git clone https://github.com/FortyNorthSecurity/EyeWitness.git
 	sudo bash "$HOME"/tools/EyeWitness/Python/setup/setup.sh
 	echo -e "[$GREEN+$RESET] Done."
+
+	echo -e "[$GREEN+$RESET] Installing Discord.py.."
+	sudo python3 -m pip install -U discord.py
+	echo -e "[$GREEN+$RESET] Done."
 }
 
 : 'Dashboard setup'
