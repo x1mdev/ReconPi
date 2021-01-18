@@ -14,13 +14,11 @@ RESULTDIR="$HOME/assets/$domain"
 WORDLIST="$RESULTDIR/wordlists"
 SCREENSHOTS="$RESULTDIR/screenshots"
 SUBS="$RESULTDIR/subdomains"
-DIRSCAN="$RESULTDIR/directories"
-HTML="$RESULTDIR/html"
 GFSCAN="$RESULTDIR/gfscan"
 IPS="$RESULTDIR/ips"
 PORTSCAN="$RESULTDIR/portscan"
 ARCHIVE="$RESULTDIR/archive"
-VERSION="2.2"
+VERSION="2.3"
 NUCLEISCAN="$RESULTDIR/nucleiscan"
 
 
@@ -48,7 +46,7 @@ __________                          __________.__
 checkDirectories() {
 		echo -e "[$GREEN+$RESET] Creating directories and grabbing wordlists for $GREEN$domain$RESET.."
 		mkdir -p "$RESULTDIR"
-		mkdir -p "$SUBS" "$SCREENSHOTS" "$DIRSCAN" "$HTML" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$GFSCAN"
+		mkdir -p "$SUBS" "$SCREENSHOTS" "$WORDLIST" "$IPS" "$PORTSCAN" "$ARCHIVE" "$NUCLEISCAN" "$GFSCAN"
 }
 
 startFunction() {
@@ -58,7 +56,7 @@ startFunction() {
 
 : 'Gather resolvers'
 gatherResolvers() {
-	startFunction "Get fresh working resolvers"
+	startFunction "Downloading fresh resolvers"
 	wget https://raw.githubusercontent.com/janmasarik/resolvers/master/resolvers.txt -O "$IPS"/resolvers.txt
 }
 
@@ -100,16 +98,19 @@ gatherSubdomains() {
 	github-subdomains -t $github_subdomains_token -d "$domain" | sort -u >> "$SUBS"/github_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
-	startFunction  rapiddns
+	startFunction "rapiddns"
 	crobat -s "$domain" | sort -u | tee "$SUBS"/rapiddns_subdomains.txt
 	echo -e "[$GREEN+$RESET] Done, next."
 
 	echo -e "[$GREEN+$RESET] Combining and sorting results.."
 	cat "$SUBS"/*.txt | sort -u >"$SUBS"/subdomains
-	echo -e "[$GREEN+$RESET] Resolving subdomains.."
-	cat "$SUBS"/subdomains | sort -u | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
-	echo -e "[$GREEN+$RESET] Getting alive hosts.."
-	cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
+
+	#echo -e "[$GREEN+$RESET] Resolving subdomains.." # skip for now, httpx will resolve?
+	#cat "$SUBS"/subdomains-enum | shuffledns -silent -d "$domain" -r "$IPS"/resolvers.txt > "$SUBS"/alive_subdomains
+	echo -e "[$GREEN+$RESET] Getting alive hosts.." # check this part (httpx?)
+	#new# maybe more ports with httpx?
+	httpx -l "$SUBS"/subdomains -silent -threads 9000 -timeout 30 | anew "$SUBS"/hosts
+	#old# cat "$SUBS"/alive_subdomains | "$HOME"/go/bin/httprobe -prefer-https | tee "$SUBS"/hosts
 	echo -e "[$GREEN+$RESET] Done."
 }
 
@@ -130,9 +131,9 @@ checkTakeovers() {
 		echo -e "[$GREEN+$RESET] No takeovers found."
 	fi
 
-	startFunction "nuclei to check takeover"
-	cat "$SUBS"/hosts | nuclei -t subdomain-takeover/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
-	vulnto=$(cat "$SUBS"/nuclei-takeover-checks.txt)
+	startFunction "nuclei subdomain takeover check"
+	nuclei -l "$SUBS"/hosts -t takeovers/ -c 50 -o "$SUBS"/nuclei-takeover-checks.txt
+ 	vulnto=$(cat "$SUBS"/nuclei-takeover-checks.txt)
 	if [[ $vulnto != "" ]]; then
 		echo -e "[$GREEN+$RESET] Possible subdomain takeovers:"
 		for line in "$SUBS"/nuclei-takeover-checks.txt; do
@@ -157,25 +158,22 @@ gatherIPs() {
 	echo -e "[$GREEN+$RESET] Done."
 }
 
+# check this. also, when running this it takes a lot of time (-p -), even with 4 ports)
 : 'Portscan on found IP addresses'
 portScan() {
 	startFunction  "Port Scan"
-	cat "$SUBS"/alive_subdomains | naabu -p - -silent -no-probe -exclude-cdn -nmap -config "$HOME"/ReconPi/configs/naabu.conf
+	cd "$PORTSCAN" || return
+	cat "$IPS"/"$domain"-origin-ips.txt | naabu -p - -silent -exclude-cdn -nmap -config "$HOME"/ReconPi/configs/naabu.conf -o "$PORTSCAN"/naabu
     mv reconpi-nmap* "$PORTSCAN"
+	cd - || return
 	echo -e "[$GREEN+$RESET] Port Scan finished"
 }
 
-: 'Use eyewitness to gather screenshots'
+: 'Use aquatone to gather screenshots'
 gatherScreenshots() {
-	startFunction "Screenshot Gathering"
-# Bug in aquatone, once it gets fixed, will enable aquatone on x86 also.
-	arch=`uname -m`
-	if [[ "$arch" == "x86_64" ]]; then
-        python3 $HOME/tools/EyeWitness/Python/EyeWitness.py -f "$SUBS"/hosts --no-prompt -d "$SCREENSHOTS"
-    else
-        "$HOME"/go/bin/aquatone -http-timeout 10000 -out "$SCREENSHOTS" <"$SUBS"/hosts
-    fi
-	echo -e "[$GREEN+$RESET] Screenshot Gathering finished"
+	startFunction "aquatone"
+    cat "$SUBS"/hosts | aquatone -http-timeout 10000 -ports xlarge -out "$SCREENSHOTS"
+	echo -e "[$GREEN+$RESET] Aquatone finished"
 }
 
 fetchArchive() {
@@ -197,6 +195,7 @@ fetchEndpoints() {
 	done
 	echo -e "[$GREEN+$RESET] fetchEndpoints finished"
 }
+
 : 'Gather information with meg'
 startMeg() {
 	startFunction "meg"
@@ -206,11 +205,11 @@ startMeg() {
 	cd "$HOME" || return
 }
 
-: 'Use gf to find secrets in responses'
-startGfScan() {
-	startFunction "Checking for secrets using gf"
-	cd "$SUBS"/meg || return
-	for i in `gf -list`; do [[ ${i} =~ "_secrets"* ]] && gf ${i} >> "$GFSCAN"/"${i}".txt; done
+#this is a bit messy
+: 'Check open redirects'
+startOpenRedirect() {
+	startFunction "gf open redirect"
+	cat "$SUBS"/hosts | waybackurls | httpx -silent -timeout 2 -threads 100 | gf redirect | anew "$RESULTDIR"/openredirects.txt 
 	cd "$HOME" || return
 }
 
@@ -221,76 +220,98 @@ startBruteForce() {
 	cat "$SUBS"/hosts | parallel -j 5 --bar --shuf gobuster dir -u {} -t 50 -w wordlist.txt -l -e -r -k -q -o "$DIRSCAN"/"$sub".txt
 	"$HOME"/go/bin/gobuster dir -u "$line" -w "$WORDLIST"/wordlist.txt -e -q -k -n -o "$DIRSCAN"/out.txt
 }
+
+: 'Use gf to find secrets in responses'
+startGfScan() {
+	startFunction "Checking for secrets using gf"
+	cd "$SUBS"/meg || return
+	for i in `gf -list`; do [[ ${i} =~ "_secrets"* ]] && gf ${i} >> "$GFSCAN"/"${i}".txt; done
+	cd "$HOME" || return
+}
+
 : 'Check for Vulnerabilities'
 runNuclei() {
-	startFunction  "Nuclei Basic-detections"
-	nuclei -l "$SUBS"/hosts -t generic-detections/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/generic-detections.txt
 	startFunction  "Nuclei CVEs Detection"
 	nuclei -l "$SUBS"/hosts -t cves/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/cve.txt
-	startFunction  "Nuclei default-creds Check"
-	nuclei -l "$SUBS"/hosts -t default-credentials/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/default-creds.txt
-	startFunction  "Nuclei dns check"
-	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/dns.txt
-	startFunction  "Nuclei files check"
-	nuclei -l "$SUBS"/hosts -t files/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/files.txt
+	startFunction  "Nuclei Vulnerabilties Check"
+	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/vulnerabilties.txt
+	startFunction  "Nuclei default logins Check"
+	nuclei -l "$SUBS"/hosts -t default-logins/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/default-logins.txt
+	startFunction  "Nuclei exposures Check"
+	nuclei -l "$SUBS"/hosts -t exposures/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/exposures.txt
+	startFunction  "Nuclei miscellaneous check"
+	nuclei -l "$SUBS"/hosts -t miscellaneous/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/miscellaneous.txt
 	startFunction  "Nuclei Panels Check"
-	nuclei -l "$SUBS"/hosts -t panels/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/panels.txt
-	startFunction  "Nuclei Security-misconfiguration Check"
-	nuclei -l "$SUBS"/hosts -t security-misconfiguration/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/security-misconfiguration.txt
+	nuclei -l "$SUBS"/hosts -t exposed-panels/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/panels.txt
+	startFunction  "Nuclei Misconfiguration Check"
+	nuclei -l "$SUBS"/hosts -t misconfiguration/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/misconfiguration.txt
 	startFunction  "Nuclei Technologies Check"
 	nuclei -l "$SUBS"/hosts -t technologies/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/technologies.txt
 	startFunction  "Nuclei Tokens Check"
-	nuclei -l "$SUBS"/hosts -t tokens/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/tokens.txt
-	startFunction  "Nuclei Vulnerabilties Check"
-	nuclei -l "$SUBS"/hosts -t vulnerabilities/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/vulnerabilties.txt
+	nuclei -l "$SUBS"/hosts -t exposed-tokens/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/tokens.txt
+	startFunction  "Nuclei dns check"
+	nuclei -l "$SUBS"/hosts -t dns/ -c 50 -H "x-bug-bounty: $hackerhandle" -o "$NUCLEISCAN"/dns.txt
 	echo -e "[$GREEN+$RESET] Nuclei Scan finished"
 }
 
-: 'Setup screenshot results on the target IP address'
-makePage() {
-	startFunction "HTML webpage"
-	cd /var/www/html/ || return
-	sudo chmod -R 755 .
-	sudo cp -r "$SCREENSHOTS" /var/www/html/$domain
-	sudo chmod a+r -R /var/www/html/$domain/*
-	cd "$HOME" || return
-	echo -e "[$GREEN+$RESET] Scan finished, start doing some manual work ;)"
-	echo -e "[$GREEN+$RESET] The screenshot results page, nuclei results directory and the meg results directory are great points!"
-	echo -e "[$GREEN+$RESET] screenshot results page: http://$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n 1)/$domain/screenshots/report.html"
-}
-
 notifySlack() {
-	startFunction "Trigger Slack Notification"
+	startFunction "Slack Notifications"
 	source "$HOME"/ReconPi/configs/tokens.txt
 	export SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL"
-	echo -e "ReconPi $domain scan completed!" | slackcat
+	echo -e "ReconPi $domain scan completed!" | slackcat -c scanner -s -u ReconPi -t
 	totalsum=$(cat $SUBS/hosts | wc -l)
-	echo -e "$totalsum live subdomain hosts discovered" | slackcat
+	echo -e "$totalsum live subdomain hosts discovered" | slackcat -c scanner -s -u ReconPi -t
+
+	# maybe add the results from gfscan as well
 
 	posibbletko="$(cat $SUBS/takeovers | wc -l)"
 	if [ -s "$SUBS/takeovers" ]
 		then
-        echo -e "Found $posibbletko possible subdomain takeovers." | slackcat
+        echo -e "Found $posibbletko possible subdomain takeovers." | slackcat -c scanner -s -u ReconPi -t
 	else
-        echo "No subdomain takeovers found." | slackcat
+        echo "No subdomain takeovers found." | slackcat -c scanner -s -u ReconPi -t
 	fi
 
 	if [ -f "$NUCLEISCAN/cve.txt" ]; then
-	echo "CVE's discovered:" | slackcat
-    cat "$NUCLEISCAN/cve.txt" | slackcat
+	echo "CVE's discovered:" | slackcat -c scanner -s -u ReconPi -t
+    cat "$NUCLEISCAN/cve.txt" | slackcat -c scanner -s -u ReconPi -t
 		else 
-    echo -e "No CVE's discovered." | slackcat
+    echo -e "No CVE's discovered." | slackcat -c scanner -s -u ReconPi -t
 	fi
 
-	if [ -f "$NUCLEISCAN/files.txt" ]; then
-	echo "files discovered:" | slackcat
-    cat "$NUCLEISCAN/files.txt" | slackcat
+	if [ -f "$NUCLEISCAN/exposures.txt" ]; then
+	echo "exposures discovered:" | slackcat -c scanner -s -u ReconPi -t
+    cat "$NUCLEISCAN/exposures.txt" | slackcat -c scanner -s -u ReconPi -t
 		else 
-    echo -e "No files discovered." | slackcat
+    echo -e "No exposures discovered." | slackcat -c scanner -s -u ReconPi -t
+	fi
+
+	if [ -f "$NUCLEISCAN/miscellaneous.txt" ]; then
+	echo "miscellaneous stuff discovered:" | slackcat -c scanner -s -u ReconPi -t
+    cat "$NUCLEISCAN/miscellaneous.txt" | slackcat -c scanner -s -u ReconPi -t
+		else 
+    echo -e "No miscellaneous stuff discovered." | slackcat -c scanner -s -u ReconPi -t
+	fi
+
+	if [ -f "$NUCLEISCAN/vulnerabilties.txt" ]; then
+	echo "vulnerabilties discovered:" | slackcat -c scanner -s -u ReconPi -t
+    cat "$NUCLEISCAN/vulnerabilties.txt" | slackcat -c scanner -s -u ReconPi -t
+		else 
+    echo -e "No vulnerabilties discovered." | slackcat -c scanner -s -u ReconPi -t
+	fi
+
+	if [ -f "$NUCLEISCAN/default-logins.txt" ]; then
+	echo "default logins discovered:" | slackcat -c scanner -s -u ReconPi -t
+    cat "$NUCLEISCAN/default-logins.txt" | slackcat -c scanner -s -u ReconPi -t
+		else 
+    echo -e "No default logins discovered." | slackcat -c scanner -s -u ReconPi -t
 	fi
 
 	echo -e "[$GREEN+$RESET] Done."
+
 }
+
+# difference between slack and discord?
 
 notifyDiscord() {
 	startFunction "Trigger Discord Notification"
@@ -344,11 +365,13 @@ gatherScreenshots
 startMeg
 #fetchArchive
 #fetchEndpoints
+#startOpenRedirect work in progress
 startGfScan
 runNuclei
-portScan
+#portScan disabled this for now
 #makePage
 notifySlack
-notifyDiscord
+#notifyDiscord 
+### Uncomment notigyDiscord to use it, vice versa for notifySlack
 
 # Uncomment the functions
