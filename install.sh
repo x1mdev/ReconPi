@@ -6,8 +6,8 @@
 '
 
 : 'Set the main variables'
-YELLOW="\033[133m"
-GREEN="\033[032m"
+YELLOW="\033[1;33m"
+GREEN="\033[0;32m"
 RESET="\033[0m"
 VERSION="2.2"
 
