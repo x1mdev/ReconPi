@@ -199,6 +199,7 @@ golangTools() {
 	echo -e "[$GREEN+$RESET] Done."
 
     echo -e "[$GREEN+$RESET] Installing chaos"
+    
 	GO111MODULE=on go get -u github.com/projectdiscovery/chaos-client/cmd/chaos
 	echo -e "[$GREEN+$RESET] Done."
 
