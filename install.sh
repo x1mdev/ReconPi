@@ -325,7 +325,7 @@ additionalTools() {
 		sudo cp "$HOME"/tools/findomain /usr/local/bin
 		echo -e "[$GREEN+$RESET] Done."
 	else
-		wget https://github.com/Edu4rdSHL/findomain/releases/latest/download/findomain-aarch64 -O "$HOME"/tools/findomain
+		wget https://github.com/Findomain/Findomain/releases/latest/download/findomain-rpi -O "$HOME"/tools/findomain
 		chmod +x "$HOME"/tools/findomain
 		sudo cp "$HOME"/tools/findomain /usr/local/bin
 		echo -e "[$GREEN+$RESET] Done."
