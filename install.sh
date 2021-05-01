@@ -310,7 +310,7 @@ additionalTools() {
 		cd "$HOME"/tools/ || return
 		git clone https://github.com/yassineaboukir/sublert.git
 		cd "$HOME"/tools/sublert || return
-		sudo apt-get install -y libpq-dev dnspython psycopg2 tld termcolor
+		sudo apt-get install -y libpq-dev dnspython python3-psycopg2 tld termcolor
 		pip3 install -r requirements.txt --user
 		echo -e "[$GREEN+$RESET] Done."
 	fi
