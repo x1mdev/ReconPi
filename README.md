@@ -8,7 +8,7 @@ __________                          __________.__
  |____|_  /\___  >\___  >____/|___|  /____|   |__|
         \/     \/     \/           \/             
                             
-			v2.2 - @x1m_martijn 
+			v2.3 - @x1m_martijn 
 ```
 
 ReconPi - A lightweight recon tool that performs extensive reconnaissance with the latest tools using a Raspberry Pi.
@@ -16,6 +16,8 @@ ReconPi - A lightweight recon tool that performs extensive reconnaissance with t
 Start using that Raspberry Pi -- I know you all have one laying around somewhere ;)
 
 > Since version 2.1 ReconPi is usable on your VPS, thanks to [Sachin Grover](https://github.com/mavericknerd) for putting in a lot of work.
+
+We recommend using [axiom](https://github.com/pry0cc/axiom) for setting up your VPS infrastructure.
 
 The latest [HypriotOS](https://blog.hypriot.com/downloads/) image works perfect for Raspberry Pi's!
 
@@ -33,7 +35,7 @@ Curl the `install.sh` script and run it:
 Connect to your system with SSH:
 
 
-`$ ssh pirate@192.168.2.16 [Edit IP address if needed]`
+`$ ssh pirate@192.168.2.16 [Edit IP address/username if needed]`
 
 Now we can set up everything, it's quite simple:
 
@@ -57,9 +59,9 @@ $ recon <domain.tld>
 
 Finally the live targets will be screenshotted and evaluated to discover endpoints.
 
-Results will be stored on the Recon Pi and can be viewed by running `python -m SimpleHTTPServer 1337" in your results directory. Your results will be accessible from any system with a browser that exists in the same network. 
+Results will be stored on the server and can be viewed by running `python -m SimpleHTTPServer 1337" in your results directory. Your results will be accessible from any system with a browser that exists in the same network. 
 
-Make sure to add your SLACK token to the tokens.txt file if you want to get slack notification after the completion of recon process.
+Make sure to add your communication (Slack/Discord) tokens to the tokens.txt file if you want to get a notification with the discovered assets after recon process ends.
 
 ## Sample Token.txt ($HOME/ReconPi/configs/tokens.txt)
 

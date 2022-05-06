@@ -9,7 +9,7 @@
 YELLOW="\033[133m"
 GREEN="\033[032m"
 RESET="\033[0m"
-VERSION="2.2"
+VERSION="2.3"
 
 : 'Display the logo'
 displayLogo() {
@@ -45,9 +45,6 @@ __________                          __________.__
 		sudo apt install -y lua5.1 alsa-utils libpq5
 		sudo apt-get autoremove -y
 		sudo apt clean
-		#echo -e "[$GREEN+$RESET] Stopping Docker service.."
-		#sudo systemctl disable docker.service
-		#sudo systemctl disable docker.socket
 		echo -e "[$GREEN+$RESET] Creating directories.."
 		mkdir -p "$HOME"/tools
 		mkdir -p "$HOME"/go
@@ -73,25 +70,25 @@ golangInstall() {
 		echo -e "[$GREEN+$RESET] Done."
 	fi
 
-	echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.bashrc.."
+	echo -e "[$GREEN+$RESET] Adding recon alias & Golang to "$HOME"/.zshrc.."
 	sleep 1
-	configfile="$HOME"/.bashrc
+	configfile="$HOME"/.zshrc
 
 	if [ "$(cat "$configfile" | grep '^export GOPATH=')" == "" ]; then
-		echo export GOPATH='$HOME'/go >>"$HOME"/.bashrc
+		echo export GOPATH='$HOME'/go >>"$HOME"/.zshrc
 	fi
 
 	if [ "$(echo $PATH | grep $GOPATH)" == "" ]; then
-		echo export PATH='$PATH:$GOPATH'/bin >>"$HOME"/.bashrc
+		echo export PATH='$PATH:$GOPATH'/bin >>"$HOME"/.zshrc
 	fi
 
 	if [ "$(cat "$configfile" | grep '^alias recon=')" == "" ]; then
-		echo "alias recon=$HOME/ReconPi/recon.sh" >>"$HOME"/.bashrc
+		echo "alias recon=$HOME/ReconPi/recon.sh" >>"$HOME"/.zshrc
 	fi
 
 	bash /etc/profile.d/golang_path.sh
 
-	source "$HOME"/.bashrc
+	source "$HOME"/.zshrc
 
 	cd "$HOME" || return
 	echo -e "[$GREEN+$RESET] Golang has been configured."
@@ -133,7 +130,7 @@ golangTools() {
 
 	echo -e "[$GREEN+$RESET] Installing gf.."
 	go get -u -v github.com/tomnomnom/gf
-	echo 'source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.bash' >> ~/.bashrc
+	echo 'source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.zsh' >> ~/.zshrc
 	cp -r $GOPATH/src/github.com/tomnomnom/gf/examples ~/.gf
 	cd "$HOME"/tools/ || return
 	git clone https://github.com/1ndianl33t/Gf-Patterns
@@ -175,7 +172,9 @@ golangTools() {
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing dnsprobe.."
-	GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe
+	# something went wrong with -u? no idea
+	#GO111MODULE=on go get -u -v github.com/projectdiscovery/dnsprobe
+	GO111MODULE=on go get -v github.com/projectdiscovery/dnsprobe
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing nuclei.."
@@ -211,7 +210,10 @@ golangTools() {
 	echo -e "[$GREEN+$RESET] Done."
 
 	echo -e "[$GREEN+$RESET] Installing slackcat"
-	go get -u github.com/dwisiswant0/slackcat
+	cd "$HOME"/tools || return
+	curl -Lo slackcat https://github.com/bcicen/slackcat/releases/download/v1.6/slackcat-1.6-$(uname -s)-amd64
+	sudo mv slackcat /usr/local/bin/
+	sudo chmod +x /usr/local/bin/slackcat
 	echo -e "[$GREEN+$RESET] Done."
 
     echo -e "[$GREEN+$RESET] Installing github-subdomains"
@@ -386,12 +388,6 @@ additionalTools() {
 	pip install py-altdns
 	echo -e "[$GREEN+$RESET] Done."
 
-	echo -e "[$GREEN+$RESET] Installing Eyewitness.."
-	cd "$HOME"/tools/ || return
-	git clone https://github.com/FortyNorthSecurity/EyeWitness.git
-	sudo bash "$HOME"/tools/EyeWitness/Python/setup/setup.sh
-	echo -e "[$GREEN+$RESET] Done."
-
 	echo -e "[$GREEN+$RESET] Installing Discord.py.."
 	sudo python3 -m pip install -U discord.py
 	echo -e "[$GREEN+$RESET] Done."
@@ -409,8 +405,10 @@ setupDashboard() {
 finalizeSetup() {
 	echo -e "[$GREEN+$RESET] Finishing up.."
 	displayLogo
-	source "$HOME"/.bashrc || return
-	echo -e "[$GREEN+$RESET] Installation script finished! "
+	source "$HOME"/.zshrc || return
+	echo -e "[$GREEN+$RESET] Installation script finished!"
+	echo -e "[$GREEN+$RESET] Don't forget to run  slackcat --configure  if you are using Slack notifications."
+	# maybe make a prompt y/n to run the command
 }
 
 : 'Execute the main functions'
